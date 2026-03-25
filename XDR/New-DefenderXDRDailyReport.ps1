@@ -2205,7 +2205,7 @@ $HtmlKpiMDA = @"
 $HtmlKpiCustomDetections = @"
             <div class="kpi-card $Kpi_CustomDetectionsSeverityClass">
                 <div class="kpi-val">$Kpi_CustomDetections</div>
-                <div class="kpi-label">Detecciones Personalizadas ($($CustomDetectionsWindowHours)h)</div>
+                <div class="kpi-label">Detecciones Personalizadas</div>
                 <div class="kpi-severity">Máx: $Kpi_CustomDetectionsSeverityLabel</div>
             </div>
 "@
