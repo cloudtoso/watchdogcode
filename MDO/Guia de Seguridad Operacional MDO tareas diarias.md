@@ -8,6 +8,7 @@ Esta guía establece los procedimientos diarias para analizar tendencias, identi
 ## Índice
 - [Monitoreo de Alertas](#monitoreo-de-alertas)
 - [Monitoreo de Incidentes](#monitoreo-de-incidentes)
+- [Validar correos entregados con algún tipo de amenaza](#validar-correos-entregados-con-algún-tipo-de-amenaza)
 - [Triage de Mensajes de Teams Reportados por Usuarios](#triage-de-mensajes-de-teams-reportados-por-usuarios)
 - [Revisar y actuar sobre los AIRs (Investigación y Respuesta Automatizada)](#revisar-y-actuar-sobre-los-airs-investigación-y-respuesta-automatizada)
 - [Revisar las Tendencias de Detección de Correo en Microsoft Defender for Office 365](#revisar-las-tendencias-de-detección-de-correo-en-microsoft-defender-for-office-365)
@@ -59,6 +60,52 @@ Revisar columnas clave:
 * **Status** (Estado)
 * **Assigned to** (Asignado a)
 * **Tags** (Etiquetas)
+
+---
+
+# Validar correos entregados con algún tipo de amenaza
+
+## 1. Acceso al portal
+- Ir a: https://security.microsoft.com/v2/advanced-hunting
+- Iniciar sesión con un usuario que tenga alguno de los siguientes roles:
+  - **Global Administrator**
+  - **Privileged Role Administrator**
+
+## 2. Ejecutar consulta KQL
+Pegar la siguiente consulta en el panel **Query**:
+
+```kql
+EmailEvents
+| where DeliveryAction == "Delivered"
+| where ThreatTypes has_any ("Malware", "Pish", "spam")
+| project
+    Timestamp,
+    NetworkMessageId,
+    SenderFromAddress,
+    RecipientEmailAddress,
+    Subject,
+    ThreatTypes,
+    DetectionMethods,
+    AuthenticationDetails,
+    ConfidenceLevel,
+    DeliveryLocation
+| order by Timestamp desc
+```
+
+### Sugerencias de mejora
+- Revisa la ortografía: por ejemplo, *"Pish"* quizá debería ser *"Phish"*.
+- Considera agregar filtros de fecha para mejorar el rendimiento:
+  ```kql
+  | where Timestamp > ago(7d)
+  ```
+- Puedes agregar campos adicionales como `EmailClusterId` o `ReportId` si deseas más contexto.
+
+## 3. Ejecutar la consulta
+- Hacer clic en **Run query**.
+
+## 4. Revisar los resultados
+- Navegar a la pestaña **Results** para visualizar los eventos encontrados.
+
 
 ---
 
