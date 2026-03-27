@@ -11,7 +11,7 @@ Se requieren licencias que incluyan los servicios de Microsoft Defender XDR y Ex
 | Licencia recomendada | Servicios incluidos |
 |---|---|
 | Microsoft 365 E5 | MDE, MDO, MDI, MDA, Exchange Online |
-| Licencias independientes | Defender for Endpoint P2, Defender for Office 365 P2, Defender for Identity |
+| Licencias independientes | Defender for Cloud Apps, Defender for Endpoint P2, Defender for Identity, Defender for Office 365 P2 |
 
 > **Nota:** Sin estas licencias las tablas de Advanced Hunting (p. ej. `EmailEvents`, `AlertInfo`, `DeviceTvmSoftwareVulnerabilities`) estarán vacías y los reportes no mostrarán información.
 
@@ -21,8 +21,8 @@ Se requieren licencias que incluyan los servicios de Microsoft Defender XDR y Ex
 
 | Requisito | Detalle |
 |---|---|
-| **PowerShell** | 5.1 o superior (se recomienda PowerShell 7+) |
-| **Sistema Operativo** | Windows 10/11 o Windows Server 2016+ |
+| **PowerShell** | PowerShell 7+ Requerido |
+| **Sistema Operativo** | Windows 11 o Windows Server 2016+ |
 | **Privilegios de administrador** | Requerido únicamente para `Domain-Health-Check.ps1` (`#Requires -RunAsAdministrator`) |
 
 ---
@@ -33,11 +33,11 @@ Todos los scripts de reportería XDR/MDE se autentican contra la API de Microsof
 
 ### 3.1 Crear el App Registration
 
-1. Iniciar sesión en el portal de Azure: [https://portal.azure.com](https://portal.azure.com).
+1. Iniciar sesión en el portal de Azure: [https://entra.microsoft.com/](https://entra.microsoft.com/).
 2. Navegar a **Microsoft Entra ID** > **App registrations** > **+ New registration**.
 3. Configurar los campos:
    - **Name:** Un nombre descriptivo, por ejemplo `SecOps-Defender-Reports`.
-   - **Supported account types:** Seleccionar *Accounts in this organizational directory only (Single tenant)*.
+   - **Supported account types:** Seleccionar *Single tenant only - [Tenant]*.
    - **Redirect URI:** Dejar en blanco (no se requiere para autenticación con Client Secret).
 4. Hacer clic en **Register**.
 5. Una vez creado, en la página **Overview** del App Registration, copiar y guardar:
@@ -55,7 +55,7 @@ Todos los scripts de reportería XDR/MDE se autentican contra la API de Microsof
 
 > **Nota:** El botón de *Grant admin consent* requiere el rol de **Global Administrator** o **Privileged Role Administrator**.
 
-### 3.3 Crear un Client Secret
+### 3.3 Crear un Client Secret (Opcional)
 
 1. En el App Registration, ir a **Certificates & secrets** > **Client secrets** > **+ New client secret**.
 2. Configurar:
@@ -74,7 +74,7 @@ Una vez completados los pasos anteriores, debe tener los siguientes tres valores
 |---|---|---|
 | **Tenant ID** | App Registration > Overview > Directory (tenant) ID | `7cbaabe5-dbcd-431d-8ea3-826b85b28c2b` |
 | **Client ID** | App Registration > Overview > Application (client) ID | `846e446d-6748-4da8-924c-de9b9e3d60d4` |
-| **Client Secret** | App Registration > Certificates & secrets > Value | `2EV8Q~7vwnHG8f2pZTA3...` |
+| **Client Secret** (Opcional) | App Registration > Certificates & secrets > Value | `2EV8Q~7vwnHG8f2pZTA3...` |
 
 ### 3.5 Modos de autenticación soportados
 
