@@ -21,7 +21,7 @@ Se requieren licencias que incluyan los servicios de Microsoft Defender XDR y Ex
 
 | Requisito | Detalle |
 |---|---|
-| **PowerShell** | PowerShell 7+ Requerido |
+| **PowerShell** | PowerShell 7+ **Requerido** |
 | **Sistema Operativo** | Windows 11 o Windows Server 2016+ |
 | **Privilegios de administrador** | Requerido únicamente para `Domain-Health-Check.ps1` (`#Requires -RunAsAdministrator`) |
 
