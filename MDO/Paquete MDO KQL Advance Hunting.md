@@ -127,16 +127,52 @@ Detecta dominios "parecidos" a un dominio VIP o partner usando distancia de edic
 
 ```kql
 let lookback = 14d;
-let protectedDomains = dynamic(["contoso.com","fabrikam.com"]); // <-- dominios a proteger
+let protectedDomains = dynamic(["contoso.com","fabrikam.com"]); 
 EmailEvents
 | where Timestamp >= ago(lookback)
+| where isnotempty(SenderFromDomain)
 | where SenderFromDomain !in (protectedDomains)
-| extend Closest = tostring(protectedDomains[0])
-| mv-expand pd = protectedDomains
-| extend Distance = levenshtein_distance(SenderFromDomain, tostring(pd))
-| where Distance between (1 .. 2) // 1-2 cambios típicos
-| summarize Msgs = count(), Recipients = dcount(RecipientEmailAddress), FirstSeen = min(Timestamp), LastSeen = max(Timestamp), ExampleFrom = any(SenderFromAddress) by SenderFromDomain, ProtectedDomain=tostring(pd), Distance
-| order by Distance asc, Msgs desc
+| mv-expand ProtectedDomain = protectedDomains
+| extend ProtectedDomain = tostring(ProtectedDomain)
+//
+// Raíces del dominio (validado que existan antes de usarse)
+//
+| extend SenderRoot = tostring(split(SenderFromDomain, ".")[0])
+| extend ProtectedRoot = tostring(split(ProtectedDomain, ".")[0])
+//
+// Heurísticas de similitud permisivas (WIDE)
+//
+| extend LenDiff = abs(strlen(SenderRoot) - strlen(ProtectedRoot))
+| extend NormalizedSenderRoot = replace(@"0","o", SenderRoot)
+| extend NormalizedSenderRoot = replace(@"1","l", NormalizedSenderRoot)
+| extend NormalizedSenderRoot = replace(@"3","e", NormalizedSenderRoot)
+//
+// Lógica wide (muy permisiva)
+//
+| where 
+    LenDiff <= 3
+    or SenderRoot contains ProtectedRoot
+    or ProtectedRoot contains SenderRoot
+    or NormalizedSenderRoot contains ProtectedRoot
+    or ProtectedRoot contains NormalizedSenderRoot
+//
+// Aquí estaba el error → ProtectedDomain dynamic
+// YA corregido: tostring(ProtectedDomain)
+//
+| summarize
+    Msgs        = count(),
+    Recipients  = dcount(RecipientEmailAddress),
+    FirstSeen   = min(Timestamp),
+    LastSeen    = max(Timestamp),
+    ExampleFrom = any(SenderFromAddress)
+  by 
+    SenderFromDomain, 
+    ProtectedDomain = tostring(ProtectedDomain),
+    SenderRoot, 
+    ProtectedRoot, 
+    LenDiff, 
+    NormalizedSenderRoot
+| order by Msgs desc
 ```
 
 ### 6. Impersonation: Homoglyph / Punycode
@@ -155,21 +191,24 @@ EmailEvents
 Compara la parte izquierda del email (alias) contra una lista de VIPs para detectar variaciones sutiles (ej. `michelle` vs `rnichell`).
 
 ```kql
-let lookback = 14d;
-let vipUsers = dynamic(["ceo@contoso.com","cfo@contoso.com","payments@contoso.com"]);
-let vipAliases = vipUsers
-| extend a = tostring(split(tolower(vipUsers[0]), "@")[0]); // placeholder
+// Definir la lista de nombres de visualización de tus VIPs
+let VIPNames = dynamic(["Satya Nadella", "Nombre Apellido1", "Director General"]);
 EmailEvents
-| where Timestamp >= ago(lookback)
-| extend FromAddr = tolower(SenderFromAddress)
-| extend FromAlias = tostring(split(FromAddr,"@")[0])
-| mv-expand vip = vipUsers
-| extend VipAlias = tostring(split(tolower(tostring(vip)),"@")[0])
-| extend Dist = levenshtein_distance(FromAlias, VipAlias)
-| where Dist between (1 .. 2)
-| where FromAddr != tolower(tostring(vip)) // excluye el real
-| summarize Msgs=count(), Recipients=dcount(RecipientEmailAddress), FirstSeen=min(Timestamp), LastSeen=max(Timestamp), ExampleFrom=any(SenderFromAddress), Subjects=make_set(Subject, 5) by ImpersonatingAlias=FromAlias, VipImpersonated=tostring(vip), Dist, SenderFromDomain
-| order by Dist asc, Msgs desc
+| where Timestamp > ago(7d)
+// 1. Filtrar solo correos que vienen de fuera de la organización
+| where EmailDirection == "Inbound"
+// 2. Buscar coincidencias exactas o parciales en el Display Name
+| where SenderDisplayName has_any (VIPNames)
+// 3. Excluir si el dominio del remitente es el tuyo (evitar falsos positivos de correos legítimos)
+// Reemplaza 'tu-dominio.com' por tu dominio real
+| where SenderFromDomain !endswith "tu-dominio.com"
+| project Timestamp, Subject, SenderFromAddress, SenderDisplayName, RecipientEmailAddress, NetworkMessageId
+| join kind=inner (
+    EmailUrlInfo // Unimos para ver si además traen URLs sospechosas
+    | project NetworkMessageId, Url
+) on NetworkMessageId
+| summarize ScanCount = count(), UniqueUrls = make_set(Url) by Timestamp, SenderDisplayName, SenderFromAddress, RecipientEmailAddress, Subject
+| order by Timestamp desc
 ```
 
 ### 8. Impersonation: Dominios Look-alike (Heurística Simple)
@@ -244,14 +283,32 @@ Identifica correos con imágenes pesadas, sin texto/URLs explícitas, que deriva
 let Lookback = 14d;
 let delivered_images = EmailEvents
     | where Timestamp > ago(Lookback)
-    | where DeliveryLocation in ("Inbox","Folder")
-    | join kind=leftanti (EmailUrlInfo | where Timestamp > ago(Lookback) | project NetworkMessageId) on NetworkMessageId
-    | join kind=inner (EmailAttachmentInfo | where Timestamp > ago(Lookback)
-        | where tolower(FileType) has "image" or FileName matches regex @"\.(png|jpg|jpeg|gif)$") on NetworkMessageId
-    | project NetworkMessageId, RecipientEmailAddress, SenderFromAddress, Subject, Timestamp;
+    | where DeliveryLocation in ("Inbox", "Folder")
+    // Anti-join para excluir correos que tengan URLs (según tu lógica original)
+    | join kind=leftanti (
+        EmailUrlInfo 
+        | where Timestamp > ago(Lookback) 
+        | project NetworkMessageId
+    ) on NetworkMessageId
+    // Join para filtrar correos que SOLO tengan imágenes adjuntas
+    | join kind=inner (
+        EmailAttachmentInfo 
+        | where Timestamp > ago(Lookback)
+        | where FileType has "image" or FileName matches regex @".*\.(png|jpg|jpeg|gif)$"
+        | project NetworkMessageId
+    ) on NetworkMessageId
+    | project NetworkMessageId, RecipientEmailAddress, SenderFromAddress, Subject, EmailTimestamp = Timestamp;
+// Cruce con clics en URLs (Nota: si el correo no tiene URLs por el leftanti, este join podría devolver cero resultados)
 delivered_images
-| join kind=leftsemi (UrlClickEvents | where Timestamp > ago(Lookback) | project RecipientEmailAddress, Timestamp) on RecipientEmailAddress
-| summarize MensajesImagenes=count(), DistinctRecipients=dcount(RecipientEmailAddress)
+| join kind=inner (
+    UrlClickEvents 
+    | where Timestamp > ago(Lookback)
+    // En UrlClickEvents, el campo suele ser AccountUpn
+    | project ClickTimestamp = Timestamp, RecipientEmailAddress = AccountUpn 
+) on RecipientEmailAddress
+// Filtramos para que el clic haya sido DESPUÉS de recibir el correo
+| where ClickTimestamp > EmailTimestamp
+| summarize MensajesImagenes = count(), DistinctRecipients = dcount(RecipientEmailAddress)
 ```
 
 ### 13. Kits de Phishing (Formularios)
@@ -259,12 +316,23 @@ Detecta enlaces a servicios de formularios legítimos abusados para robo de cred
 
 ```kql
 let Lookback = 14d;
-let form_kits = dynamic(["forms.co","formcrafts.com","typeform.com","smartsheet.com","airtable.com","notion.site","google.com/forms","formulario.link"]);
+let form_kits = dynamic(["forms.office.com", "forms.gle", "formcrafts.com", "typeform.com", "smartsheet.com", "airtable.com", "notion.site", "forms.google.com", "formulario.link"]);
 EmailUrlInfo
 | where Timestamp > ago(Lookback)
-| where UrlDomain has_any (form_kits)
-| summarize count(), Victims=dcount(RecipientEmailAddress) by UrlDomain
-| order by count_ desc
+// 1. Filtramos las URLs que coincidan con los dominios de formularios
+| where UrlDomain has_any (form_kits) or Url has_any (form_kits)
+// 2. Unimos con EmailEvents para obtener quién recibió el correo
+| join kind=inner (
+    EmailEvents 
+    | where Timestamp > ago(Lookback)
+    | project NetworkMessageId, RecipientEmailAddress
+) on NetworkMessageId
+// 3. Ahora sí podemos usar RecipientEmailAddress para el conteo
+| summarize 
+    EmailCount = count(), 
+    Victims = dcount(RecipientEmailAddress) 
+    by UrlDomain
+| order by EmailCount desc
 ```
 
 ---
@@ -315,7 +383,8 @@ delivered_urls
 let Lookback = 7d;
 UrlClickEvents
 | where Timestamp > ago(Lookback)
-| summarize DistinctVictims=dcount(RecipientEmailAddress), FirstClick=min(Timestamp), LastClick=max(Timestamp) by Url
+// En UrlClickEvents el usuario es 'AccountUpn'
+| summarize DistinctVictims=dcount(AccountUpn), FirstClick=min(Timestamp), LastClick=max(Timestamp) by Url
 | where DistinctVictims >= 3
 | order by DistinctVictims desc, LastClick desc
 ```
@@ -326,8 +395,17 @@ UrlClickEvents
 let Lookback = 14d;
 UrlClickEvents
 | where Timestamp > ago(Lookback)
-| where ClickVerdict in ("Blocked","BlockedBySafeLinks")
-| summarize BlockedClicks=count(), Victims=dcount(RecipientEmailAddress) by UrlDomain
+// 1. Usamos ActionType para filtrar bloqueos (como en el paso anterior)
+| where ActionType has "Block" 
+// 2. Extraemos el dominio de la columna 'Url'
+| extend ParsedUrl = parse_url(Url)
+| extend Domain = tostring(ParsedUrl.Host)
+// 3. Ahora resumimos usando la nueva columna 'Domain' y 'AccountUpn'
+| summarize 
+    BlockedClicks = count(), 
+    Victims = dcount(AccountUpn) 
+    by Domain
+| where isnotempty(Domain)
 | order by BlockedClicks desc
 ```
 
@@ -389,10 +467,18 @@ Identifica usuarios que están reportando mucho phishing (posiblemente bajo ataq
 
 ```kql
 let Lookback = 30d;
-CloudAppEvents
+AlertInfo
 | where Timestamp > ago(Lookback)
-| where ActionType == "UserSubmission"
-| summarize Reports=count() by UserId
+// 1. Filtramos por el título de la alerta que genera Microsoft cuando un usuario reporta
+| where Title has "User reported" or ServiceSource == "Microsoft Defender for Office 365"
+| join kind=inner (
+    AlertEvidence
+    | where EntityType == "User"
+    // 2. En AlertEvidence, la columna suele ser AccountUpn o UserPrincipalName
+    | project AlertId, ReportingUser = AccountUpn
+) on AlertId
+| summarize Reports = count() by ReportingUser
+| where isnotempty(ReportingUser)
 | order by Reports desc
 ```
 
@@ -401,16 +487,20 @@ Usuarios que más reciben amenazas vs. usuarios que más hacen clic.
 
 ```kql
 let Lookback = 30d;
+// 1. Identificamos correos con amenazas detectadas
 let delivered_threats = EmailEvents
-  | where Timestamp > ago(Lookback)
-  | where ThreatTypes has_any ("Phish","Malware","CredentialPhish");
+    | where Timestamp > ago(Lookback)
+    | where ThreatTypes has_any ("Phish", "Malware", "CredentialPhish")
+    | summarize Delivered = count(), DistinctSenders = dcount(SenderFromAddress) by RecipientEmailAddress;
+// 2. Identificamos clics (usando AccountUpn y renombrándolo para el join)
 let clicked = UrlClickEvents
-  | where Timestamp > ago(Lookback)
-  | summarize Clicks=count() by RecipientEmailAddress;
+    | where Timestamp > ago(Lookback)
+    | summarize Clicks = count() by RecipientEmailAddress = AccountUpn; 
+// 3. Unimos ambas tablas por la dirección de correo
 delivered_threats
-| summarize Delivered=count(), DistinctSenders=dcount(SenderFromAddress) by RecipientEmailAddress
 | join kind=leftouter clicked on RecipientEmailAddress
 | extend Clicks = coalesce(Clicks, 0)
+| project RecipientEmailAddress, Delivered, DistinctSenders, Clicks
 | order by Delivered desc, Clicks desc
 ```
 
@@ -419,13 +509,20 @@ Detecta reglas de reenvío a direcciones externas creadas recientemente.
 
 ```kql
 let Lookback = 7d;
-EmailEvents
+CloudAppEvents
 | where Timestamp > ago(Lookback)
-| where ActionType == "InboxRuleCreated" or ActionType == "InboxRuleUpdated"
-| extend Rule = parse_json(AdditionalDetails)
-| extend FwdTo = tostring(Rule.ForwardTo)
-| where isnotempty(FwdTo) and not(FwdTo endswith "@contoso.com")
-| project Timestamp, AccountUpn, FwdTo, SenderFromAddress, IPAddress, Subject
+// 1. Buscamos las operaciones específicas de reglas en Exchange Online
+| where ActionType in ("New-InboxRule", "Set-InboxRule")
+// 2. Extraemos los detalles de la regla desde la columna RawEventData
+| extend RuleDetails = parse_json(RawEventData).Parameters
+| extend RuleName = tostring(parse_json(RawEventData).ObjectId)
+// 3. Buscamos parámetros de reenvío (ForwardTo o ForwardAsAttachmentTo)
+| mv-expand RuleDetails // Expandimos los parámetros para buscar el de reenvío
+| where RuleDetails.Name in ("ForwardTo", "ForwardAsAttachmentTo")
+| extend FwdTo = tostring(RuleDetails.Value)
+// 4. Filtramos reenvíos que NO sean a tu dominio (cambia @tu-dominio.com)
+| where isnotempty(FwdTo) and not(FwdTo endswith "@tu-dominio.com")
+| project Timestamp, AccountUpn, ActionType, RuleName, FwdTo, IPAddress, CountryCode
 | order by Timestamp desc
 ```
 
@@ -434,16 +531,30 @@ Compara el país del clic actual contra el histórico del usuario.
 
 ```kql
 let Lookback = 14d;
-let baseline = UrlClickEvents
-  | where Timestamp between (ago(60d) .. ago(Lookback))
-  | summarize BaselineCountries=make_set(RecipientCountry) by RecipientEmailAddress;
+// 1. Creamos el mapa de ubicación usando la tabla Beta de Sign-ins (más rica en datos geo)
+let ip_location_map = AADSignInEventsBeta
+    | where Timestamp > ago(60d)
+    | where isnotempty(IPAddress) and isnotempty(Country)
+    | summarize LastKnownCountry = take_any(Country) by IPAddress;
+// 2. Línea base de países habituales por usuario
+let user_baseline = AADSignInEventsBeta
+    | where Timestamp between (ago(60d) .. ago(Lookback))
+    | summarize BaselineCountries = make_set(Country) by AccountUpn;
+// 3. Cruce con los Clics
 UrlClickEvents
 | where Timestamp > ago(Lookback)
-| join kind=leftouter baseline on RecipientEmailAddress
-| extend Known=set_has_element(BaselineCountries, RecipientCountry)
-| where Known == false
-| summarize Clicks=count() by RecipientEmailAddress, RecipientCountry
-| order by Clicks desc
+| join kind=inner ip_location_map on IPAddress
+| join kind=leftouter user_baseline on AccountUpn
+// 4. Lógica de detección de anomalía
+| extend IsNewCountry = not(set_has_element(BaselineCountries, LastKnownCountry))
+| where IsNewCountry == true
+| summarize 
+    TotalClicks = count(), 
+    NewCountryFound = any(LastKnownCountry), 
+    EvidenceIP = any(IPAddress),
+    ClickedUrl = take_any(Url)
+    by AccountUpn
+| order by TotalClicks desc
 ```
 
 ### 25. Top Campañas Activas
@@ -511,8 +622,9 @@ Query imprescindible para identificar todos los correos que llegaron al buzón c
 
 ```kql
 EmailEvents
+| where Timestamp >= ago(7d)
 | where DeliveryAction == "Delivered"
-| where ThreatTypes != ""
+| where ThreatTypes has_any ("Malware", "Phish", "spam")
 | project
     Timestamp,
     NetworkMessageId,
@@ -521,8 +633,11 @@ EmailEvents
     Subject,
     ThreatTypes,
     DetectionMethods,
+    AuthenticationDetails,
     ConfidenceLevel,
-    DeliveryLocation
+    DeliveryLocation,
+    EmailClusterId,
+    ReportId,
 | order by Timestamp desc
 ```
 
@@ -549,28 +664,51 @@ Agrega cualquiera de los siguientes filtros a la query base para segmentar por c
 Verifica si los adjuntos detectados fueron procesados por Safe Attachments y cuál fue el veredicto del filtro de malware.
 
 ```kql
-EmailAttachmentInfo
-| where MalwareFilterVerdict != "Clean"
+EmailEvents
+| where Timestamp > ago(14d)
+| project NetworkMessageId,
+          SenderFromAddress,
+          SenderDisplayName,
+          RecipientEmailAddress,
+          Subject,
+          EmailTimestamp = Timestamp
+// ---- SAFE ATTACHMENTS ----
+| join kind=leftouter (
+    EmailAttachmentInfo
+    | where Timestamp > ago(14d)
+    | where isnotempty(MalwareFilterVerdict) and MalwareFilterVerdict != "Clean"
+    | project NetworkMessageId,
+              FileName,
+              SHA256,
+              MalwareFilterVerdict,
+              AttachmentTimestamp = Timestamp
+) on NetworkMessageId
+// ---- SAFE LINKS ----
+| join kind=leftouter (
+    EmailUrlInfo
+    | where Timestamp > ago(14d)
+    | where ActionType in ("ClickBlocked", "ClickAllowedBlocked")
+    | project NetworkMessageId,
+              Url,
+              UrlDomain,
+              SafeLinksAction = ActionType,
+              UrlTimestamp = Timestamp
+) on NetworkMessageId
+// ---- SOLO MENSAJES QUE TIENEN ALGUNA PROTECCIÓN ACTIVADA ----
+| where isnotempty(MalwareFilterVerdict) or isnotempty(SafeLinksAction)
 | project
-    Timestamp,
-    NetworkMessageId,
-    FileName,
-    MalwareFilterVerdict,
-    DetectionMethods
+      EmailTimestamp,
+      SenderFromAddress,
+      SenderDisplayName,
+      RecipientEmailAddress,
+      Subject,
+      FileName,
+      MalwareFilterVerdict,
+      Url,
+      UrlDomain,
+      SafeLinksAction
+| order by EmailTimestamp desc
 ```
 
-### 31. Enlaces maliciosos entregados
-Identifica URLs con algún tipo de amenaza detectada que fueron incluidas en correos entregados.
-
-```kql
-EmailUrlInfo
-| where UrlThreatType != "None"
-| project
-    Timestamp,
-    NetworkMessageId,
-    Url,
-    UrlThreatType,
-    DetectionMethods
-```
 
   > Internal Tools 2026
