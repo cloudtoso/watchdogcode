@@ -1083,7 +1083,65 @@ else {
 #  PASO 7: Preferencias de workloads (reporte diario)
 # ============================================================
 
-Write-Step "7/10" "Configurando workloads por defecto para el reporte diario"
+Write-Step "7/10" "Configurando workloads con selección Predeterminada"
+
+function Get-WorkloadPreferenceFromCsv {
+    param(
+        [Parameter(Mandatory)][string]$InputValue,
+        [Parameter(Mandatory)][string]$ScopeName
+    )
+
+    $Preference = @{
+        IncludeMDO = $true
+        IncludeMDE = $true
+        IncludeMDI = $true
+        IncludeMDA = $true
+    }
+
+    if ([string]::IsNullOrWhiteSpace($InputValue)) {
+        Write-Skip "$ScopeName: selección Predeterminada aplicada (MDO, MDE, MDI, MDA)."
+        return $Preference
+    }
+
+    $Allowed = @('MDO','MDE','MDI','MDA')
+    $Selected = $InputValue.Split(',') |
+        ForEach-Object { $_.Trim().ToUpperInvariant() } |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+        Select-Object -Unique
+
+    $Invalid = $Selected | Where-Object { $_ -notin $Allowed }
+    if ($Invalid.Count -gt 0) {
+        Write-Skip "$ScopeName: se ignorarán valores no válidos: $($Invalid -join ', ')"
+    }
+
+    $Valid = $Selected | Where-Object { $_ -in $Allowed }
+    if ($Valid.Count -eq 0) {
+        Write-Skip "$ScopeName: no se detectaron workloads válidos; se aplicará selección Predeterminada (MDO, MDE, MDI, MDA)."
+        return $Preference
+    }
+
+    $Preference.IncludeMDO = $false
+    $Preference.IncludeMDE = $false
+    $Preference.IncludeMDI = $false
+    $Preference.IncludeMDA = $false
+
+    foreach ($Workload in $Valid) {
+        switch ($Workload) {
+            'MDO' { $Preference.IncludeMDO = $true }
+            'MDE' { $Preference.IncludeMDE = $true }
+            'MDI' { $Preference.IncludeMDI = $true }
+            'MDA' { $Preference.IncludeMDA = $true }
+        }
+    }
+
+    # Entra ID depende de MDI y debe permanecer siempre habilitado.
+    if (-not $Preference.IncludeMDI) {
+        $Preference.IncludeMDI = $true
+        Write-Info "$ScopeName: Entra ID siempre va incluido; se habilitó MDI automáticamente."
+    }
+
+    return $Preference
+}
 
 $DailyWorkloads = @{
     IncludeMDO = $true
@@ -1092,24 +1150,9 @@ $DailyWorkloads = @{
     IncludeMDA = $true
 }
 
-$ConfigureDailyWorkloads = Read-Host "  Configurar workloads por defecto para New-DefenderXDRDailyReport.ps1? [S/n]"
-if ($ConfigureDailyWorkloads -in @('n','N')) {
-    Write-Skip "Workloads diarios en modo por defecto (todos habilitados)"
-}
-else {
-    $DailyWorkloads.IncludeMDO = ((Read-Host "  Incluir workload MDO (Defender for Office 365)? [S/n]") -notin @('n','N'))
-    $DailyWorkloads.IncludeMDE = ((Read-Host "  Incluir workload MDE (Defender for Endpoint)? [S/n]") -notin @('n','N'))
-    $DailyWorkloads.IncludeMDI = ((Read-Host "  Incluir workload MDI/Entra (Defender for Identity)? [S/n]") -notin @('n','N'))
-    $DailyWorkloads.IncludeMDA = ((Read-Host "  Incluir workload MDA (Defender for Cloud Apps)? [S/n]") -notin @('n','N'))
-
-    if (-not ($DailyWorkloads.IncludeMDO -or $DailyWorkloads.IncludeMDE -or $DailyWorkloads.IncludeMDI -or $DailyWorkloads.IncludeMDA)) {
-        Write-Skip "No se selecciono ningun workload; se aplicara la configuracion por defecto (todos habilitados)."
-        $DailyWorkloads.IncludeMDO = $true
-        $DailyWorkloads.IncludeMDE = $true
-        $DailyWorkloads.IncludeMDI = $true
-        $DailyWorkloads.IncludeMDA = $true
-    }
-}
+Write-Info "Workloads disponibles: MDO, MDE, MDI, MDA"
+$DailyInput = Read-Host "  Reporte diario -> indique workloads separados por comas (ej: MDO,MDE). Enter = selección Predeterminada (todos)"
+$DailyWorkloads = Get-WorkloadPreferenceFromCsv -InputValue $DailyInput -ScopeName 'Reporte diario'
 
 $Config.DailyWorkloads = $DailyWorkloads
 $Config | ConvertTo-Json -Depth 4 | Out-File $ConfigFile -Encoding UTF8 -Force
@@ -1129,24 +1172,9 @@ $WeeklyWorkloads = @{
     IncludeMDA = $true
 }
 
-$ConfigureWeeklyWorkloads = Read-Host "  Configurar workloads por defecto para New-DefenderXDRWeeklyReport.ps1? [S/n]"
-if ($ConfigureWeeklyWorkloads -in @('n','N')) {
-    Write-Skip "Workloads semanales en modo por defecto (todos habilitados)"
-}
-else {
-    $WeeklyWorkloads.IncludeMDO = ((Read-Host "  Incluir workload MDO (Defender for Office 365)? [S/n]") -notin @('n','N'))
-    $WeeklyWorkloads.IncludeMDE = ((Read-Host "  Incluir workload MDE (Defender for Endpoint)? [S/n]") -notin @('n','N'))
-    $WeeklyWorkloads.IncludeMDI = ((Read-Host "  Incluir workload MDI/Entra (Defender for Identity)? [S/n]") -notin @('n','N'))
-    $WeeklyWorkloads.IncludeMDA = ((Read-Host "  Incluir workload MDA (Defender for Cloud Apps)? [S/n]") -notin @('n','N'))
-
-    if (-not ($WeeklyWorkloads.IncludeMDO -or $WeeklyWorkloads.IncludeMDE -or $WeeklyWorkloads.IncludeMDI -or $WeeklyWorkloads.IncludeMDA)) {
-        Write-Skip "No se selecciono ningun workload; se aplicara la configuracion por defecto (todos habilitados)."
-        $WeeklyWorkloads.IncludeMDO = $true
-        $WeeklyWorkloads.IncludeMDE = $true
-        $WeeklyWorkloads.IncludeMDI = $true
-        $WeeklyWorkloads.IncludeMDA = $true
-    }
-}
+Write-Info "Workloads disponibles: MDO, MDE, MDI, MDA"
+$WeeklyInput = Read-Host "  Reporte semanal -> indique workloads separados por comas (ej: MDO,MDE,MDI). Enter = selección Predeterminada (todos)"
+$WeeklyWorkloads = Get-WorkloadPreferenceFromCsv -InputValue $WeeklyInput -ScopeName 'Reporte semanal'
 
 $Config.WeeklyWorkloads = $WeeklyWorkloads
 $Config | ConvertTo-Json -Depth 4 | Out-File $ConfigFile -Encoding UTF8 -Force
