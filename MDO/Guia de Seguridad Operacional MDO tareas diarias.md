@@ -91,7 +91,7 @@ EmailEvents
     ConfidenceLevel,
     DeliveryLocation,
     EmailClusterId,
-    ReportId,
+    ReportId
 | order by Timestamp desc
 ```
 
