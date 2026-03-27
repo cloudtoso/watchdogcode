@@ -1087,7 +1087,7 @@ Write-Step "7/10" "Configurando workloads con selección Predeterminada"
 
 function Get-WorkloadPreferenceFromCsv {
     param(
-        [Parameter(Mandatory)][string]$InputValue,
+        [AllowNull()][AllowEmptyString()][string]$InputValue,
         [Parameter(Mandatory)][string]$ScopeName
     )
 
