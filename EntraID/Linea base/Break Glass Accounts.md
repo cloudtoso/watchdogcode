@@ -47,33 +47,113 @@ Una **cuenta de emergencia** es una cuenta administrativa utilizada únicamente 
 
 ---
 
-## 4. Scripts, queries y automatización
+## 4. Procedimiento para Crear una Regla de Detección en Microsoft Defender
+
+## Pasos
+1. Ir a: <https://security.microsoft.com/v2/advanced-hunting>
+2. En **Query**, agregar el siguiente query:
+
+```kusto
+EntraIdSignInEvents
+| where Timestamp >= ago(1h)
+| where AccountUpn in ("breakglass@tenant.onmicrosoft.com", "breakglass02@tenant.onmicrosoft.com")
+| project Timestamp, AccountUpn, LogonType, Application, RiskLevelAggregated, ClientAppUsed, Country, State, City
+| order by Timestamp asc
+```
+
+3. Clic en **Run query**.
+4. Clic en **Create detection rule**.
+5. En la página **General**:
+   - **Detection name:** Sign-in Break Glass Accounts
+   - **Rule Description:** Detect Break Glass Accounts logins
+   - **Frequency:** Continuous (NRT)
+   - **Severity:** High
+   - **Category:** Credential access
+6. Clic en **Next**.
+7. En la página **Alert settings**:
+   - **Alert title:** Sign-in Break Glass Accounts
+   - **Description:** Detect Break Glass Accounts logins
+8. Clic en **Next**.
+9. En la página **Automated actions**, clic en **Next**.
+10. Clic en **Submit**.
+
+---
+## Sugerencias de mejora
+- Considera agregar el **rationale** de por qué estas cuentas deben ser monitoreadas.
+- Podrías incluir capturas de pantalla para mayor claridad.
+- Reemplaza los dominios contoso.com por los de tu organización.
+- Indica buenas prácticas sobre Break Glass Accounts (MFA, almacenamiento seguro, uso exclusivo de emergencia).
+
+
+---
+## 5. Scripts, queries y automatización
 ### A. Crear cuenta cloud-only (PowerShell)
 ```powershell
 # Crear cuenta cloud-only
-New-MgUser -AccountEnabled $true `
-  -DisplayName "Emergency Access 1" `
-  -UserPrincipalName "emergency1@tenant.onmicrosoft.com" `
-  -MailNickname "emergency1" `
-  -PasswordProfile @{ Password="ContraseñaMuySegura!123" }
+Import-Module Microsoft.Graph.Users -ErrorAction Stop
+Connect-MgGraph -Scopes "User.ReadWrite.All" -NoWelcome
 
-# Asignar rol Global Administrator
-$role = Get-MgDirectoryRole | Where-Object {$_.DisplayName -eq "Global Administrator"}
-Add-MgDirectoryRoleMember -DirectoryRoleId $role.Id -DirectoryObjectId (Get-MgUser -UserId "emergency1@tenant.onmicrosoft.com").Id
+# Usa contraseña ASCII fuerte para evitar problemas (sin ñ/acentos)
+$PasswordProfile = @{
+  Password = "X9!mQ2#rT7@kL3%pV8$sZ1"
+  ForceChangePasswordNextSignIn = $false
+}
+
+$params = @{
+  AccountEnabled    = $true
+  DisplayName       = "Emergency Access 1"
+  UserPrincipalName = "breakglass@tenant.onmicrosoft.com"
+  MailNickname      = "breakglass"
+  PasswordProfile   = $PasswordProfile
+  PasswordPolicies  = "DisablePasswordExpiration"
+  UsageLocation     = "US"
+}
+
+New-MgUser @params
 ```
+### Asignar rol Global Administrator
 
-### B. Verificar exclusión de políticas CA (PowerShell)
 ```powershell
-Get-MgIdentityConditionalAccessPolicy |
-  Where-Object { $_.Conditions.Users.IncludeUsers -contains "emergency1@tenant.onmicrosoft.com" } |
-  Select DisplayName, State
+# Asignar rol Global Administrator
+# Requiere estar conectado:
+# Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory","Directory.ReadWrite.All","User.Read.All"
+
+$upn = "breakglass04@chiringuito365.com"
+
+# 1) Obtener el rol Global Administrator (ya existe en tu tenant)
+$role = Get-MgDirectoryRole -All | Where-Object DisplayName -eq "Global Administrator"
+if (-not $role) { throw "No se encontró el rol 'Global Administrator' en DirectoryRole." }
+
+# 2) Obtener usuario breakglass
+$user = Get-MgUser -UserId $upn -ErrorAction Stop
+if (-not $user) { throw "No se encontró el usuario $upn" }
+
+# 3) Validar si ya es miembro
+$alreadyMember = Get-MgDirectoryRoleMember -DirectoryRoleId $role.Id -All |
+  Where-Object { $_.Id -eq $user.Id }
+
+if ($alreadyMember) {
+  Write-Host "El usuario ya es miembro de 'Global Administrator': $upn" -ForegroundColor Yellow
+  return
+}
+
+# 4) Agregar miembro por referencia (método más estable)
+New-MgDirectoryRoleMemberByRef `
+  -DirectoryRoleId $role.Id `
+  -BodyParameter @{
+      "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$($user.Id)"
+  } -ErrorAction Stop
+
+Write-Host "Rol 'Global Administrator' asignado a $upn" -ForegroundColor Green
 ```
 
 ### C. Monitorear inicios de sesión (KQL)
 ```kql
-SigninLogs
-| where UserPrincipalName in ("emergency1@tenant.onmicrosoft.com", "emergency2@tenant.onmicrosoft.com")
-| sort by TimeGenerated desc
+EntraIdSignInEvents
+| where Timestamp >= ago(1h)
+| where AccountUpn in ("breakglass@tenant.onmicrosoft.com","breakglass02@tenant.onmicrosoft.com")
+| project Timestamp, AccountUpn, LogonType, Application, RiskLevelAggregated, ClientAppUsed, Country, State, City
+| order by Timestamp asc 
 ```
 
 ### D. Crear alerta en Sentinel (KQL)
@@ -85,12 +165,12 @@ SigninLogs
 
 ---
 
-## 5. Referencias
+## 6. Referencias
 - **Microsoft Learn:** https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-emergency-access
 
 ---
 
-## 6. Notas y advertencias
+## 7. Notas y advertencias
 - No usar estas cuentas para tareas administrativas diarias.
 - Cada inicio de sesión debe generar una alerta inmediata.
 - No asociarlas a personas específicas.
@@ -102,4 +182,4 @@ SigninLogs
 - https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-emergency-access
 
 ---
-chiringuito365.com | Internal Tools 2026
+ Internal Tools 2026
