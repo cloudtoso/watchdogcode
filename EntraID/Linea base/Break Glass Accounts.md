@@ -87,7 +87,7 @@ Connect-MgGraph -Scopes "User.ReadWrite.All" -NoWelcome
 
 # Usa contraseña ASCII fuerte para evitar problemas (sin ñ/acentos)
 $PasswordProfile = @{
-  Password = "X9!mQ2#rT7@kL3%pV8$sZ1"
+  Password = "***************************"
   ForceChangePasswordNextSignIn = $false
 }
 
