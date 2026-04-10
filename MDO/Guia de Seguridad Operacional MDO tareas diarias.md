@@ -162,6 +162,7 @@ EmailEvents
 ```
 ## 6. Revisar los resultados
 - Navegar a la pestaña **Results** para visualizar los eventos encontrados.
+- Columna: ActionType == "ClickAllowed"
 
 > Clave para identificar usuarios posiblemente comprometidos
 
@@ -228,6 +229,7 @@ EmailEvents
 
 ## 8. Revisar los resultados
 - Navegar a la pestaña **Results** para visualizar los eventos encontrados.
+- Columna: FileOpenTimestamp Confirmación de impacto
 
 > Clave para identificar usuarios posiblemente comprometidos
 
