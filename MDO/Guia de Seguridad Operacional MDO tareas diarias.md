@@ -224,6 +224,11 @@ EmailEvents
 | order by FileOpenTimestamp desc
 ```
 
+## 8. Revisar los resultados
+- Navegar a la pestaña **Results** para visualizar los eventos encontrados.
+
+> Clave para identificar usuarios posiblemente comprometidos
+
 ---
 
 # Triage de Mensajes de Teams Reportados por Usuarios
