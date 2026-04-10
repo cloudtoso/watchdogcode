@@ -168,11 +168,14 @@ EmailEvents
 
 ## 7. El usuario abrio algún adjunto a correos entregados con algún tipo de amenaza (MDE Desplegado)
 > **Requisito indispensable**
+>
 > Este query **SOLO funciona** si tu tenant tiene:
 >
-> **Microsoft Defender for Endpoint (MDE)** habilitado
-> Dispositivos **onboarded**
-> Acceso a tablas **Device*** en Advanced Hunting
+> - **Microsoft Defender for Endpoint (MDE)** habilitado
+>
+> - Dispositivos **onboarded**
+>
+> - Acceso a tablas **Device*** en Advanced Hunting
 >
 > Si DeviceFileEvents **no existe, NO es posible** detectar apertura de adjuntos (esto es una limitación real de Defender).
 
