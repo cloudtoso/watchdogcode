@@ -103,6 +103,8 @@ EmailEvents
 ## 4. Revisar los resultados
 - Navegar a la pestaña **Results** para visualizar los eventos encontrados.
 
+> Clave entender porque se estan entregando correos con algún tipo de amenaza
+
 ## 5. Correos entregados con algún tipo de amenaza
 Pegar la siguiente consulta en el panel **Query**:
 
