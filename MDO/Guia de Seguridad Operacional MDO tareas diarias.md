@@ -179,6 +179,51 @@ EmailEvents
 
 Pegar la siguiente consulta en el panel **Query**:
 
+```kql
+EmailEvents
+| where Timestamp >= ago(7d)
+| where DeliveryAction == "Delivered"
+| where ThreatTypes has_any ("Malware", "Phish", "Spam")
+| project
+    EmailTimestamp = Timestamp,
+    NetworkMessageId,
+    SenderFromAddress,
+    RecipientEmailAddress,
+    Subject,
+    ThreatTypes,
+    EmailClusterId
+| join kind=inner (
+    EmailAttachmentInfo
+    | where Timestamp >= ago(7d)
+    | project
+        NetworkMessageId,
+        FileName,
+        SHA256
+) on NetworkMessageId
+| join kind=inner (
+    DeviceFileEvents
+    | where Timestamp >= ago(7d)
+    | where ActionType == "FileOpened"
+    | project
+        SHA256,
+        FileOpenTimestamp = Timestamp,
+        AccountUpn,
+        DeviceName
+) on SHA256
+| project
+    EmailTimestamp,
+    FileOpenTimestamp,
+    AccountUpn,
+    DeviceName,
+    RecipientEmailAddress,
+    SenderFromAddress,
+    Subject,
+    ThreatTypes,
+    FileName,
+    EmailClusterId
+| order by FileOpenTimestamp desc
+```
+
 ---
 
 # Triage de Mensajes de Teams Reportados por Usuarios
