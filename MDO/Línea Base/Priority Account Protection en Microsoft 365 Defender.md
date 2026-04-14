@@ -135,7 +135,23 @@ Esto afecta:
 
 **Nota importante:** Microsoft no expone aún el tag Priority Account vía Graph, por lo que el monitoreo es indirecto, vía incidentes y señales.
 
-### a) KQL – Incidentes que involucran Priority Accounts
+### a) PowerShell – Listar usuarios con Priority Account
+
+```powershell
+# Requiere Microsoft Graph
+Connect-MgGraph -Scopes User.Read.All
+
+Get-MgUser -All |
+Where-Object {
+    $_.SecurityIdentifier -ne $null
+} |
+Select DisplayName, UserPrincipalName, UserType
+```
+
+**Nota:** El tag Priority Account no es visible aún vía Graph estándar; se valida vía portal y señales Defender.
+
+
+### b) KQL – Incidentes que involucran Priority Accounts
 ```kql
 SecurityIncident
 | where Entities has "Priority"
@@ -148,7 +164,7 @@ Uso:
 - Evidencia SOA
 - Seguimiento HVT
 
-### b) KQL – Phishing dirigido a ejecutivos
+### C) KQL – Phishing dirigido a ejecutivos
 ```kql
 EmailEvents
 | where ThreatTypes has "Phish"
@@ -159,7 +175,18 @@ EmailEvents
 | project TimeGenerated, SenderFromAddress, Subject, ThreatTypes
 ```
 
-### c) KQL – Sign‑ins de alto riesgo en Priority Accounts
+### d) KQL – Detectar alertas relacionadas con Priority Accounts
+
+```kql
+SecurityIncident
+| where Title has_any ("Phish", "BEC", "Email", "Compromise")
+| where Entities has "Priority"
+| project TimeGenerated, Title, Severity, Status, IncidentNumber
+```
+
+
+
+### e) KQL – Sign‑ins de alto riesgo en Priority Accounts
 ```kql
 SigninLogs
 | where UserPrincipalName in (
@@ -170,7 +197,7 @@ SigninLogs
 | project TimeGenerated, UserPrincipalName, IPAddress, RiskLevelDuringSignIn
 ```
 
-### d) Ejemplo de alerta automatizada (Sentinel)
+### f) Ejemplo de alerta automatizada (Sentinel)
 
 **Nombre:** Priority Account – High Risk Activity
 
@@ -188,14 +215,14 @@ SigninLogs
 - Requerir MFA
 - Bloquear sesión (Conditional Access)
 
-## 5. Referencias (Gold Master & Microsoft)
+**Útil para:**
 
-- SOA – Identity Protection Controls
-- SOA – Email & Collaboration Security
-- Gold Master – High Value Target Protection
-- Zero Trust Identity Pillar
+- Dashboards SOC
+- Auditorías SOA
+- Evidencia de control
 
-## 6. Notas y advertencias críticas
+
+## 5. Notas y advertencias críticas
 
 - No reemplaza MFA ni Conditional Access
 - No protege cuentas de servicio
@@ -209,7 +236,7 @@ SigninLogs
 - No habilitar el feature
 - No correlacionarlo con procesos SOC
 
-## 7. Referencias oficiales
+## 6. Referencias oficiales
 
 - https://learn.microsoft.com/microsoft-365/security/defender/priority-account-protection
 - https://learn.microsoft.com/microsoft-365/security/office-365-security/anti-phishing-policies
