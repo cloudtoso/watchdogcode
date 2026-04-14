@@ -2,16 +2,14 @@
 
 ## *La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad.*
 
-Business Email Compromise (BEC) es un ataque de fraude altamente dirigido basado en ingeniería social, suplantación y compromiso de identidad. Su objetivo es manipular decisiones financieras u operativas mediante correos que parecen auténticos, frecuentemente enviados desde cuentas legítimas comprometidas.
-
-**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
-
----
-
 ## Priority Account Protection es un mecanismo de clasificación de identidades de alto valor (High Value Targets – HVT) dentro de Microsoft 365 Defender.
 No es solo una “etiqueta visual”: al marcar un usuario como Priority account, el motor de detección modifica el modelo de riesgo, aumenta la sensibilidad de detecciones y eleva automáticamente la severidad de alertas e incidentes relacionados con correo, identidad y colaboración.
 
 El objetivo es reducir el dwell time y el impacto de ataques dirigidos (phishing, BEC, account takeover) contra usuarios críticos para el negocio.
+
+**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
+
+---
 
 ## 2. Mejor práctica recomendada
 
