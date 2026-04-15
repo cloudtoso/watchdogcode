@@ -18,8 +18,8 @@
     an HTML report with the domain's email authentication configuration.
 .NOTES
     Author  : Ernesto Cobos Roqueñí, Arturo Mandujano
-    Date    : 24/February/2026
-    Version: 2.5
+    Date    : 15/April/2026
+    Version: 2.6
     Requires: Administrator privileges
 
     .\Domain-Health-Check.ps1
