@@ -111,6 +111,42 @@ $DHCDkimAdvisory = $DHC.DkimAdvisory
 $DHCMtaRecord = $DHC.MtaRecord
 $DHCMtaAdvisory = $DHC.MtaAdvisory 
 
+# Fallback for SPF if module fails
+if ([string]::IsNullOrWhiteSpace($DHCSpfRecord)) {
+    $DHCSpfRecord = $ResplveDNSName.String
+    if ([string]::IsNullOrWhiteSpace($DHCSpfAdvisory)) {
+        $DHCSpfAdvisory = "SPF record retrieved via fallback DNS query."
+    }
+} 
+
+# Function to test SPF syntax for potential Permerror
+function Test-SpfSyntax {
+    param([string]$spf)
+    if ([string]::IsNullOrWhiteSpace($spf)) { return $false, "SPF record is empty or null." }
+    if (-not $spf.Trim().StartsWith('v=spf1', [System.StringComparison]::OrdinalIgnoreCase)) { return $false, "SPF record does not start with 'v=spf1'." }
+    # Basic syntax check: split by spaces and check mechanisms
+    $parts = $spf -split '\s+'
+    $validMechanisms = @('a', 'mx', 'ptr', 'include', 'ip4', 'ip6', 'exists', 'all', 'redirect', 'exp')
+    foreach ($part in $parts) {
+        if ($part -eq 'v=spf1') { continue }
+        # Check for qualifier + mechanism
+        if ($part -match '^([+\-~?]?)([a-z]+)(.*)$') {
+            $mech = $Matches[2]
+            if ($validMechanisms -notcontains $mech) {
+                return $false, "Unknown mechanism '$mech' in SPF record."
+            }
+        } elseif ($part -notmatch '^([+\-~?]?)(ip4|ip6|include|a|mx|ptr|exists|all|redirect|exp)(.*)$') {
+            # More detailed check
+            return $false, "Invalid SPF syntax in part '$part'."
+        }
+    }
+    return $true, "SPF syntax appears valid."
+}
+
+# Test SPF syntax
+$spfSyntaxValid, $spfSyntaxMessage = Test-SpfSyntax -spf $DHCSpfRecord
+$spfErrorNote = if (-not $spfSyntaxValid) { "Potential Permerror: $spfSyntaxMessage" } else { "" } 
+
 #SPF
 $ResplveDNSName = Resolve-DnsName -Name $domain -Type TXT -ErrorAction SilentlyContinue |
 Where-Object { ($_.Strings -join '') -match '^\s*v=spf1\b' } |
@@ -379,11 +415,13 @@ $html = @"
             <div class="section-divider">&#128737;&#65039; 2. SPF Record for $DHCName</div>
             <span class="badge-advisory $spfSt text-white">$spfAdv</span>
             <strong>Current SPF Record:</strong><code class="record-box">$DHCSpfRecord</code>
+            $(if ($spfErrorNote) { "<div class='alert alert-danger mt-2'>$spfErrorNote <a href='https://www.rfc-editor.org/rfc/rfc7208#section-2.6.7' target='_blank'>RFC 7208 Section 2.6.7</a></div>" } else { "" })
             <div class="mt-2">
                 <strong>Length:</strong> <span class="badge $(if($spfLengthNum -gt 255){'bg-danger'}else{'bg-success'})">$DHCSPFRecordLength / 255</span> |
                 <strong>Lookups:</strong> <span class="badge $(if($spfLookupsNum -gt 10){'bg-danger text-white'}elseif($spfLookupsNum -ge 8){'bg-warning text-dark'}else{'bg-success text-white'})">$DHCSPFRecordDnsLookupCount</span> |
                 <strong>TTL:</strong> <span class="$(Get-TtlClass $SPFTTL)">$SPFTTL</span>
             </div>
+            $(if ($spfLookupsNum -gt 10) { "<div class='alert alert-warning mt-2'>High DNS lookup count may cause Temperror if DNS queries fail or timeout. <a href='https://www.rfc-editor.org/rfc/rfc7208#section-2.6.6' target='_blank'>RFC 7208 Section 2.6.6</a></div>" } else { "" })
             $spfIncludesTable
 
             <!-- 3. DKIM DETAILS -->
