@@ -68,9 +68,9 @@ Este documento recopila una serie de consultas KQL (Kusto Query Language) diseñ
 Detecta mensajes donde el dominio visible ("From") no coincide con el dominio real del sobre SMTP ("MailFrom"). Útil para spoofing clásico y configuraciones erróneas de "send on behalf".
 
 ```kql
-let lookback = 7d;
+
 EmailEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | where isempty(SenderFromDomain) == false and isempty(SenderMailFromDomain) == false
 | where SenderFromDomain != SenderMailFromDomain
 | project Timestamp, NetworkMessageId, SenderFromAddress, SenderFromDomain, SenderMailFromAddress, SenderMailFromDomain, RecipientEmailAddress, Subject, DeliveryAction, ThreatTypes
@@ -81,10 +81,10 @@ EmailEvents
 Muy efectivo para detectar intentos de suplantación de identidad corporativa ("me hago pasar por tu org").
 
 ```kql
-let lookback = 7d;
+
 let orgDomains = dynamic(["contoso.com","contoso.mx"]); // <-- Cambia por tus dominios
 EmailEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | where SenderFromDomain in (orgDomains)
 | where SenderMailFromDomain !in (orgDomains)
 | project Timestamp, NetworkMessageId, SenderFromAddress, SenderFromDomain, SenderMailFromAddress, SenderMailFromDomain, RecipientEmailAddress, Subject, DeliveryAction, ThreatTypes
@@ -95,9 +95,9 @@ EmailEvents
 Analiza los detalles de autenticación cuando están disponibles en `AuthenticationDetails`.
 
 ```kql
-let lookback = 7d;
+
 EmailEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | extend Auth = parse_json(AuthenticationDetails)
 | extend SPF = tostring(Auth.SPF), DKIM = tostring(Auth.DKIM), DMARC = tostring(Auth.DMARC)
 | where SPF has_any ("fail","softfail","temperror","permerror") or DKIM has_any ("fail","none","temperror","permerror") or DMARC has_any ("fail","none","temperror","permerror")
@@ -109,9 +109,9 @@ EmailEvents
 Agrupa por remitente y dominio para determinar si es un evento aislado o una campaña masiva.
 
 ```kql
-let lookback = 7d;
+
 EmailEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | where SenderFromDomain != SenderMailFromDomain
 | summarize Msgs = count(), Recipients = dcount(RecipientEmailAddress), Subjects = make_set(Subject, 10), FirstSeen = min(Timestamp), LastSeen = max(Timestamp) by SenderFromDomain, SenderMailFromDomain, SenderFromAddress
 | order by Msgs desc, Recipients desc
@@ -125,10 +125,10 @@ EmailEvents
 Detecta dominios "parecidos" a un dominio VIP o partner usando distancia de edición (ej. `contoso.com` -> `cont0so.com`).
 
 ```kql
-let lookback = 14d;
+
 let protectedDomains = dynamic(["contoso.com","fabrikam.com"]); 
 EmailEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | where isnotempty(SenderFromDomain)
 | where SenderFromDomain !in (protectedDomains)
 | mv-expand ProtectedDomain = protectedDomains
@@ -178,9 +178,9 @@ EmailEvents
 Busca dominios que incluyen `xn--` o caracteres no ASCII.
 
 ```kql
-let lookback = 30d;
+
 EmailEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | where SenderFromDomain has "xn--" or SenderFromDomain matches regex @"[^\u0000-\u007F]" // no ASCII
 | summarize Msgs=count(), Recipients=dcount(RecipientEmailAddress), FirstSeen=min(Timestamp), LastSeen=max(Timestamp), ExampleFrom=any(SenderFromAddress), Subjects=make_set(Subject, 5) by SenderFromDomain
 | order by Msgs desc
@@ -214,7 +214,7 @@ EmailEvents
 Busca variaciones específicas de marca en el dominio del remitente.
 
 ```kql
-let Lookback = 30d;
+
 let brand = "contoso.com";
 EmailEvents
 | where Timestamp > ago(Lookback)
@@ -235,10 +235,10 @@ EmailEvents
 Busca palabras clave de presión financiera en correos con indicadores de spoofing.
 
 ```kql
-let lookback = 7d;
+
 let becKeywords = dynamic(["urgent","wire","payment","invoice","transfer","bank","remittance","pago","transferencia","factura","urgente"]);
 EmailEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | where SenderFromDomain != SenderMailFromDomain or SenderFromDomain has "xn--"
 | where Subject has_any (becKeywords)
 | project Timestamp, NetworkMessageId, SenderFromAddress, SenderFromDomain, SenderMailFromAddress, SenderMailFromDomain, RecipientEmailAddress, Subject, DeliveryAction, ThreatTypes
@@ -249,7 +249,7 @@ EmailEvents
 Detecta correos entregados a VIPs que tienen fallos de autenticación o fueron detectados posteriormente como Phishing.
 
 ```kql
-let Lookback = 14d;
+
 let vip_list = dynamic(["ceo@contoso.com","cfo@contoso.com","board.alias@contoso.com"]);
 EmailEvents
 | where Timestamp > ago(Lookback)
@@ -264,7 +264,7 @@ EmailEvents
 Detecta correos donde la dirección de respuesta (`Reply-To`) es diferente al dominio del remitente, una táctica común en BEC.
 
 ```kql
-let Lookback = 14d;
+
 EmailEvents
 | where Timestamp > ago(Lookback)
 | where DeliveryLocation in ("Inbox","Folder")
@@ -279,7 +279,7 @@ EmailEvents
 Identifica correos con imágenes pesadas, sin texto/URLs explícitas, que derivan en clics externos (posible escaneo de QR o enlace en imagen).
 
 ```kql
-let Lookback = 14d;
+
 let delivered_images = EmailEvents
     | where Timestamp > ago(Lookback)
     | where DeliveryLocation in ("Inbox", "Folder")
@@ -314,7 +314,7 @@ delivered_images
 Detecta enlaces a servicios de formularios legítimos abusados para robo de credenciales.
 
 ```kql
-let Lookback = 14d;
+
 let form_kits = dynamic(["forms.office.com", "forms.gle", "formcrafts.com", "typeform.com", "smartsheet.com", "airtable.com", "notion.site", "forms.google.com", "formulario.link"]);
 EmailUrlInfo
 | where Timestamp > ago(Lookback)
@@ -342,15 +342,15 @@ EmailUrlInfo
 Correlaciona eventos de spoofing con las URLs contenidas en ellos.
 
 ```kql
-let lookback = 7d;
+
 let suspicious = EmailEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | where SenderFromDomain != SenderMailFromDomain
 | project NetworkMessageId, Timestamp, SenderFromAddress, SenderFromDomain, RecipientEmailAddress, Subject;
 suspicious
 | join kind=inner (
     EmailUrlInfo
-    | where Timestamp >= ago(lookback)
+    | where Timestamp >= ago(7d)
     | project NetworkMessageId, Url, UrlDomain
 ) on NetworkMessageId
 | summarize UrlCount=count(), Recipients=dcount(RecipientEmailAddress), Examples=make_set(Url, 10) by SenderFromDomain, SenderFromAddress, Subject
@@ -361,7 +361,7 @@ suspicious
 Identifica dominios con TLDs inusuales (ej. `.xyz`, `.top`) que han sido entregados y clicados.
 
 ```kql
-let Lookback = 14d;
+
 let risky_tlds = dynamic([".top",".xyz",".click",".monster",".fit",".rest",".lol",".casa"]);
 let delivered_urls = EmailEvents
     | where Timestamp > ago(Lookback)
@@ -379,7 +379,7 @@ delivered_urls
 ### 16. Campaña Activa: Múltiples Clics en misma URL
 
 ```kql
-let Lookback = 7d;
+
 UrlClickEvents
 | where Timestamp > ago(Lookback)
 // En UrlClickEvents el usuario es 'AccountUpn'
@@ -391,7 +391,7 @@ UrlClickEvents
 ### 17. Bloqueos de Safe Links
 
 ```kql
-let Lookback = 14d;
+
 UrlClickEvents
 | where Timestamp > ago(Lookback)
 // 1. Usamos ActionType para filtrar bloqueos (como en el paso anterior)
@@ -411,7 +411,7 @@ UrlClickEvents
 ### 18. Adjuntos de Riesgo (Ejecutables/Scripts)
 
 ```kql
-let Lookback = 14d;
+
 let risky_ext = dynamic([".html",".htm",".hta",".js",".vbs",".wsf",".lnk",".iso",".img",".dll",".exe",".ps1",".bat",".cmd",".jar"]);
 EmailAttachmentInfo
 | where Timestamp > ago(Lookback)
@@ -426,7 +426,7 @@ EmailAttachmentInfo
 Detecta adjuntos HTML que usan `data:text/html` para ofuscar contenido malicioso.
 
 ```kql
-let Lookback = 14d;
+
 EmailAttachmentInfo
 | where Timestamp > ago(Lookback)
 | where tolower(FileName) matches regex @"\.(html|htm|hta)$"
@@ -445,7 +445,7 @@ EmailAttachmentInfo
 Compara el tráfico reciente contra un histórico de 45 días para detectar dominios nuevos.
 
 ```kql
-let Lookback = 14d;
+
 let Baseline = 45d;
 let recent = EmailEvents
   | where Timestamp > ago(Lookback)
@@ -465,7 +465,7 @@ recent
 Identifica usuarios que están reportando mucho phishing (posiblemente bajo ataque sostenido).
 
 ```kql
-let Lookback = 30d;
+
 AlertInfo
 | where Timestamp > ago(Lookback)
 // 1. Filtramos por el título de la alerta que genera Microsoft cuando un usuario reporta
@@ -485,7 +485,7 @@ AlertInfo
 Usuarios que más reciben amenazas vs. usuarios que más hacen clic.
 
 ```kql
-let Lookback = 30d;
+
 // 1. Identificamos correos con amenazas detectadas
 let delivered_threats = EmailEvents
     | where Timestamp > ago(Lookback)
@@ -507,7 +507,7 @@ delivered_threats
 Detecta reglas de reenvío a direcciones externas creadas recientemente.
 
 ```kql
-let Lookback = 7d;
+
 CloudAppEvents
 | where Timestamp > ago(Lookback)
 // 1. Buscamos las operaciones específicas de reglas en Exchange Online
@@ -529,7 +529,7 @@ CloudAppEvents
 Compara el país del clic actual contra el histórico del usuario.
 
 ```kql
-let Lookback = 14d;
+
 // 1. Creamos el mapa de ubicación usando la tabla Beta de Sign-ins (más rica en datos geo)
 let ip_location_map = AADSignInEventsBeta
     | where Timestamp > ago(60d)
@@ -560,7 +560,7 @@ UrlClickEvents
 Vista resumen tipo "Threat Explorer" agrupada por asunto y dominio.
 
 ```kql
-let Lookback = 7d;
+
 EmailEvents
 | where Timestamp > ago(Lookback)
 | where DeliveryLocation in ("Inbox","Folder","JunkFolder")
@@ -575,9 +575,9 @@ EmailEvents
 ### 26. Mensajes Remediados Post-Entrega (ZAP)
 
 ```kql
-let lookback = 7d;
+
 EmailPostDeliveryEvents
-| where Timestamp >= ago(lookback)
+| where Timestamp >= ago(7d)
 | where ActionType in ("ZAP","Quarantine","SoftDelete","HardDelete")
 | project Timestamp, NetworkMessageId, ActionType, ActionResult, RecipientEmailAddress
 | order by Timestamp desc
@@ -587,7 +587,7 @@ EmailPostDeliveryEvents
 Detecta mensajes que entraron limpios (sin detección inicial) pero fueron remediados después.
 
 ```kql
-let Lookback = 14d;
+
 EmailPostDeliveryEvents
 | where Timestamp > ago(Lookback)
 | where ActionType in ("SoftDelete","MoveToQuarantine","ZAP")
@@ -604,7 +604,7 @@ EmailPostDeliveryEvents
 Revisa correos permitidos por políticas de organización o overrides de usuario/admin.
 
 ```kql
-let Lookback = 30d;
+
 EmailEvents
 | where Timestamp > ago(Lookback)
 | where OrgLevelAction in ("Allow","DeliverToInbox") or (DetectionMethods has "UserOverride" or DetectionMethods has "AdminOverride")
