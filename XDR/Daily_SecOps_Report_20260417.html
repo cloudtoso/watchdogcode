@@ -254,7 +254,7 @@
             <div class="subtitle">La tecnología habilita la seguridad, pero la disciplina la hace efectiva</div>
         </div>
         <div class="meta">
-            <div><strong>Período:</strong> 2026-04-09 00:59 - 2026-04-16 12:59</div>
+            <div><strong>Período:</strong> 2026-04-09 23:56 - 2026-04-17 11:56</div>
             <div style="font-size: 0.85em; margin-top: 4px;">Tenant ID: ********************************8c2b</div>
         </div>
     </div>
@@ -341,19 +341,20 @@
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #0078d4;">
                 <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – MDO: Microsoft Defender for Office 365
-                <span class="ops-badge daily">#6</span>
+                <span class="ops-badge daily">#16</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#0078d4; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Impersonation & Brand Protection</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#0078d4; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Análisis de URLs & Adjuntos</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Impersonation: Homoglyph / Punycode</h3>
-                <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">let lookback = 30d;
-EmailEvents
-| where Timestamp >= ago(lookback)
-| where SenderFromDomain has "xn--" or SenderFromDomain matches regex @"[^\u0000-\u007F]" // no ASCII
-| summarize Msgs=count(), Recipients=dcount(RecipientEmailAddress), FirstSeen=min(Timestamp), LastSeen=max(Timestamp), ExampleFrom=any(SenderFromAddress), Subjects=make_set(Subject, 5) by SenderFromDomain
-| order by Msgs desc</div>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Campaña Activa: Múltiples Clics en misma URL</h3>
+                <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">
+UrlClickEvents
+| where Timestamp > ago(7d)
+// En UrlClickEvents el usuario es 'AccountUpn'
+| summarize DistinctVictims=dcount(AccountUpn), FirstClick=min(Timestamp), LastClick=max(Timestamp) by Url
+| where DistinctVictims >= 3
+| order by DistinctVictims desc, LastClick desc</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
                     <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Paquete%20MDO%20KQL%20Advance%20Hunting.md" target="_blank">&#x1f4da; Ver catálogo KQL de MDO: Microsoft Defender for Office 365</a>
@@ -407,19 +408,18 @@ EmailEvents
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #d83b01;">
                 <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – MDE: Microsoft Defender for Endpoint
-                <span class="ops-badge daily">#12</span>
+                <span class="ops-badge daily">#10</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#d83b01; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Exposición de Dispositivos</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#d83b01; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Vulnerabilidades</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Dispositivos con Exposición Alta o Media</h3>
-                <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">DeviceInfo
-| summarize arg_max(Timestamp, *) by DeviceId
-| where ExposureLevel in ("High","Medium")
-| project DeviceName, OSPlatform, ExposureLevel, OnboardingStatus, Timestamp
-| order by ExposureLevel asc, Timestamp desc
-| take 50</div>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Vulnerabilidades Críticas por Dispositivo (TVM)</h3>
+                <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">DeviceTvmSoftwareVulnerabilities
+| where VulnerabilitySeverityLevel == "Critical"
+| summarize CriticalVulns=count(), Software=make_set(SoftwareName, 20) by DeviceName
+| order by CriticalVulns desc
+| take 25</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
                     <a class="ops-btn doc" href="https://learn.microsoft.com/defender-xdr/advanced-hunting-query-samples" target="_blank">&#x1f4da; Ver catálogo KQL de MDE: Microsoft Defender for Endpoint</a>
@@ -473,17 +473,21 @@ EmailEvents
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #e97a00;">
                 <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – MDI: Microsoft Defender for Identity
-                <span class="ops-badge daily">#2</span>
+                <span class="ops-badge daily">#8</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#e97a00; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Incidentes con evidencias de identidad (vista rápida)</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#e97a00; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">sAMAccountName spoofing / noPac</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Incidentes con evidencias de identidad (vista rápida)</h3>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">sAMAccountName spoofing / noPac</h3>
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">let TimeRange = 7d;
-IncidentInfo
+IdentityDirectoryEvents
 | where Timestamp >= ago(TimeRange)
-| project Timestamp, IncidentId, Title, Severity, Status, Classification, Determination
+| where ActionType contains "Account"
+| extend OldSamAccount = tostring(parse_json(AdditionalFields).OldValue)
+| extend NewSamAccount = tostring(parse_json(AdditionalFields).NewValue)
+| where OldSamAccount != NewSamAccount and NewSamAccount endswith "$"
+| project Timestamp, AccountUpn, TargetAccountUpn, OldSamAccount, NewSamAccount, DeviceName
 | order by Timestamp desc</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
@@ -538,17 +542,22 @@ IncidentInfo
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #107c10;">
                 <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – ENTRA: Microsoft Entra ID
-                <span class="ops-badge daily">#32</span>
+                <span class="ops-badge daily">#4</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#107c10; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Investigación – Correlaciones útiles (Entra ↔ Graph ↔ UEBA)</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#107c10; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Detección – Usuarios (EntraIdSignInEvents)</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">"New country" (1.11) → enriquecer con UEBA (BehaviorAnalytics)</h3>
-                <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">BehaviorAnalytics
-| where ActivityType == "FailedLogOn"
-| where ActivityInsights.FirstTimeUserConnectedFromCountry == True
-| where ActivityInsights.CountryUncommonlyConnectedFromAmongPeers == True</div>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Intentos contra un mismo usuario desde muchas IPs (spray distribuido)</h3>
+                <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">let Lookback = 1d;
+let MinIPs = 10;
+let MinFailures = 30;
+EntraIdSignInEvents
+| where Timestamp >= ago(Lookback)
+| where ErrorCode != 0
+| summarize Failures=count(), IPs=dcount(IPAddress), SampleIPs=make_set(IPAddress, 20) by AccountUpn
+| where IPs >= MinIPs and Failures >= MinFailures
+| order by IPs desc, Failures desc</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
                     <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Paquete%20KQL%20Queries%20EntraID%20Advanced%20Hunting.md" target="_blank">&#x1f4da; Ver catálogo KQL de ENTRA: Microsoft Entra ID</a>
@@ -602,20 +611,20 @@ IncidentInfo
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #8764b8;">
                 <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – MDA: Microsoft Defender for Cloud Apps
-                <span class="ops-badge daily">#8</span>
+                <span class="ops-badge daily">#6</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#8764b8; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Descarga y Exfiltración</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#8764b8; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Operaciones Administrativas</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Compartir Archivos con Externos</h3>
-                <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">let TimeRange = 14d;
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Acciones de Eliminación Masiva</h3>
+                <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">let TimeRange = 7d;
 CloudAppEvents
 | where Timestamp >= ago(TimeRange)
-| where ActionType has_any ("SharingSet","SharingInvitationCreated","Anonymous")
-| summarize Shares=count(), Apps=dcount(Application) by AccountDisplayName, AccountObjectId
-| where Shares > 20
-| order by Shares desc</div>
+| where ActionType has_any ("Delete","Remove","Purge")
+| summarize Deletions=count(), Users=dcount(AccountId) by Application, ActionType
+| where Deletions > 10
+| order by Deletions desc</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
                     <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Paquete%20MDA%20KQL%20Advance%20Hunting.md" target="_blank">&#x1f4da; Ver catálogo KQL de MDA: Microsoft Defender for Cloud Apps</a>
