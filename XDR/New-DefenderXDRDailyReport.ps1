@@ -2145,7 +2145,7 @@ $HtmlMDOSection = if ($RunMDO) {
 
 $HtmlMDESection = if ($RunMDE) { 
     $MdeAlerts = Get-WorkloadAlerts -WorkloadType "MDE" -AllAlerts $Data["AlertsByWorkload"]
-    Build-WorkloadSection -WorkloadName "MDE: Microsoft Defender for Endpoint" -WorkloadEmoji "&#x1f5a5;" -HeaderColor "#d83b01" -OperativeTasks $OperativeTasks.MDE -ActiveAlerts $MdeAlerts -SelectedKql $SelectedMdeKql -KqlCatalogUrl "https://learn.microsoft.com/defender-xdr/advanced-hunting-query-samples"
+    Build-WorkloadSection -WorkloadName "MDE: Microsoft Defender for Endpoint" -WorkloadEmoji "&#x1f5a5;" -HeaderColor "#d83b01" -OperativeTasks $OperativeTasks.MDE -ActiveAlerts $MdeAlerts -SelectedKql $SelectedMdeKql -KqlCatalogUrl "https://github.com/watchdogcode/gol2026/blob/main/MDE/Paquete%20MDE%20KQL%20Advance%20Hunting.md#paquete-de-consultas-kql-advanced-hunting-%EF%B8%8F"
 } else { "" }
 
 $HtmlMDISection = if ($RunMDI) { 
