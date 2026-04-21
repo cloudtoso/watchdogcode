@@ -282,14 +282,14 @@ function Get-TtlClass {
 $spfSt  = if ($DHCSpfAdvisory -eq "An SPF-record is configured and the policy is sufficiently strict.") { "bg-success" } else { "bg-danger" }
 $dkSt   = if ($dkim.Count -gt 0) { "bg-success" } else { "bg-danger" }
 $dmSt   = if ($DHCDmarcRecord -match "p=reject" -or $DHCDmarcRecord -match "p=quarantine") { "bg-success" } else { "bg-danger" }
-$mtaSt  = if ($DHCMtaRecord -and $DHCMtaRecord -ne "yourinfo") { "bg-success" } else { "bg-danger" }
+$mtaSt  = if ($null -ne $MTA -and $MTA.TXT -match 'v=STSv1') { "bg-success" } else { "bg-danger" }
 
 $spfAdv   = $DHCSpfAdvisory
 $dkimAdv  = if ($dkim.Count -gt 0) { "DKIM selectors found" } else { "No DKIM selectors detected" }
 $dmarcAdv = if ($DHCDmarcRecord -match "p=none") { "DMARC policy in monitoring mode (p=none)" } elseif ([string]::IsNullOrWhiteSpace($DHCDmarcRecord) -or $DHCDmarcRecord -eq "yourinfo") { "No DMARC record detected" } else { "DMARC policy is enforcing" }
 $dmarcAdvSt = if ($dmarcAdv -match 'p=none' -or $dmarcAdv -match 'No DMARC') { 'bg-danger' } else { 'bg-success' }
 $dmarcAdvClass = if ($DHCDmarcAdvisory -match 'will prevent abuse' -and $DHCDmarcAdvisory -match 'subdomain policy does not prevent abuse') { 'bg-warning-custom' } elseif ($DHCDmarcAdvisory -match 'will prevent abuse') { 'bg-success text-white' } elseif ($DHCDmarcAdvisory -match 'p=reject' -or $DHCDmarcAdvisory -match 'p=quarantine') { 'bg-success text-white' } elseif ($DHCDmarcAdvisory -match 'does not prevent abuse') { 'bg-danger text-white' } else { 'bg-danger text-white' }
-$mtaAdv   = if ($DHCMtaRecord -and $DHCMtaRecord -ne "yourinfo") { "MTA-STS DNS record found" } else { "MTA-STS DNS record not found" }
+$mtaAdv   = if ($null -ne $MTA -and $MTA.TXT -match 'v=STSv1') { "MTA-STS DNS record found" } else { "MTA-STS DNS record not found" }
 
 $mtaTTLValue = if ($null -ne $MTA) { $MTA.TTL } else { "N/A" }
 
