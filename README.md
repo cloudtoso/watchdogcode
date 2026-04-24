@@ -415,4 +415,3 @@ Este reporte es una herramienta de visualización. Los datos mostrados dependen 
 **Creado por:** Ernesto Cobos Roqueñi y Jose Arturo Mandujano  
 **Versión:** 2.1
 **Última actualización:** Abril 2026
-
