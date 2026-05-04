@@ -1,81 +1,81 @@
-# Guía de Uso — New-DefenderXDRWeeklyReport.ps1
+# Usage Guide — New-DefenderXDRWeeklyReport.ps1
 
-**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
+**Authors:** Ernesto Cobos Roqueñí, Arturo Mandujano
 
-Esta guía está alineada con el estado actual del script `XDR/New-DefenderXDRWeeklyReport.ps1`.
-
----
-
-## 1) Descripción
-
-`New-DefenderXDRWeeklyReport.ps1` genera un reporte HTML semanal de seguridad para Microsoft Defender XDR con foco en:
-
-- MDO (campañas y usuarios más atacados)
-- MDE (severidad de alertas, hosts en riesgo y salud de dispositivos)
-- MDI (spray/fuerza bruta y ubicaciones atípicas)
-- MDA (OAuth y Shadow IT)
-
-Incluye KPIs, resumen ejecutivo y lista de verificación operativa semanal.
+This guide is aligned with the current state of the script `XDR/New-DefenderXDRWeeklyReport.ps1`.
 
 ---
 
-## 2) Requisitos Previos
+## 1) Description
 
-1. **Permisos de API**
-     - `AdvancedHunting.Read.All` con consentimiento de administrador.
+`New-DefenderXDRWeeklyReport.ps1` generates a weekly HTML security report for Microsoft Defender XDR focused on:
 
-2. **Conectividad**
+- MDO (campaigns and most attacked users)
+- MDE (alert severity, at-risk hosts, and device health)
+- MDI (spray/brute force and atypical locations)
+- MDA (OAuth and Shadow IT)
+
+It includes KPIs, an executive summary, and a weekly operational checklist.
+
+---
+
+## 2) Prerequisites
+
+1. **API Permissions**
+     - `AdvancedHunting.Read.All` with administrator consent.
+
+2. **Connectivity**
      - `https://api.security.microsoft.com`
      - `https://login.microsoftonline.com`
 
-3. **Módulos (solo según método de auth)**
-     - `Az.Accounts` para `Interactive`.
-     - `MSAL.PS` para `Certificate` (según implementación actual del script).
+3. **Modules (only depending on auth method)**
+     - `Az.Accounts` for `Interactive`.
+     - `MSAL.PS` for `Certificate` (per the current script implementation).
 
 ---
 
-## 3) Autenticación (estado actual)
+## 3) Authentication (current state)
 
-- **Predeterminado:** `Secret`
-- **Alias disponible:** `-Auth` (equivalente a `-AuthMode`)
-- Métodos soportados: `Secret`, `DeviceCode`, `Interactive`, `Certificate`
+- **Default:** `Secret`
+- **Available alias:** `-Auth` (equivalent to `-AuthMode`)
+- Supported methods: `Secret`, `DeviceCode`, `Interactive`, `Certificate`
 
-### Comportamiento importante
+### Important behavior
 
-- Si no envías `-Auth` o `-AuthMode`, el script usa `Secret`.
-- En modo `Secret`, `ClientSecret` es obligatorio.
-- `TenantId` y `ClientId` son obligatorios en el script.
+- If you don't pass `-Auth` or `-AuthMode`, the script uses `Secret`.
+- In `Secret` mode, `ClientSecret` is required.
+- `TenantId` and `ClientId` are required in the script.
 
 ---
 
-## 4) Parámetros Principales
+## 4) Main Parameters
 
-| Parámetro | Tipo | Descripción | Default |
+| Parameter | Type | Description | Default |
 | :--- | :--- | :--- | :--- |
-| `TimeWindowDays` | Int | Ventana de análisis semanal (`7`, `14`, `30`) | `7` |
-| `OutputPath` | String | Ruta de salida del HTML | `XDR\Weekly_SecOps_Report_YYYYMMDD.html` |
-| `AuthMode` / `Auth` | String | Método de autenticación | `Secret` |
-| `TenantId` | String | Tenant ID de Entra ID | Requerido |
-| `ClientId` | String | App/Client ID | Requerido |
-| `ClientSecret` | String | Secreto (solo `Secret`) | N/A |
-| `CertThumbprint` | String | Huella cert (solo `Certificate`) | N/A |
-| `SendMail` | Bool | Envía reporte por SMTP | `$false` |
-| `SmtpServer` | String | Servidor SMTP | N/A |
-| `To` | String | Destinatario(s) de correo | N/A |
-| `Subject` | String | Asunto de correo | `Defender XDR - Reporte Semanal de Amenazas` |
-| `ProxyUrl` | String | Proxy HTTP/HTTPS | N/A |
-| `TimeoutSec` | Int | Timeout por consulta | `120` |
-| `FailFast` | Switch | Detiene ejecución ante primer fallo | `False` |
-| `ExportCsv` | Switch | Exporta datasets a CSV | `False` |
-| `UseParallel` | Switch | Ejecuta consultas en paralelo (si aplica en lógica) | `False` |
-| `LogPath` | String | Ruta del log | `C:\Reports\Logs\DefenderXDR.log` |
-| `TestMode` | Switch | Modo prueba (según lógica del script) | `False` |
+| `TimeWindowDays` | Int | Weekly analysis time window (`7`, `14`, `30`) | `7` |
+| `OutputPath` | String | HTML output path | `XDR\Weekly_SecOps_Report_YYYYMMDD.html` |
+| `AuthMode` / `Auth` | String | Authentication method | `Secret` |
+| `TenantId` | String | Entra ID Tenant ID | Required |
+| `ClientId` | String | App/Client ID | Required |
+| `ClientSecret` | String | Secret (`Secret` only) | N/A |
+| `CertThumbprint` | String | Cert thumbprint (`Certificate` only) | N/A |
+| `SendMail` | Bool | Send report via SMTP | `$false` |
+| `SmtpServer` | String | SMTP server | N/A |
+| `To` | String | Email recipient(s) | N/A |
+| `Subject` | String | Email subject | `Defender XDR - Reporte Semanal de Amenazas` |
+| `ProxyUrl` | String | HTTP/HTTPS proxy | N/A |
+| `TimeoutSec` | Int | Timeout per query | `120` |
+| `FailFast` | Switch | Stop execution on first failure | `False` |
+| `ExportCsv` | Switch | Export datasets to CSV | `False` |
+| `UseParallel` | Switch | Execute queries in parallel (if applicable in logic) | `False` |
+| `LogPath` | String | Log path | `C:\Reports\Logs\DefenderXDR.log` |
+| `TestMode` | Switch | Test mode (per script logic) | `False` |
 
 ---
 
-## 5) Ejemplos de Ejecución
+## 5) Execution Examples
 
-### A. Ejecución estándar (Secret por defecto)
+### A. Standard execution (Secret by default)
 
 ```powershell
 .\New-DefenderXDRWeeklyReport.ps1 `
@@ -84,7 +84,7 @@ Incluye KPIs, resumen ejecutivo y lista de verificación operativa semanal.
     -ClientSecret "tu_client_secret"
 ```
 
-### B. Mismo escenario usando alias `-Auth`
+### B. Same scenario using alias `-Auth`
 
 ```powershell
 .\New-DefenderXDRWeeklyReport.ps1 `
@@ -94,7 +94,7 @@ Incluye KPIs, resumen ejecutivo y lista de verificación operativa semanal.
     -Auth Secret
 ```
 
-### C. Device Code (sesión remota / sin browser local)
+### C. Device Code (remote session / no local browser)
 
 ```powershell
 .\New-DefenderXDRWeeklyReport.ps1 `
@@ -103,7 +103,7 @@ Incluye KPIs, resumen ejecutivo y lista de verificación operativa semanal.
     -AuthMode DeviceCode
 ```
 
-### D. Interactivo (requiere `Az.Accounts`)
+### D. Interactive (requires `Az.Accounts`)
 
 ```powershell
 Install-Module Az.Accounts -Scope CurrentUser -Force
@@ -114,7 +114,7 @@ Install-Module Az.Accounts -Scope CurrentUser -Force
     -AuthMode Interactive
 ```
 
-### E. Certificado (requiere `MSAL.PS`)
+### E. Certificate (requires `MSAL.PS`)
 
 ```powershell
 Install-Module MSAL.PS -Scope CurrentUser -Force
@@ -126,7 +126,7 @@ Install-Module MSAL.PS -Scope CurrentUser -Force
     -CertThumbprint "THUMBPRINT_DEL_CERT"
 ```
 
-### F. Exportar CSV + envío por correo
+### F. Export CSV + send via email
 
 ```powershell
 .\New-DefenderXDRWeeklyReport.ps1 `
@@ -141,40 +141,40 @@ Install-Module MSAL.PS -Scope CurrentUser -Force
     -Subject "Reporte Semanal de Seguridad - M365"
 ```
 
-> Nota: El script usa remitente automático `DefenderReport@<COMPUTERNAME>` en `Send-MailMessage`.
+> Note: The script uses an automatic sender `DefenderReport@<COMPUTERNAME>` in `Send-MailMessage`.
 
 ---
 
-## 6) Salidas
+## 6) Outputs
 
-- **HTML principal:** `Weekly_SecOps_Report_YYYYMMDD.html`
-- **Log de ejecución:** según `-LogPath`
-- **CSV opcionales:** carpeta `CSV_Export` junto al HTML (si `-ExportCsv`)
+- **Main HTML:** `Weekly_SecOps_Report_YYYYMMDD.html`
+- **Execution log:** per `-LogPath`
+- **Optional CSVs:** `CSV_Export` folder alongside the HTML (if `-ExportCsv`)
 
 ---
 
-## 7) Solución de Problemas Rápida
+## 7) Quick Troubleshooting
 
 - **401 Unauthorized**
-    - Validar permisos `AdvancedHunting.Read.All` + Admin Consent.
+    - Validate `AdvancedHunting.Read.All` permissions + Admin Consent.
 
 - **`ClientSecret es requerido`**
-    - Ocurre cuando usas default `Secret` sin `-ClientSecret`.
+    - Occurs when using default `Secret` without `-ClientSecret`.
 
-- **`Az.Accounts` no encontrado**
-    - Instalar módulo o usar `Secret`/`DeviceCode`.
+- **`Az.Accounts` not found**
+    - Install the module or use `Secret`/`DeviceCode`.
 
-- **Error en certificado**
-    - Validar que el cert exista en `Cert:\CurrentUser\My\<thumbprint>` y que `MSAL.PS` esté disponible.
+- **Certificate error**
+    - Validate that the cert exists in `Cert:\CurrentUser\My\<thumbprint>` and that `MSAL.PS` is available.
 
-- **Reporte vacío o con pocos datos**
-    - Aumentar `-TimeWindowDays` a `14` o `30`.
+- **Empty report or insufficient data**
+    - Increase `-TimeWindowDays` to `14` or `30`.
 
 ---
 
-## 8) Ejecución recomendada para automatización
+## 8) Recommended execution for automation
 
-Para tarea programada, usar `Secret` (default) con credenciales desde variable segura o secret store, por ejemplo:
+For scheduled tasks, use `Secret` (default) with credentials from a secure variable or secret store, for example:
 
 ```powershell
 .\New-DefenderXDRWeeklyReport.ps1 `

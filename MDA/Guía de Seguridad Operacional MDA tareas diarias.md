@@ -1,25 +1,25 @@
-# Guía de Seguridad Operacional Diaria: Microsoft Defender for Cloud Apps 🛡️
+# Daily Operational Security Guide: Microsoft Defender for Cloud Apps 🛡️
 
-## *La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad.*
+## *Technology enables security, but discipline ensures its effectiveness.*
 
-Esta guía establece los procedimientos diarios para analizar tendencias, identificar usuarios de alto riesgo y gestionar campañas de amenazas en Microsoft Defender for Cloud Apps
+This guide establishes daily procedures to analyze trends, identify high-risk users, and manage threat campaigns in Microsoft Defender for Cloud Apps.
 
-**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
-
----
-
-## Objetivo
-Establecer rutinas operativas claras para analistas SOC que permitan:
-
-- Detectar amenazas en **SaaS y aplicaciones OAuth**
-- Gobernar aplicaciones y **Shadow IT**
-- Mantener la **postura de seguridad (SSPM)**
-- Asegurar **trazabilidad y auditoría**
+**Authors:** Ernesto Cobos Roqueñí, Arturo Mandujano
 
 ---
-## Índice
+
+## Objective
+Establish clear operational routines for SOC analysts that enable:
+
+- Detecting threats in **SaaS and OAuth applications**
+- Governing applications and **Shadow IT**
+- Maintaining **security posture (SSPM)**
+- Ensuring **traceability and auditing**
+
+---
+## Table of Contents
 - [Review Alerts and Incidents](#review-alerts-and-incidents)
-- [Triage desde Microsoft Defender XDR](#triage-desde-microsoft-defender-xdr)
+- [Triage from Microsoft Defender XDR](#triage-from-microsoft-defender-xdr)
 - [Review Threat Detection Data](#review-threat-detection-data)
 - [Application Governance – OAuth Risk](#application-governance--oauth-risk)
 - [App Governance – Overview](#app-governance--overview)
@@ -33,75 +33,75 @@ Establecer rutinas operativas claras para analistas SOC que permitan:
 
 ## Review Alerts and Incidents
 
-### Objetivo
-Detectar y priorizar amenazas activas relacionadas con Cloud Apps.
+### Objective
+Detect and prioritize active threats related to Cloud Apps.
 
-### Procedimiento
-1. Acceder a https://security.microsoft.com/alerts
-2. Navegar a **Incidents & Alerts > Incidents**
-3. Aplicar filtros:
+### Procedure
+1. Go to https://security.microsoft.com/alerts
+2. Navigate to **Incidents & Alerts > Incidents**
+3. Apply filters:
    - Status: `New`, `In progress`
    - Service source: `Defender for Cloud Apps`
    - Severity: `High`, `Medium`
 
-4. Abrir cada incidente y revisar:
+4. Open each incident and review:
    - Timeline
    - Evidence and response
-   - Alertas correlacionadas
+   - Correlated alerts
 
-### Clasificación
+### Classification
 - True Positive
 - False Positive
 - Informational
 
-### Acciones
-- Asignar propietario
-- Cambiar estado:
-  - `In progress` (si requiere análisis)
-  - `Resolved` (si fue contenido)
+### Actions
+- Assign owner
+- Change status:
+  - `In progress` (if analysis is required)
+  - `Resolved` (if contained)
 
 ---
 
-## Triage desde Microsoft Defender XDR
+## Triage from Microsoft Defender XDR
 
-Acceder a https://security.microsoft.com/incidents
+Go to https://security.microsoft.com/incidents
 
-### Objetivo
-Correlación XDR para entender impacto transversal.
+### Objective
+XDR correlation to understand cross-cutting impact.
 
-### Procedimiento
-- Revisar:
-  - Usuarios afectados
-  - Cloud Apps impactadas
+### Procedure
+- Review:
+  - Affected users
+  - Impacted Cloud Apps
 - Evidence and Response → **Investigate**
-- Usar:
+- Use:
   - Activity Log
-  - Advanced Hunting (si aplica)
+  - Advanced Hunting (if applicable)
 
-### Registro
-- Documentar hipótesis, evidencia y conclusión
+### Record
+- Document hypothesis, evidence, and conclusion
 
 ---
 
 ## Review Threat Detection Data
 
-Acceder a https://security.microsoft.com/threatanalytics3
+Go to https://security.microsoft.com/threatanalytics3
 
-### Objetivo
-Analizar detecciones de MDCA (anomalías, malware, OAuth).
+### Objective
+Analyze MDCA detections (anomalies, malware, OAuth).
 
-### Procedimiento
+### Procedure
 - Cloud Apps > Alerts
-- Filtros:
+- Filters:
   - Category: `Threat detection`
   - Status: `Open`
 
-### Validar
-- Tipo de alerta
-- Aplicación afectada
-- Usuario implicado
+### Validate
+- Alert type
+- Affected application
+- Involved user
 
-### Remediación
+### Remediation
 - Disable app
 - Revoke OAuth consent
 
@@ -109,18 +109,18 @@ Analizar detecciones de MDCA (anomalías, malware, OAuth).
 
 ## Application Governance – OAuth Risk
 
-Acceder a https://security.microsoft.com/cloudapps/governance-log
+Go to https://security.microsoft.com/cloudapps/governance-log
 
-### Objetivo
-Controlar riesgo de aplicaciones OAuth.
+### Objective
+Control OAuth application risk.
 
-### Procedimiento
+### Procedure
 - Cloud Apps > App Governance
-- Revisar:
-  - Apps **High Risk**
-  - Actividad anómala
+- Review:
+  - **High Risk** apps
+  - Anomalous activity
 
-### Validaciones clave
+### Key validations
 - Permissions (Graph scopes)
 - Publisher
 - Activity timeline
@@ -129,35 +129,35 @@ Controlar riesgo de aplicaciones OAuth.
 
 ## App Governance – Overview
 
-Acceder a https://security.microsoft.com/cloudapps/governance-log
+Go to https://security.microsoft.com/cloudapps/governance-log
 
-### Objetivo
-Visibilidad global del abuso OAuth.
+### Objective
+Global visibility into OAuth abuse.
 
-### Revisar dashboards
+### Review dashboards
 - Active apps
 - Alerts
 - Compliance posture
-- Sign‑in activity
+- Sign-in activity
 
-### Acción
-- Identificar cambios recientes y picos anómalos
+### Action
+- Identify recent changes and anomalous spikes
 
 ---
 
 ## Review OAuth App Data
 
-Acceder a https://security.microsoft.com/cloudapps/oauth-apps
+Go to https://security.microsoft.com/cloudapps/oauth-apps
 
-### Objetivo
-Detectar consent phishing y persistencia OAuth.
+### Objective
+Detect consent phishing and OAuth persistence.
 
-### Revisar
-- Timestamps de consentimiento
-- Nivel de permisos (Mail.Read, Files.ReadWrite)
-- Usuarios que otorgaron acceso
+### Review
+- Consent timestamps
+- Permission level (Mail.Read, Files.ReadWrite)
+- Users who granted access
 
-### Respuesta
+### Response
 - Disable app
 - Revoke permissions
 
@@ -165,17 +165,17 @@ Detectar consent phishing y persistencia OAuth.
 
 ## App Governance Policies
 
-Acceder a https://security.microsoft.com/cloudapps/policies/management
+Go to https://security.microsoft.com/cloudapps/policies/management
 
-### Objetivo
-Automatizar detección y respuesta OAuth.
+### Objective
+Automate OAuth detection and response.
 
-### Procedimiento
+### Procedure
 - Settings > Cloud Apps > App governance policies
-- Validar políticas predefinidas:
+- Validate predefined policies:
   - Suspicious OAuth App
 
-### Confirmar
+### Confirm
 - Scope
 - Alerting
 - Automatic remediation
@@ -184,34 +184,34 @@ Automatizar detección y respuesta OAuth.
 
 ## Conditional Access App Control
 
-Acceder a https://security.microsoft.com/cloudapps/policies/management?tab=conditionalAccessPolicies
+Go to https://security.microsoft.com/cloudapps/policies/management?tab=conditionalAccessPolicies
 
-### Objetivo
-Validar control de sesión en tiempo real.
+### Objective
+Validate real-time session control.
 
-### Revisar
+### Review
 - Active sessions
 - Blocked activities
 
-### Validación
-- Alineación con Conditional Access policies
+### Validation
+- Alignment with Conditional Access policies
 
 ---
 
 ## Shadow IT – Cloud Discovery
 
-Acceder a https://security.microsoft.com/cloudapps/discovery
+Go to https://security.microsoft.com/cloudapps/discovery
 
-### Objetivo
-Identificar aplicaciones no sancionadas.
+### Objective
+Identify unsanctioned applications.
 
-### Procedimiento
+### Procedure
 - Cloud Apps > Cloud Discovery
-- Revisar:
-  - Nuevas apps descubiertas
+- Review:
+  - Newly discovered apps
   - Risk score
 
-### Clasificación
+### Classification
 - Sanctioned
 - Unsanctioned
 
@@ -219,34 +219,31 @@ Identificar aplicaciones no sancionadas.
 
 ## Cloud Discovery Dashboard
 
-Acceder a https://security.microsoft.com/cloudapps/discovery
+Go to https://security.microsoft.com/cloudapps/discovery
 
-### Objetivo
-Identificar tendencias de uso y riesgo SaaS.
+### Objective
+Identify usage and SaaS risk trends.
 
-### Revisar
-- High‑level usage
+### Review
+- High-level usage
 - Top risky apps
 - Discovery alerts
 
-### Investigación
-- Apps con alto uso y baja compliance
+### Investigation
+- Apps with high usage and low compliance
 
 ---
 
-## Checklist Diario SOC
-- Incidentes revisados
-- Alertas OAuth validadas
-- Apps riesgosas mitigadas
-- Evidencia documentada
+## Daily SOC Checklist
+- Incidents reviewed
+- OAuth alerts validated
+- Risky apps mitigated
+- Evidence documented
 
 ---
 
-## Auditoría y Trazabilidad
-- Todos los incidentes deben:
-  - Tener owner asignado
-  - Evidencia adjunta
-  - Comentarios de cierre claros
-
----
-
+## Auditing and Traceability
+- All incidents must:
+  - Have an assigned owner
+  - Attached evidence
+  - Clear closing comments

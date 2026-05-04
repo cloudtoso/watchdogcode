@@ -57,7 +57,7 @@ Param(
 )
 
 # ─────────────────────────────────────────────
-# Validación de módulos requeridos
+# Required module validation
 # ─────────────────────────────────────────────
 $requiredModules = @(
     @{ Name = 'Microsoft.Graph.Authentication'; MinVersion = '2.0.0' },
@@ -73,39 +73,39 @@ foreach ($mod in $requiredModules) {
 
     if ($installed) {
         $ver = ($installed | Sort-Object Version -Descending | Select-Object -First 1).Version
-        Write-Host "Módulo $($mod.Name) v$ver instalado correctamente." -ForegroundColor DarkGray
+        Write-Host "Module $($mod.Name) v$ver installed correctly." -ForegroundColor DarkGray
     }
     else {
-        Write-Host "[X] Módulo $($mod.Name) no encontrado$(if ($mod.MinVersion) { " (mínimo v$($mod.MinVersion))" })." -ForegroundColor Red
-        $respuesta = Read-Host "    ¿Deseas instalar el módulo $($mod.Name)? (S/N)"
-        if ($respuesta -match '^[Ss]$') {
-            Write-Host "    Descargando e instalando $($mod.Name)..." -ForegroundColor Yellow
+        Write-Host "[X] Module $($mod.Name) not found$(if ($mod.MinVersion) { " (minimum v$($mod.MinVersion))" })." -ForegroundColor Red
+        $respuesta = Read-Host "    Do you want to install module $($mod.Name)? (Y/N)"
+        if ($respuesta -match '^[Yy]$') {
+            Write-Host "    Downloading and installing $($mod.Name)..." -ForegroundColor Yellow
             try {
                 Install-Module -Name $mod.Name -Force -Scope CurrentUser -ErrorAction Stop
-                Write-Host "    Módulo $($mod.Name) instalado exitosamente." -ForegroundColor Green
+                Write-Host "    Module $($mod.Name) installed successfully." -ForegroundColor Green
             }
             catch {
-                Write-Host "    [X] Error al instalar $($mod.Name): $($_.Exception.Message)" -ForegroundColor Red
+                Write-Host "    [X] Error installing $($mod.Name): $($_.Exception.Message)" -ForegroundColor Red
                 return
             }
         }
         else {
-            Write-Host "    Instalación cancelada. El script requiere $($mod.Name) para continuar." -ForegroundColor Yellow
+            Write-Host "    Installation cancelled. The script requires $($mod.Name) to continue." -ForegroundColor Yellow
             return
         }
     }
 }
 
 # ─────────────────────────────────────────────
-# Carpeta de reportes
+# Reports folder
 # ─────────────────────────────────────────────
 $reportDir = "C:\Scripts\EntraID"
 if (-not (Test-Path $reportDir)) {
     New-Item -Path $reportDir -ItemType Directory -Force | Out-Null
-    Write-Host "Carpeta creada: $reportDir" -ForegroundColor DarkGray
+    Write-Host "Folder created: $reportDir" -ForegroundColor DarkGray
 }
 else {
-    Write-Host "Carpeta de reportes existe: $reportDir" -ForegroundColor DarkGray
+    Write-Host "Reports folder exists: $reportDir" -ForegroundColor DarkGray
 }
 
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -570,7 +570,7 @@ if ($pUsers.Count -gt 0) {
 	$textInfo = $culture.TextInfo
 
 	# ─────────────────────────────────────────────
-	# Contadores de resumen
+	# Summary counters
 	# ─────────────────────────────────────────────
 	$countEntra = ($pUsers | Where-Object { $_.Workload -eq 'Entra ID' }).Count
 	$countSCC   = ($pUsers | Where-Object { $_.Workload -eq 'Security and Compliance' }).Count
@@ -586,7 +586,7 @@ if ($pUsers.Count -gt 0) {
 	$tenantId = (Get-MgContext).TenantId
 
 	# ─────────────────────────────────────────────
-	# Generar HTML
+	# Generate HTML
 	# ─────────────────────────────────────────────
 	$htmlHead = @"
 <style>
@@ -608,16 +608,16 @@ if ($pUsers.Count -gt 0) {
 "@
 
 	$htmlBody = @"
-<h1>Reporte de Asignación de Roles Administrativos - Microsoft 365 <em style="font-size: 0.75em; font-weight: normal; margin-left: 80px;">&ldquo;La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</em></h1>
-<p>Tenant: $tenantName | Tenant ID: $tenantId | Generado: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
-<p>Workloads evaluados: <strong>$($workLoads -join ', ')</strong> | Umbral de antigüedad de contraseña: <strong>$PasswordAgeThreshold días</strong></p>
-<p><em>Si la asignación es mediante grupo, el nombre de inicio de sesión se muestra con prefijo del grupo.</em></p>
+<h1>Administrative Role Assignment Report - Microsoft 365 <em style="font-size: 0.75em; font-weight: normal; margin-left: 80px;">&ldquo;La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</em></h1>
+<p>Tenant: $tenantName | Tenant ID: $tenantId | Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
+<p>Workloads evaluated: <strong>$($workLoads -join ', ')</strong> | Password age threshold: <strong>$PasswordAgeThreshold days</strong></p>
+<p><em>If the assignment is through a group, the sign-in name is shown with the group prefix.</em></p>
 
 <div>
     <span class="summary">Entra ID: $countEntra</span>
     <span class="summary">SCC: $countSCC</span>
     <span class="summary">EXO: $countEXO</span>
-    <span class="summary">Total asignaciones: $countTotal</span>
+    <span class="summary">Total assignments: $countTotal</span>
 </div>
 "@
 
@@ -679,10 +679,10 @@ if ($pUsers.Count -gt 0) {
 
 	try {
 		$fullHtml | Out-File -FilePath $htmlPath -Encoding UTF8
-		Write-Host "[OK] Reporte HTML exportado: $htmlPath" -ForegroundColor Green
+		Write-Host "[OK] HTML report exported: $htmlPath" -ForegroundColor Green
 		Invoke-Item $htmlPath
 	}
 	catch {
-		Write-Host "[ERROR] Error al exportar HTML: $($_.Exception.Message)" -ForegroundColor Red
+		Write-Host "[ERROR] Error exporting HTML: $($_.Exception.Message)" -ForegroundColor Red
 	}
 }

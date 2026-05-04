@@ -1,0 +1,5 @@
+{
+  "universes": ["blade-runner"],
+  "max_capacity": 10,
+  "overflow_strategy": "diegetic_expansion"
+}

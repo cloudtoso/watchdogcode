@@ -1,83 +1,83 @@
-# Guía de Uso — New-DefenderXDRDailyReport.ps1
+# Usage Guide — New-DefenderXDRDailyReport.ps1
 
-**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
+**Authors:** Ernesto Cobos Roqueñí, Arturo Mandujano
 
-Esta guía está alineada con el estado actual del script `XDR/New-DefenderXDRDailyReport.ps1`.
-
----
-
-## 1) Descripción
-
-`New-DefenderXDRDailyReport.ps1` genera un reporte HTML diario de operaciones de seguridad para Microsoft Defender XDR con foco en:
-
-- MDO (campañas, URLs y usuarios más atacados)
-- MDE (alertas por severidad y estado de salud endpoint)
-- MDI (fuerza bruta y usuarios de alto riesgo)
-- MDA (OAuth y Shadow IT)
-- XDR consolidado (alertas por servicio/severidad y top de alertas recientes)
-
-Además incluye:
-
-- KPIs ejecutivos
-- Tareas operativas con enlaces (MDO, MDI y Entra ID)
-- Recomendaciones KQL diarias por carga de trabajo
+This guide is aligned with the current state of the script `XDR/New-DefenderXDRDailyReport.ps1`.
 
 ---
 
-## 2) Requisitos Previos
+## 1) Description
 
-1. **Permisos de API**
-   - `AdvancedHunting.Read.All` con consentimiento de administrador.
+`New-DefenderXDRDailyReport.ps1` generates a daily HTML security operations report for Microsoft Defender XDR focused on:
 
-2. **Conectividad**
+- MDO (campaigns, URLs, and most attacked users)
+- MDE (alerts by severity and endpoint health status)
+- MDI (brute force and high-risk users)
+- MDA (OAuth and Shadow IT)
+- Consolidated XDR (alerts by service/severity and top recent alerts)
+
+It also includes:
+
+- Executive KPIs
+- Operational tasks with links (MDO, MDI, and Entra ID)
+- Daily KQL recommendations per workload
+
+---
+
+## 2) Prerequisites
+
+1. **API Permissions**
+   - `AdvancedHunting.Read.All` with administrator consent.
+
+2. **Connectivity**
    - `https://api.security.microsoft.com`
    - `https://login.microsoftonline.com`
 
-3. **Módulos (según método de auth)**
-   - `Az.Accounts` para `Interactive` y (recomendado) `DeviceCode`.
-   - Si `Az.Accounts` no está instalado, el script puede usar fallback REST en `DeviceCode` (requiere `TenantId` y `ClientId`).
+3. **Modules (depending on auth method)**
+   - `Az.Accounts` for `Interactive` and (recommended) `DeviceCode`.
+   - If `Az.Accounts` is not installed, the script can use REST fallback in `DeviceCode` (requires `TenantId` and `ClientId`).
 
 ---
 
-## 3) Autenticación
+## 3) Authentication
 
-Métodos soportados:
+Supported methods:
 
-- `Secret` (predeterminado)
+- `Secret` (default)
 - `Interactive`
 - `DeviceCode`
 
-### Comportamiento importante
+### Important behavior
 
-- Si no envías `-AuthMode`, se usa `Secret`.
-- En `Secret`, debes proporcionar `TenantId`, `ClientId` y `ClientSecret` (directos o por variables de entorno).
-- En `DeviceCode` sin módulos, debes proporcionar `TenantId` y `ClientId`.
+- If you don't pass `-AuthMode`, `Secret` is used.
+- In `Secret`, you must provide `TenantId`, `ClientId`, and `ClientSecret` (directly or via environment variables).
+- In `DeviceCode` without modules, you must provide `TenantId` and `ClientId`.
 
 ---
 
-## 4) Parámetros Principales
+## 4) Main Parameters
 
-| Parámetro | Tipo | Descripción | Default |
+| Parameter | Type | Description | Default |
 | :--- | :--- | :--- | :--- |
-| `TimeWindowHours` | Int | Ventana de análisis en horas | `720` |
-| `OutputPath` | String | Ruta de salida del HTML | `XDR\Daily_SecOps_Report_YYYYMMDD.html` |
-| `TenantId` | String | Tenant ID de Entra ID | `$env:AZURE_TENANT_ID` |
+| `TimeWindowHours` | Int | Analysis time window in hours | `720` |
+| `OutputPath` | String | HTML output path | `XDR\Daily_SecOps_Report_YYYYMMDD.html` |
+| `TenantId` | String | Entra ID Tenant ID | `$env:AZURE_TENANT_ID` |
 | `ClientId` | String | App/Client ID | `$env:AZURE_CLIENT_ID` |
-| `ClientSecret` | String | Secreto de la app | `$env:AZURE_CLIENT_SECRET` |
-| `AuthMode` | String | Método de autenticación | `Secret` |
-| `SendMail` | Bool | Envía reporte por SMTP | `$false` |
-| `SmtpServer` | String | Servidor SMTP | N/A |
-| `From` | String | Remitente de correo | N/A |
-| `To` | String | Destinatario(s) | N/A |
-| `Subject` | String | Asunto del correo | `Reporte Diario de Seguridad - M365 Defender XDR` |
-| `TimeoutSec` | Int | Timeout por consulta | `120` |
-| `FailFast` | Bool | Detener ejecución ante primer fallo | `$false` |
+| `ClientSecret` | String | App secret | `$env:AZURE_CLIENT_SECRET` |
+| `AuthMode` | String | Authentication method | `Secret` |
+| `SendMail` | Bool | Send report via SMTP | `$false` |
+| `SmtpServer` | String | SMTP server | N/A |
+| `From` | String | Email sender | N/A |
+| `To` | String | Recipient(s) | N/A |
+| `Subject` | String | Email subject | `Reporte Diario de Seguridad - M365 Defender XDR` |
+| `TimeoutSec` | Int | Timeout per query | `120` |
+| `FailFast` | Bool | Stop execution on first failure | `$false` |
 
 ---
 
-## 5) Ejemplos de Ejecución
+## 5) Execution Examples
 
-### A. Ejecución estándar (Secret por defecto)
+### A. Standard execution (Secret by default)
 
 ```powershell
 .\New-DefenderXDRDailyReport.ps1 `
@@ -86,7 +86,7 @@ Métodos soportados:
   -ClientSecret "tu_client_secret"
 ```
 
-### B. Interactivo (requiere Az.Accounts)
+### B. Interactive (requires Az.Accounts)
 
 ```powershell
 Install-Module Az.Accounts -Scope CurrentUser -Force
@@ -94,7 +94,7 @@ Install-Module Az.Accounts -Scope CurrentUser -Force
 .\New-DefenderXDRDailyReport.ps1 -AuthMode Interactive -TimeWindowHours 48
 ```
 
-### C. Device Code (sin browser local)
+### C. Device Code (no local browser)
 
 ```powershell
 # Recomendado con Az.Accounts:
@@ -106,7 +106,7 @@ Install-Module Az.Accounts -Scope CurrentUser -Force
   -ClientId "11111111-1111-1111-1111-111111111111"
 ```
 
-### D. Envío por correo SMTP
+### D. Sending via SMTP email
 
 ```powershell
 .\New-DefenderXDRDailyReport.ps1 `
@@ -121,45 +121,45 @@ Install-Module Az.Accounts -Scope CurrentUser -Force
   -Subject "Reporte Diario de Seguridad - M365"
 ```
 
-> Nota: para enviar correo deben venir `SmtpServer`, `From` y `To`.
+> Note: to send email, `SmtpServer`, `From`, and `To` must be provided.
 
 ---
 
-## 6) Contenido del Reporte HTML
+## 6) HTML Report Contents
 
-| Sección | Descripción |
+| Section | Description |
 | :--- | :--- |
-| **KPIs** | Total Alertas XDR, Incidentes Activos, Phishing Entregado, Usuarios Alto Riesgo, Fuerza Bruta, OAuth. |
-| **MDO** | Tareas operativas diarias + recomendación KQL diaria. |
-| **XDR Consolidado** | Alertas por servicio/severidad y top de alertas recientes. |
-| **MDE** | Alertas por severidad + recomendación KQL diaria. |
-| **MDI** | Tareas operativas + fuerza bruta + usuarios de alto riesgo + recomendación KQL diaria. |
-| **Entra ID** | Tareas operativas + recomendación KQL diaria. |
-| **MDA** | Nuevos consentimientos OAuth + recomendación KQL diaria. |
-| **Recomendaciones** | Acciones operativas sugeridas para el día. |
+| **KPIs** | Total XDR Alerts, Active Incidents, Delivered Phishing, High-Risk Users, Brute Force, OAuth. |
+| **MDO** | Daily operational tasks + daily KQL recommendation. |
+| **Consolidated XDR** | Alerts by service/severity and top recent alerts. |
+| **MDE** | Alerts by severity + daily KQL recommendation. |
+| **MDI** | Operational tasks + brute force + high-risk users + daily KQL recommendation. |
+| **Entra ID** | Operational tasks + daily KQL recommendation. |
+| **MDA** | New OAuth consents + daily KQL recommendation. |
+| **Recommendations** | Suggested operational actions for the day. |
 
 ---
 
-## 7) Solución de Problemas Rápida
+## 7) Quick Troubleshooting
 
 - **401 Unauthorized**
-  - Validar permisos `AdvancedHunting.Read.All` + Admin Consent.
+  - Validate `AdvancedHunting.Read.All` permissions + Admin Consent.
 
-- **Fallo en autenticación Secret**
-  - Confirmar `TenantId`, `ClientId`, `ClientSecret` válidos.
+- **Secret authentication failure**
+  - Confirm valid `TenantId`, `ClientId`, `ClientSecret`.
 
-- **Sin sesión Azure en Interactive/DeviceCode**
-  - Instalar `Az.Accounts` o usar `DeviceCode` fallback REST con `TenantId` y `ClientId`.
+- **No Azure session in Interactive/DeviceCode**
+  - Install `Az.Accounts` or use `DeviceCode` REST fallback with `TenantId` and `ClientId`.
 
-- **Consultas vacías / sin datos**
-  - Ajustar `-TimeWindowHours` (ej. `24`, `72`, `168`, `720` según necesidad).
+- **Empty queries / no data**
+  - Adjust `-TimeWindowHours` (e.g., `24`, `72`, `168`, `720` as needed).
 
-- **No envía correo**
-  - Revisar que `-SendMail $true` y parámetros `-SmtpServer`, `-From`, `-To` estén completos.
+- **Email not sending**
+  - Verify that `-SendMail $true` and parameters `-SmtpServer`, `-From`, `-To` are all provided.
 
 ---
 
-## 8) Ejecución recomendada para automatización
+## 8) Recommended execution for automation
 
 ```powershell
 .\New-DefenderXDRDailyReport.ps1 `
@@ -169,4 +169,4 @@ Install-Module Az.Accounts -Scope CurrentUser -Force
   -TimeWindowHours 24
 ```
 
-Para entorno SOC diario, se recomienda programar ejecución cada mañana y almacenar el HTML en una ruta compartida de reportes.
+For a daily SOC environment, it is recommended to schedule execution every morning and store the HTML in a shared reports path.

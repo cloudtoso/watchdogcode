@@ -12,53 +12,53 @@
 ##############################################################################################
 <#
 .SYNOPSIS
-    Valida la configuración de Zero-hour Auto Purge (ZAP) en el tenant de Microsoft 365.
+    Validates the Zero-hour Auto Purge (ZAP) configuration in the Microsoft 365 tenant.
 
 .DESCRIPTION
-    Este script revisa la configuración de ZAP (Zero-hour Auto Purge) en todas las políticas
-    relevantes del tenant para asegurar que cumple con las mejores prácticas de Microsoft:
+    This script reviews the ZAP (Zero-hour Auto Purge) configuration in all relevant tenant
+    policies to ensure compliance with Microsoft best practices:
 
     - Anti-Spam  (HostedContentFilterPolicy) : SpamZapEnabled, PhishZapEnabled
     - Anti-Malware (MalwareFilterPolicy)      : ZapEnabled
-    - Anti-Phishing (AntiPhishPolicy)         : ZapEnabled (disponible en tenants con MDO)
-    - Configuración global de transporte      : Validaciones de exclusiones ZAP
-    - Cuarentena                              : Políticas de cuarentena asociadas a acciones ZAP
+    - Anti-Phishing (AntiPhishPolicy)         : ZapEnabled (available in tenants with MDO)
+    - Global transport configuration          : ZAP exclusion validations
+    - Quarantine                              : Quarantine policies associated with ZAP actions
 
-    Genera un reporte HTML tipo dashboard con el estado de cumplimiento, detalle por política
-    y recomendaciones de remediación.
+    Generates an HTML dashboard report with compliance status, policy details, and remediation
+    recommendations.
 
 .NOTES
-    Requiere conexión previa a Exchange Online:
+    Requires prior connection to Exchange Online:
         Connect-ExchangeOnline
 
-    Autor  : Ernesto Cobos Roqueñí, Arturo Mandujano
-    Fecha  : 13/Marzo/2026
-    Versión: 1.0
+    Author : Ernesto Cobos Roqueñí, Arturo Mandujano
+    Date   : 13/March/2026
+    Version: 1.0
 #>
 
 # ─────────────────────────────────────────────
-# Validación de módulo y carpeta de reportes
+# Module validation and reports folder
 # ─────────────────────────────────────────────
 if (Get-Module -ListAvailable -Name ExchangeOnlineManagement) {
-    Write-Host "Módulo ExchangeOnlineManagement instalado correctamente." -ForegroundColor DarkGray
+    Write-Host "ExchangeOnlineManagement module installed correctly." -ForegroundColor DarkGray
 }
 else {
-    Write-Host "[X] Módulo ExchangeOnlineManagement no encontrado. " -ForegroundColor Red -NoNewline
-    Write-Host "Descargando e instalando..." -ForegroundColor Yellow
+    Write-Host "[X] ExchangeOnlineManagement module not found. " -ForegroundColor Red -NoNewline
+    Write-Host "Downloading and installing..." -ForegroundColor Yellow
     Install-Module ExchangeOnlineManagement -Force -Scope CurrentUser
 }
 
 $reportDir = "C:\Scripts\MDO"
 if (-not (Test-Path $reportDir)) {
     New-Item -Path $reportDir -ItemType Directory -Force | Out-Null
-    Write-Host "Carpeta creada: $reportDir" -ForegroundColor DarkGray
+    Write-Host "Folder created: $reportDir" -ForegroundColor DarkGray
 }
 else {
-    Write-Host "Carpeta de reportes existe: $reportDir" -ForegroundColor DarkGray
+    Write-Host "Reports folder exists: $reportDir" -ForegroundColor DarkGray
 }
 
 # ─────────────────────────────────────────────
-# Colores y formato
+# Colors and formatting
 # ─────────────────────────────────────────────
 function Write-Status {
     param(
@@ -79,7 +79,7 @@ function Write-Status {
 }
 
 # ─────────────────────────────────────────────
-# Contadores globales y tracking de políticas
+# Global counters and policy tracking
 # ─────────────────────────────────────────────
 $script:totalChecks = 0
 $script:passCount   = 0
@@ -160,23 +160,23 @@ function Test-SettingWarn {
 }
 
 # ─────────────────────────────────────────────
-# Conexión a Exchange Online
+# Exchange Online connection
 # ─────────────────────────────────────────────
 Write-Host ""
-Write-Host "Validando conexion a Exchange Online..." -ForegroundColor DarkGray
+Write-Host "Validating Exchange Online connection..." -ForegroundColor DarkGray
 
 try {
     $null = Get-OrganizationConfig -ErrorAction Stop
-    Write-Host "  Conexion a Exchange Online activa." -ForegroundColor Green
+    Write-Host "  Exchange Online connection active." -ForegroundColor Green
 }
 catch {
-    Write-Host "  No hay conexion activa a Exchange Online. Conectando..." -ForegroundColor Yellow
+    Write-Host "  No active Exchange Online connection. Connecting..." -ForegroundColor Yellow
     try {
         Connect-ExchangeOnline -ShowBanner:$false -ErrorAction Stop
-        Write-Host "  Conexion a Exchange Online establecida." -ForegroundColor Green
+        Write-Host "  Exchange Online connection established." -ForegroundColor Green
     }
     catch {
-        Write-Host "[X] No se pudo conectar a Exchange Online: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[X] Could not connect to Exchange Online: $($_.Exception.Message)" -ForegroundColor Red
         return
     }
 }
@@ -186,45 +186,45 @@ $tenantName = (Get-OrganizationConfig).DisplayName
 
 Write-Host ""
 Write-Host "==============================================" -ForegroundColor Cyan
-Write-Host " Validación de ZAP (Zero-hour Auto Purge)"     -ForegroundColor Cyan
+Write-Host " ZAP (Zero-hour Auto Purge) Validation"       -ForegroundColor Cyan
 Write-Host "==============================================" -ForegroundColor Cyan
-Write-Host "Fecha : $timestamp" -ForegroundColor DarkGray
+Write-Host "Date  : $timestamp" -ForegroundColor DarkGray
 Write-Host "Tenant: $tenantName" -ForegroundColor DarkGray
 Write-Host ""
 
 # ═════════════════════════════════════════════
-# 1. ANTI-SPAM — ZAP para Spam y Phish
+# 1. ANTI-SPAM — ZAP for Spam and Phish
 # ═════════════════════════════════════════════
-Write-Host "1. Validando ZAP en politicas Anti-Spam..." -ForegroundColor Yellow
+Write-Host "1. Validating ZAP in Anti-Spam policies..." -ForegroundColor Yellow
 
 $spamPolicies = Get-HostedContentFilterPolicy
 
 foreach ($policy in $spamPolicies) {
     Set-CurrentPolicy -Section "Anti-Spam ZAP" -PolicyName $policy.Name
 
-    # SpamZapEnabled — debe estar habilitado (True)
+    # SpamZapEnabled — must be enabled (True)
     Test-Setting -Setting "SpamZapEnabled"  -CurrentValue $policy.SpamZapEnabled  -RecommendedValue "True"
 
-    # PhishZapEnabled — debe estar habilitado (True)
+    # PhishZapEnabled — must be enabled (True)
     Test-Setting -Setting "PhishZapEnabled" -CurrentValue $policy.PhishZapEnabled -RecommendedValue "True"
 
-    # Verificar que las acciones asociadas a ZAP sean efectivas
-    # ZAP mueve/cuarentena según estas acciones — si la acción es "NoAction", ZAP no sirve de nada
+    # Verify that ZAP-associated actions are effective
+    # ZAP moves/quarantines based on these actions — if the action is "NoAction", ZAP is useless
     $script:totalChecks++
     if ($policy.SpamAction -eq "NoAction") {
         $script:failCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Fail++ }
-        Write-Status -Setting "SpamAction (acción ZAP para spam)" `
+        Write-Status -Setting "SpamAction (ZAP action for spam)" `
                      -CurrentValue $policy.SpamAction `
-                     -RecommendedValue "MoveToJmf o Quarantine" `
+                     -RecommendedValue "MoveToJmf or Quarantine" `
                      -Status 'FAIL'
     }
     else {
         $script:passCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "SpamAction (acción ZAP para spam)" `
+        Write-Status -Setting "SpamAction (ZAP action for spam)" `
                      -CurrentValue "$($policy.SpamAction)" `
-                     -RecommendedValue "MoveToJmf o Quarantine" `
+                     -RecommendedValue "MoveToJmf or Quarantine" `
                      -Status 'PASS'
     }
 
@@ -232,7 +232,7 @@ foreach ($policy in $spamPolicies) {
     if ($policy.PhishSpamAction -eq "NoAction") {
         $script:failCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Fail++ }
-        Write-Status -Setting "PhishSpamAction (acción ZAP para phish)" `
+        Write-Status -Setting "PhishSpamAction (ZAP action for phish)" `
                      -CurrentValue $policy.PhishSpamAction `
                      -RecommendedValue "Quarantine" `
                      -Status 'FAIL'
@@ -240,7 +240,7 @@ foreach ($policy in $spamPolicies) {
     else {
         $script:passCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "PhishSpamAction (acción ZAP para phish)" `
+        Write-Status -Setting "PhishSpamAction (ZAP action for phish)" `
                      -CurrentValue "$($policy.PhishSpamAction)" `
                      -RecommendedValue "Quarantine" `
                      -Status 'PASS'
@@ -250,7 +250,7 @@ foreach ($policy in $spamPolicies) {
     if ($policy.HighConfidencePhishAction -eq "NoAction") {
         $script:failCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Fail++ }
-        Write-Status -Setting "HighConfidencePhishAction (acción ZAP para phish HC)" `
+        Write-Status -Setting "HighConfidencePhishAction (ZAP action for HC phish)" `
                      -CurrentValue $policy.HighConfidencePhishAction `
                      -RecommendedValue "Quarantine" `
                      -Status 'FAIL'
@@ -258,7 +258,7 @@ foreach ($policy in $spamPolicies) {
     else {
         $script:passCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "HighConfidencePhishAction (acción ZAP para phish HC)" `
+        Write-Status -Setting "HighConfidencePhishAction (ZAP action for HC phish)" `
                      -CurrentValue "$($policy.HighConfidencePhishAction)" `
                      -RecommendedValue "Quarantine" `
                      -Status 'PASS'
@@ -268,7 +268,7 @@ foreach ($policy in $spamPolicies) {
     if ($policy.HighConfidenceSpamAction -eq "NoAction") {
         $script:failCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Fail++ }
-        Write-Status -Setting "HighConfidenceSpamAction (acción ZAP para spam HC)" `
+        Write-Status -Setting "HighConfidenceSpamAction (ZAP action for HC spam)" `
                      -CurrentValue $policy.HighConfidenceSpamAction `
                      -RecommendedValue "Quarantine" `
                      -Status 'FAIL'
@@ -276,98 +276,98 @@ foreach ($policy in $spamPolicies) {
     else {
         $script:passCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "HighConfidenceSpamAction (acción ZAP para spam HC)" `
+        Write-Status -Setting "HighConfidenceSpamAction (ZAP action for HC spam)" `
                      -CurrentValue "$($policy.HighConfidenceSpamAction)" `
                      -RecommendedValue "Quarantine" `
                      -Status 'PASS'
     }
 
-    # Verificar si hay AllowedSenders/Domains que podrían excluir mensajes de ZAP
+    # Check if there are AllowedSenders/Domains that could exclude messages from ZAP
     $script:totalChecks++
     if ($policy.AllowedSenders.Count -gt 0 -or $policy.AllowedSenderDomains.Count -gt 0) {
         $script:warnCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
-        Write-Status -Setting "AllowedSenders/Domains (excluyen ZAP)" `
+        Write-Status -Setting "AllowedSenders/Domains (exclude ZAP)" `
                      -CurrentValue "Senders: $($policy.AllowedSenders.Count), Domains: $($policy.AllowedSenderDomains.Count)" `
-                     -RecommendedValue "0 — las listas allow impiden acciones de ZAP" `
+                     -RecommendedValue "0 — allow lists prevent ZAP actions" `
                      -Status 'WARN'
     }
     else {
         $script:passCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "AllowedSenders/Domains" -CurrentValue "Ninguno" -RecommendedValue "0" -Status 'PASS'
+        Write-Status -Setting "AllowedSenders/Domains" -CurrentValue "None" -RecommendedValue "0" -Status 'PASS'
     }
 }
 
-Write-Host "  Anti-Spam ZAP validado." -ForegroundColor Green
+Write-Host "  Anti-Spam ZAP validated." -ForegroundColor Green
 
 # ═════════════════════════════════════════════
-# 2. ANTI-MALWARE — ZAP para Malware
+# 2. ANTI-MALWARE — ZAP for Malware
 # ═════════════════════════════════════════════
-Write-Host "2. Validando ZAP en politicas Anti-Malware..." -ForegroundColor Yellow
+Write-Host "2. Validating ZAP in Anti-Malware policies..." -ForegroundColor Yellow
 
 $malwarePolicies = Get-MalwareFilterPolicy
 
 foreach ($policy in $malwarePolicies) {
     Set-CurrentPolicy -Section "Anti-Malware ZAP" -PolicyName $policy.Name
 
-    # ZapEnabled — debe estar habilitado (True)
+    # ZapEnabled — must be enabled (True)
     Test-Setting -Setting "ZapEnabled" -CurrentValue $policy.ZapEnabled -RecommendedValue "True"
 
-    # EnableFileFilter amplifica la efectividad de ZAP al bloquear tipos peligrosos
-    Test-SettingWarn -Setting "EnableFileFilter (complementa ZAP)" -CurrentValue $policy.EnableFileFilter -RecommendedValue "True"
+    # EnableFileFilter amplifies ZAP effectiveness by blocking dangerous types
+    Test-SettingWarn -Setting "EnableFileFilter (complements ZAP)" -CurrentValue $policy.EnableFileFilter -RecommendedValue "True"
 
-    # QuarantineTag — debe estar configurado para que ZAP pueda actuar
+    # QuarantineTag — must be configured for ZAP to act
     $script:totalChecks++
     if ($policy.QuarantineTag) {
         $script:passCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "QuarantineTag (destino ZAP)" -CurrentValue $policy.QuarantineTag -RecommendedValue "Configurado" -Status 'PASS'
+        Write-Status -Setting "QuarantineTag (ZAP destination)" -CurrentValue $policy.QuarantineTag -RecommendedValue "Configured" -Status 'PASS'
     }
     else {
         $script:warnCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
-        Write-Status -Setting "QuarantineTag (destino ZAP)" -CurrentValue "<no configurado>" -RecommendedValue "Configurar" -Status 'WARN'
+        Write-Status -Setting "QuarantineTag (ZAP destination)" -CurrentValue "<not configured>" -RecommendedValue "Configure" -Status 'WARN'
     }
 }
 
-Write-Host "  Anti-Malware ZAP validado." -ForegroundColor Green
+Write-Host "  Anti-Malware ZAP validated." -ForegroundColor Green
 
 # ═════════════════════════════════════════════
-# 3. ANTI-PHISHING — ZAP para suplantación
+# 3. ANTI-PHISHING — ZAP for spoofing
 # ═════════════════════════════════════════════
-Write-Host "3. Validando configuracion Anti-Phishing relevante a ZAP..." -ForegroundColor Yellow
+Write-Host "3. Validating Anti-Phishing configuration relevant to ZAP..." -ForegroundColor Yellow
 
 $phishPolicies = Get-AntiPhishPolicy
 
 foreach ($policy in $phishPolicies) {
-    Set-CurrentPolicy -Section "Anti-Phishing (impacto ZAP)" -PolicyName $policy.Name
+    Set-CurrentPolicy -Section "Anti-Phishing (ZAP impact)" -PolicyName $policy.Name
 
-    # Enabled — si la politica está deshabilitada, ZAP no puede actuar con base en sus detecciones
+    # Enabled — if the policy is disabled, ZAP cannot act based on its detections
     Test-Setting -Setting "Enabled" -CurrentValue $policy.Enabled -RecommendedValue "True"
 
-    # EnableSpoofIntelligence — mejora detección que luego ZAP puede usar
+    # EnableSpoofIntelligence — improves detection that ZAP can then use
     Test-Setting -Setting "EnableSpoofIntelligence" -CurrentValue $policy.EnableSpoofIntelligence -RecommendedValue "True"
 
-    # AuthenticationFailAction — acción cuando falla autenticación (spoofing), ZAP la respeta
+    # AuthenticationFailAction — action when authentication fails (spoofing), ZAP respects it
     Test-Setting -Setting "AuthenticationFailAction" -CurrentValue $policy.AuthenticationFailAction -RecommendedValue "MoveToJmf"
 
-    # HonorDmarcPolicy — ZAP respeta DMARC reject/quarantine
+    # HonorDmarcPolicy — ZAP respects DMARC reject/quarantine
     Test-SettingWarn -Setting "HonorDmarcPolicy" -CurrentValue $policy.HonorDmarcPolicy -RecommendedValue "True"
 }
 
-Write-Host "  Anti-Phishing (impacto ZAP) validado." -ForegroundColor Green
+Write-Host "  Anti-Phishing (ZAP impact) validated." -ForegroundColor Green
 
 # ═════════════════════════════════════════════
-# 4. REGLAS DE TRANSPORTE — Excepciones a ZAP
+# 4. TRANSPORT RULES — ZAP Exceptions
 # ═════════════════════════════════════════════
-Write-Host "4. Buscando reglas de transporte que puedan afectar ZAP..." -ForegroundColor Yellow
+Write-Host "4. Searching for transport rules that may affect ZAP..." -ForegroundColor Yellow
 
-Set-CurrentPolicy -Section "Reglas de Transporte" -PolicyName "Excepciones ZAP"
+Set-CurrentPolicy -Section "Transport Rules" -PolicyName "ZAP Exceptions"
 
 $transportRules = Get-TransportRule -ResultSize Unlimited
 
-# Buscar reglas que establezcan SCL=-1 (bypass filtering = bypass ZAP)
+# Search for rules that set SCL=-1 (bypass filtering = bypass ZAP)
 $sclBypassRules = @($transportRules | Where-Object { $_.SetSCL -eq -1 })
 
 $script:totalChecks++
@@ -375,18 +375,18 @@ if ($sclBypassRules.Count -gt 0) {
     $script:warnCount++
     if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
     $ruleNames = ($sclBypassRules | ForEach-Object { $_.Name }) -join '; '
-    Write-Status -Setting "Reglas con SCL=-1 (bypass ZAP)" `
-                 -CurrentValue "$($sclBypassRules.Count) regla(s): $ruleNames" `
-                 -RecommendedValue "0 — SCL=-1 evita que ZAP actúe" `
+    Write-Status -Setting "Rules with SCL=-1 (bypass ZAP)" `
+                 -CurrentValue "$($sclBypassRules.Count) rule(s): $ruleNames" `
+                 -RecommendedValue "0 — SCL=-1 prevents ZAP from acting" `
                  -Status 'WARN'
 }
 else {
     $script:passCount++
     if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-    Write-Status -Setting "Reglas con SCL=-1 (bypass ZAP)" -CurrentValue "Ninguna" -RecommendedValue "0" -Status 'PASS'
+    Write-Status -Setting "Rules with SCL=-1 (bypass ZAP)" -CurrentValue "None" -RecommendedValue "0" -Status 'PASS'
 }
 
-# Buscar reglas que establezcan HeaderContains X-MS-Exchange-Organization-SkipSafeLinksProcessing o similar
+# Search for rules that set HeaderContains X-MS-Exchange-Organization-SkipSafeLinksProcessing or similar
 $skipProcessingRules = @($transportRules | Where-Object {
     $_.SetHeaderName -match 'X-MS-Exchange-Organization-SkipSafe|X-MS-Exchange-Organization-AuthAs' -or
     $_.SetHeaderValue -match 'Internal'
@@ -397,54 +397,54 @@ if ($skipProcessingRules.Count -gt 0) {
     $script:warnCount++
     if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
     $ruleNames = ($skipProcessingRules | ForEach-Object { $_.Name }) -join '; '
-    Write-Status -Setting "Reglas con headers que omiten protección" `
-                 -CurrentValue "$($skipProcessingRules.Count) regla(s): $ruleNames" `
-                 -RecommendedValue "0 — pueden interferir con acciones de ZAP" `
+    Write-Status -Setting "Rules with headers that skip protection" `
+                 -CurrentValue "$($skipProcessingRules.Count) rule(s): $ruleNames" `
+                 -RecommendedValue "0 — may interfere with ZAP actions" `
                  -Status 'WARN'
 }
 else {
     $script:passCount++
     if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-    Write-Status -Setting "Reglas con headers que omiten protección" -CurrentValue "Ninguna" -RecommendedValue "0" -Status 'PASS'
+    Write-Status -Setting "Rules with headers that skip protection" -CurrentValue "None" -RecommendedValue "0" -Status 'PASS'
 }
 
-Write-Host "  Reglas de transporte validadas." -ForegroundColor Green
+Write-Host "  Transport rules validated." -ForegroundColor Green
 
 # ═════════════════════════════════════════════
-# 5. POLÍTICAS DE CUARENTENA — Acciones ZAP
+# 5. QUARANTINE POLICIES — ZAP Actions
 # ═════════════════════════════════════════════
-Write-Host "5. Validando politicas de cuarentena asociadas a ZAP..." -ForegroundColor Yellow
+Write-Host "5. Validating quarantine policies associated with ZAP..." -ForegroundColor Yellow
 
-Set-CurrentPolicy -Section "Cuarentena" -PolicyName "Políticas de cuarentena"
+Set-CurrentPolicy -Section "Quarantine" -PolicyName "Quarantine policies"
 
 try {
     $quarantinePolicies = Get-QuarantinePolicy -ErrorAction Stop
 
-    # Verificar que existan políticas de cuarentena configuradas
+    # Verify quarantine policies are configured
     $script:totalChecks++
     if ($quarantinePolicies.Count -gt 0) {
         $script:passCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "Políticas de cuarentena definidas" `
-                     -CurrentValue "$($quarantinePolicies.Count) política(s)" `
-                     -RecommendedValue "Al menos 1" `
+        Write-Status -Setting "Quarantine policies defined" `
+                     -CurrentValue "$($quarantinePolicies.Count) policy(ies)" `
+                     -RecommendedValue "At least 1" `
                      -Status 'PASS'
     }
     else {
         $script:failCount++
         if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Fail++ }
-        Write-Status -Setting "Políticas de cuarentena definidas" `
+        Write-Status -Setting "Quarantine policies defined" `
                      -CurrentValue "0" `
-                     -RecommendedValue "Configurar políticas de cuarentena" `
+                     -RecommendedValue "Configure quarantine policies" `
                      -Status 'FAIL'
     }
 
-    # Verificar cada política de cuarentena
+    # Verify each quarantine policy
     foreach ($qPolicy in $quarantinePolicies) {
-        Set-CurrentPolicy -Section "Cuarentena" -PolicyName $qPolicy.Name
+        Set-CurrentPolicy -Section "Quarantine" -PolicyName $qPolicy.Name
 
-        # EndUserQuarantinePermissionsValue — evitar que usuarios liberen mensajes de phish/malware
-        # El valor 0 es más restrictivo (AdminOnlyAccessPolicy), 27 es moderado, valores altos son permisivos
+        # EndUserQuarantinePermissionsValue — prevent users from releasing phish/malware messages
+        # Value 0 is most restrictive (AdminOnlyAccessPolicy), 27 is moderate, high values are permissive
         if ($null -ne $qPolicy.EndUserQuarantinePermissionsValue) {
             $script:totalChecks++
             if ([int]$qPolicy.EndUserQuarantinePermissionsValue -le 27) {
@@ -452,7 +452,7 @@ try {
                 if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
                 Write-Status -Setting "EndUserQuarantinePermissionsValue" `
                              -CurrentValue "$($qPolicy.EndUserQuarantinePermissionsValue)" `
-                             -RecommendedValue "0-27 (restrictivo)" `
+                             -RecommendedValue "0-27 (restrictive)" `
                              -Status 'PASS'
             }
             else {
@@ -460,32 +460,32 @@ try {
                 if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
                 Write-Status -Setting "EndUserQuarantinePermissionsValue" `
                              -CurrentValue "$($qPolicy.EndUserQuarantinePermissionsValue)" `
-                             -RecommendedValue "0-27 — valores altos permiten a usuarios liberar mensajes purgados por ZAP" `
+                             -RecommendedValue "0-27 — high values allow users to release messages purged by ZAP" `
                              -Status 'WARN'
             }
         }
 
-        # ESNEnabled — notificaciones de cuarentena al usuario
+        # ESNEnabled — quarantine notifications to user
         if ($null -ne $qPolicy.ESNEnabled) {
-            Test-SettingWarn -Setting "ESNEnabled (notificaciones cuarentena)" -CurrentValue $qPolicy.ESNEnabled -RecommendedValue "True"
+            Test-SettingWarn -Setting "ESNEnabled (quarantine notifications)" -CurrentValue $qPolicy.ESNEnabled -RecommendedValue "True"
         }
     }
 }
 catch {
     $script:totalChecks++
     $script:warnCount++
-    Write-Status -Setting "Acceso a políticas de cuarentena" `
-                 -CurrentValue "No disponible: $($_.Exception.Message)" `
-                 -RecommendedValue "Verificar permisos" `
+    Write-Status -Setting "Quarantine policy access" `
+                 -CurrentValue "Not available: $($_.Exception.Message)" `
+                 -RecommendedValue "Verify permissions" `
                  -Status 'WARN'
 }
 
-Write-Host "  Políticas de cuarentena validadas." -ForegroundColor Green
+Write-Host "  Quarantine policies validated." -ForegroundColor Green
 
 # ═════════════════════════════════════════════
-# 6. PRESET SECURITY POLICIES — Cobertura ZAP
+# 6. PRESET SECURITY POLICIES — ZAP Coverage
 # ═════════════════════════════════════════════
-Write-Host "6. Validando Preset Security Policies (cobertura ZAP)..." -ForegroundColor Yellow
+Write-Host "6. Validating Preset Security Policies (ZAP coverage)..." -ForegroundColor Yellow
 
 Set-CurrentPolicy -Section "Preset Security Policies" -PolicyName "Standard / Strict"
 
@@ -502,15 +502,15 @@ try {
             $names = ($enabledEop | ForEach-Object { $_.Name }) -join ', '
             Write-Status -Setting "EOP Preset Policies activas" `
                          -CurrentValue "$names" `
-                         -RecommendedValue "Standard y/o Strict habilitadas" `
+                         -RecommendedValue "Standard and/or Strict enabled" `
                          -Status 'PASS'
         }
         else {
             $script:warnCount++
             if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
             Write-Status -Setting "EOP Preset Policies activas" `
-                         -CurrentValue "Ninguna habilitada" `
-                         -RecommendedValue "Habilitar Standard o Strict — incluyen ZAP habilitado por defecto" `
+                         -CurrentValue "None enabled" `
+                         -RecommendedValue "Enable Standard or Strict — includes ZAP enabled by default" `
                          -Status 'WARN'
         }
     }
@@ -528,15 +528,15 @@ try {
             $names = ($enabledAtp | ForEach-Object { $_.Name }) -join ', '
             Write-Status -Setting "ATP Preset Policies activas" `
                          -CurrentValue "$names" `
-                         -RecommendedValue "Standard y/o Strict habilitadas" `
+                         -RecommendedValue "Standard and/or Strict enabled" `
                          -Status 'PASS'
         }
         else {
             $script:warnCount++
             if ($script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
             Write-Status -Setting "ATP Preset Policies activas" `
-                         -CurrentValue "Ninguna habilitada" `
-                         -RecommendedValue "Habilitar Standard o Strict" `
+                         -CurrentValue "None enabled" `
+                         -RecommendedValue "Enable Standard or Strict" `
                          -Status 'WARN'
         }
     }
@@ -548,27 +548,27 @@ catch {
     # Preset cmdlets not available — skip silently
 }
 
-Write-Host "  Preset Security Policies validadas." -ForegroundColor Green
+Write-Host "  Preset Security Policies validated." -ForegroundColor Green
 
 # ═════════════════════════════════════════════
-# RESUMEN EN CONSOLA
+# CONSOLE SUMMARY
 # ═════════════════════════════════════════════
 Write-Host ""
 Write-Host "==============================================" -ForegroundColor Cyan
-Write-Host " Resumen de Validación ZAP"                      -ForegroundColor Cyan
+Write-Host " ZAP Validation Summary"                        -ForegroundColor Cyan
 Write-Host "==============================================" -ForegroundColor Cyan
-Write-Host "  Total verificaciones: $($script:totalChecks)"  -ForegroundColor White
-Write-Host "  Correctas (PASS)   : $($script:passCount)"     -ForegroundColor Green
-Write-Host "  Advertencias (WARN): $($script:warnCount)"     -ForegroundColor Yellow
-Write-Host "  Fallidas (FAIL)    : $($script:failCount)"     -ForegroundColor Red
+Write-Host "  Total checks       : $($script:totalChecks)"  -ForegroundColor White
+Write-Host "  Passed (PASS)      : $($script:passCount)"    -ForegroundColor Green
+Write-Host "  Warnings (WARN)    : $($script:warnCount)"    -ForegroundColor Yellow
+Write-Host "  Failed (FAIL)      : $($script:failCount)"    -ForegroundColor Red
 
 if ($script:totalChecks -gt 0) {
     $pct = [math]::Round(($script:passCount / $script:totalChecks) * 100, 1)
-    Write-Host "  Cumplimiento       : $pct%" -ForegroundColor $(if ($pct -ge 80) { 'Green' } elseif ($pct -ge 60) { 'Yellow' } else { 'Red' })
+    Write-Host "  Compliance         : $pct%" -ForegroundColor $(if ($pct -ge 80) { 'Green' } elseif ($pct -ge 60) { 'Yellow' } else { 'Red' })
 }
 
 # ═════════════════════════════════════════════
-# GENERACION DE REPORTE HTML
+# HTML REPORT GENERATION
 # ═════════════════════════════════════════════
 
 $safeTenantName   = $tenantName -replace '[\\/:*?"<>|]', '_'
@@ -655,7 +655,7 @@ if ($overallPct -ge 80) { $overallColor = '#28a745' } elseif ($overallPct -ge 60
 
 $htmlReport = @"
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>ZAP Configuration Validation Report</title>
@@ -700,58 +700,58 @@ $htmlReport = @"
     <!-- Hero Header -->
     <div class="hero">
         <img src="https://dco.microsoft.com/Images/microsoft-white-logo.png" alt="Microsoft" class="logo-img">
-        <h1> Validación de ZAP (Zero-hour Auto Purge)</h1>
-        <p style="font-size: 0.95rem;">Fecha: $reportTimestamp</p>
+        <h1> ZAP (Zero-hour Auto Purge) Validation</h1>
+        <p style="font-size: 0.95rem;">Date: $reportTimestamp</p>
         <p style="font-size: 1.5rem;">Tenant: <strong>$tenantName</strong></p>
-        <p><em>&ldquo;La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</em></p>
+        <p><em>&ldquo;Technology enables security, but discipline ensures its effectiveness&rdquo;</em></p>
     </div>
 
     <div class="container-fluid px-4">
 
         <!-- ZAP Info Box -->
         <div class="zap-info mt-4">
-            <h5>&#9432; ¿Qué es ZAP (Zero-hour Auto Purge)?</h5>
-            <p>ZAP es una función de protección en Microsoft 365 que <strong>retroactivamente</strong> detecta y neutraliza mensajes maliciosos
-            que ya fueron entregados a los buzones de los usuarios. Actúa cuando el motor de filtrado actualiza sus firmas y reclasifica
-            un mensaje previamente entregado como spam, phishing o malware.</p>
+            <h5>&#9432; What is ZAP (Zero-hour Auto Purge)?</h5>
+            <p>ZAP is a protection feature in Microsoft 365 that <strong>retroactively</strong> detects and neutralizes malicious messages
+            that were already delivered to user mailboxes. It acts when the filtering engine updates its signatures and reclassifies
+            a previously delivered message as spam, phishing, or malware.</p>
             <ul>
-                <li><strong>Spam ZAP:</strong> Mueve mensajes reclasificados como spam a la carpeta Junk Email.</li>
-                <li><strong>Phish ZAP:</strong> Envía mensajes reclasificados como phishing a cuarentena.</li>
-                <li><strong>Malware ZAP:</strong> Envía mensajes con adjuntos maliciosos a cuarentena.</li>
+                <li><strong>Spam ZAP:</strong> Moves messages reclassified as spam to the Junk Email folder.</li>
+                <li><strong>Phish ZAP:</strong> Sends messages reclassified as phishing to quarantine.</li>
+                <li><strong>Malware ZAP:</strong> Sends messages with malicious attachments to quarantine.</li>
             </ul>
-            <p><strong>Importante:</strong> ZAP solo actúa sobre mensajes <em>no leídos</em> en la bandeja de entrada (excepto para malware de alta confianza).
-            Las listas de remitentes permitidos (Allow lists) y las reglas de transporte con SCL=-1 <strong>pueden impedir</strong> que ZAP actúe.</p>
+            <p><strong>Important:</strong> ZAP only acts on <em>unread</em> messages in the inbox (except for high-confidence malware).
+            Allowed sender lists (Allow lists) and transport rules with SCL=-1 <strong>can prevent</strong> ZAP from acting.</p>
         </div>
 
         <!-- Dashboard Cards -->
         <div class="row g-3 mt-3 text-center">
             <div class="col">
                 <div class="card-stat" style="background-color: #0078d4;">
-                    <div class="stat-label">Total Verificaciones</div>
+                    <div class="stat-label">Total Checks</div>
                     <div class="stat-number">$($script:totalChecks)</div>
                 </div>
             </div>
             <div class="col">
                 <div class="card-stat" style="background-color: $overallColor;">
-                    <div class="stat-label">Cumplimiento ZAP</div>
+                    <div class="stat-label">ZAP Compliance</div>
                     <div class="stat-number">$overallPct%</div>
                 </div>
             </div>
             <div class="col">
                 <div class="card-stat" style="background-color: #28a745;">
-                    <div class="stat-label">Correctas</div>
+                    <div class="stat-label">Passed</div>
                     <div class="stat-number">$($script:passCount)</div>
                 </div>
             </div>
             <div class="col">
                 <div class="card-stat" style="background-color: #ffc107; color: #333;">
-                    <div class="stat-label">Advertencias</div>
+                    <div class="stat-label">Warnings</div>
                     <div class="stat-number">$($script:warnCount)</div>
                 </div>
             </div>
             <div class="col">
                 <div class="card-stat" style="background-color: #dc3545;">
-                    <div class="stat-label">Fallidas</div>
+                    <div class="stat-label">Failed</div>
                     <div class="stat-number">$($script:failCount)</div>
                 </div>
             </div>
@@ -759,16 +759,16 @@ $htmlReport = @"
 
         <!-- Policy Summary -->
         <div class="table-card">
-            <div class="section-divider">&#128202; Resumen por Política</div>
+            <div class="section-divider">&#128202; Summary by Policy</div>
             <table class="table table-sm table-hover">
                 <thead>
                     <tr>
-                        <th>Sección</th>
-                        <th>Política</th>
+                        <th>Section</th>
+                        <th>Policy</th>
                         <th class="text-center">OK</th>
                         <th class="text-center">WARN</th>
                         <th class="text-center">FAIL</th>
-                        <th style="min-width:150px;">Cumplimiento</th>
+                        <th style="min-width:150px;">Compliance</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -779,15 +779,15 @@ $htmlReport = @"
 
         <!-- Detail Table -->
         <div class="table-card">
-            <div class="section-divider">&#128269; Detalle de Verificaciones ($($script:totalChecks) checks)</div>
+            <div class="section-divider">&#128269; Verification Details ($($script:totalChecks) checks)</div>
             <table class="table table-sm table-hover detail-table">
                 <thead>
                     <tr>
-                        <th style="width:80px;">Estado</th>
-                        <th>Política</th>
-                        <th>Configuración</th>
-                        <th>Valor Actual</th>
-                        <th>Recomendado</th>
+                        <th style="width:80px;">Status</th>
+                        <th>Policy</th>
+                        <th>Setting</th>
+                        <th>Current Value</th>
+                        <th>Recommended</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -798,28 +798,28 @@ $htmlReport = @"
 
         <!-- Remediation Guide -->
         <div class="card shadow-sm border-danger mb-4">
-            <div class="card-header text-white bg-danger">&#128295; Guía de Remediación ZAP</div>
+            <div class="card-header text-white bg-danger">&#128295; ZAP Remediation Guide</div>
             <div class="card-body">
-                <h6 class="fw-bold">Si ZAP está deshabilitado en Anti-Spam:</h6>
+                <h6 class="fw-bold">If ZAP is disabled in Anti-Spam:</h6>
                 <pre class="bg-light p-3 rounded"><code>Get-HostedContentFilterPolicy | Set-HostedContentFilterPolicy -SpamZapEnabled `$true -PhishZapEnabled `$true</code></pre>
 
-                <h6 class="fw-bold mt-3">Si ZAP está deshabilitado en Anti-Malware:</h6>
+                <h6 class="fw-bold mt-3">If ZAP is disabled in Anti-Malware:</h6>
                 <pre class="bg-light p-3 rounded"><code>Get-MalwareFilterPolicy | Set-MalwareFilterPolicy -ZapEnabled `$true</code></pre>
 
-                <h6 class="fw-bold mt-3">Si hay reglas de transporte con SCL=-1:</h6>
-                <p class="text-muted">Revisar y eliminar o modificar las reglas que establecen <code>SCL=-1</code>, ya que impiden que ZAP actúe sobre los mensajes que coincidan con esas reglas.</p>
+                <h6 class="fw-bold mt-3">If there are transport rules with SCL=-1:</h6>
+                <p class="text-muted">Review and remove or modify rules that set <code>SCL=-1</code>, as they prevent ZAP from acting on messages matching those rules.</p>
                 <pre class="bg-light p-3 rounded"><code>Get-TransportRule | Where-Object { `$_.SetSCL -eq -1 } | Format-Table Name, State, Priority -AutoSize</code></pre>
 
-                <h6 class="fw-bold mt-3">Si hay Allow Lists configuradas:</h6>
-                <p class="text-muted">Los remitentes y dominios en listas de permitidos no son afectados por ZAP. Migrar a Tenant Allow/Block List puede proporcionar un control más seguro.</p>
-                <pre class="bg-light p-3 rounded"><code># Ver allow lists actuales
+                <h6 class="fw-bold mt-3">If Allow Lists are configured:</h6>
+                <p class="text-muted">Senders and domains in allow lists are not affected by ZAP. Migrating to Tenant Allow/Block List can provide more secure control.</p>
+                <pre class="bg-light p-3 rounded"><code># View current allow lists
 Get-HostedContentFilterPolicy | Format-List Name, AllowedSenders, AllowedSenderDomains</code></pre>
             </div>
         </div>
 
         <!-- Documentation Links -->
         <div class="card shadow-sm border-primary mb-4">
-            <div class="card-header text-white" style="background-color: #0078d4;">&#128221; Documentación ZAP — Microsoft Learn</div>
+            <div class="card-header text-white" style="background-color: #0078d4;">&#128221; ZAP Documentation — Microsoft Learn</div>
             <div class="card-body">
                 <div class="list-group">
                     <div class="list-group-item task-link">
@@ -844,7 +844,7 @@ Get-HostedContentFilterPolicy | Format-List Name, AllowedSenders, AllowedSenderD
                     </div>
                     <div class="list-group-item task-link">
                         <strong>&#128279; Microsoft Defender Portal — Threat Policies</strong><br>
-                        <small><a href="https://security.microsoft.com/threatpolicy" target="_blank" class="link-docs">&#128218; Abrir portal</a></small>
+                        <small><a href="https://security.microsoft.com/threatpolicy" target="_blank" class="link-docs">&#128218; Open portal</a></small>
                     </div>
                 </div>
             </div>
@@ -864,5 +864,5 @@ Get-HostedContentFilterPolicy | Format-List Name, AllowedSenders, AllowedSenderD
 $reportPath = Join-Path -Path $reportDir -ChildPath $htmlFile
 $htmlReport | Out-File -FilePath $reportPath -Encoding utf8 -Force
 Write-Host ""
-Write-Host "  Reporte HTML generado: $reportPath" -ForegroundColor Green
+Write-Host "  HTML report generated: $reportPath" -ForegroundColor Green
 Invoke-Item $reportPath

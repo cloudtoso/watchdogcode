@@ -75,15 +75,15 @@ if ($UserType -contains 'Member' -and $GuestDaysOfInactivity -lt $MemberDaysOfIn
 }
 
 # ─────────────────────────────────────────────
-# Carpeta de reportes
+# Reports folder
 # ─────────────────────────────────────────────
 $reportDir = "C:\Scripts\EntraID"
 if (-not (Test-Path $reportDir)) {
     New-Item -Path $reportDir -ItemType Directory -Force | Out-Null
-    Write-Host "Carpeta creada: $reportDir" -ForegroundColor DarkGray
+    Write-Host "Folder created: $reportDir" -ForegroundColor DarkGray
 }
 else {
-    Write-Host "Carpeta de reportes existe: $reportDir" -ForegroundColor DarkGray
+    Write-Host "Reports folder exists: $reportDir" -ForegroundColor DarkGray
 }
 
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -185,7 +185,7 @@ if ($result.Count -gt 0) {
 
     if ($return.Count -gt 0) {
         # ─────────────────────────────────────────────
-        # Contadores de resumen
+        # Summary counters
         # ─────────────────────────────────────────────
         $countMembers = ($return | Where-Object { $_.UserType -eq 'Member' }).Count
         $countGuests  = ($return | Where-Object { $_.UserType -eq 'Guest'  }).Count
@@ -202,7 +202,7 @@ if ($result.Count -gt 0) {
         }
 
         # ─────────────────────────────────────────────
-        # Exportar a HTML
+        # Export to HTML
         # ─────────────────────────────────────────────
         $htmlHead = @"
 <style>
@@ -229,17 +229,17 @@ if ($result.Count -gt 0) {
         $tenantId = (Get-MgContext).TenantId
 
         $htmlBody = @"
-<h1>Reporte de Usuarios Inactivos - Microsoft Entra ID <em style="font-size: 0.75em; font-weight: normal; margin-left: 80px;">&ldquo;La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</em></h1>
-<p>Tenant: $tenantName | Tenant ID: $tenantId | Generado: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
-<p>Tipo de inicio de sesión evaluado: <strong>$SignInType</strong> | Inactividad miembros: <strong>$MemberDaysOfInactivity días</strong> | Inactividad invitados: <strong>$GuestDaysOfInactivity días</strong></p>
+<h1>Inactive Users Report - Microsoft Entra ID <em style="font-size: 0.75em; font-weight: normal; margin-left: 80px;">&ldquo;La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</em></h1>
+<p>Tenant: $tenantName | Tenant ID: $tenantId | Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
+<p>Sign-in type evaluated: <strong>$SignInType</strong> | Member inactivity: <strong>$MemberDaysOfInactivity days</strong> | Guest inactivity: <strong>$GuestDaysOfInactivity days</strong></p>
 
 <div>
-    <span class="summary">Miembros: $countMembers</span>
-    <span class="summary">Invitados: $countGuests</span>
+    <span class="summary">Members: $countMembers</span>
+    <span class="summary">Guests: $countGuests</span>
     <span class="summary">Total: $countTotal</span>
 </div>
 
-<h2>Detalle de Usuarios Inactivos</h2>
+<h2>Inactive Users Detail</h2>
 "@
 
         $htmlTable = $return |
@@ -256,11 +256,11 @@ if ($result.Count -gt 0) {
 
         try {
             $fullHtml | Out-File -FilePath $htmlPath -Encoding UTF8
-            Write-Host -ForegroundColor Green "$(Get-Date) Reporte HTML exportado: $htmlPath"
+            Write-Host -ForegroundColor Green "$(Get-Date) HTML report exported: $htmlPath"
             Invoke-Item $htmlPath
         }
         catch {
-            Write-Host -ForegroundColor Red "$(Get-Date) Error al exportar HTML: $($_.Exception.Message)"
+            Write-Host -ForegroundColor Red "$(Get-Date) Error exporting HTML: $($_.Exception.Message)"
         }
     } else {
         Write-Host -ForegroundColor Green "$(Get-Date) No users match the search criteria."

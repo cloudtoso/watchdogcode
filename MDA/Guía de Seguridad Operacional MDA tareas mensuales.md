@@ -1,69 +1,110 @@
-# Guía de Seguridad Operacional Semanal: Microsoft Defender for Cloud Apps 🛡️
+# Monthly Operational Security Guide: Microsoft Defender for Cloud Apps 🛡️
 
-## *La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad.*
+## *Technology enables security, but discipline ensures its effectiveness.*
 
-Esta guía establece los procedimientos diarios para analizar tendencias, identificar usuarios de alto riesgo y gestionar campañas de amenazas en Microsoft Defender for Cloud Apps
+This guide establishes monthly procedures to analyze trends, identify high-risk users, and manage threat campaigns in Microsoft Defender for Cloud Apps.
 
-**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
-
----
-
-## Índice
-
-- [Review policy assessments](#review-policy-assessments)
-- [Review activity logs](#review-activity-logs)
-
+**Authors:** Ernesto Cobos Roqueñí, Arturo Mandujano
 
 ---
 
-## Review policy assessments
-**Objetivo:** Eficacia de políticas.
+> **General objective:** Ensure continuous security posture, operational health of integrations, and alignment with product changes.
+>
+> **Roles:**
+> - **L1:** Basic review and validation
+> - **L2:** Impact analysis and remediation coordination
+> - **L3:** Architecture, governance, and runbook adjustments
 
-### Paso a paso
-
-Acceder a https://security.microsoft.com/cloudapps/policies/management
-
-- **Ruta:** `Cloud Apps > Policies`
-- **Evaluar:**
-  - **Alert volume** (tendencias vs. meses anteriores)
-  - **False positives** (impacto operacional y ruido)
-
-### Recomendaciones aplicadas
-- Definir **baselines mensuales** de alertas por política.
-- Documentar políticas con **>20% de falsos positivos** para ajuste.
-- Priorizar políticas críticas alineadas a riesgos del negocio.
-
-### Acción
-- **Ajustar thresholds** de forma incremental y registrar cambios.
+---
+## Table of Contents
+- [Review SaaS Security Posture Management (SSPM)](#review-saas-security-posture-management-sspm)
+- [Health Check – App Connectors, Log Collectors and SIEM](#health-check--app-connectors-log-collectors-and-siem)
+- [Review Governance Log](#review-governance-log)
+- [Track New Changes – Defender XDR & MDCA](#track-new-changes--defender-xdr--mdca)
 
 ---
 
-## Review activity logs
-**Objetivo:** Investigación y cumplimiento.
+## Review SaaS Security Posture Management (SSPM)
 
-### Paso a paso
+### Objective
+Maintain a secure posture for SaaS applications monitored by MDCA.
 
-Acceder a https://security.microsoft.com/cloudapps/activity-log
+### Procedure
+1. Go to https://security.microsoft.com/cloudapps
+2. Navigate to **Cloud Apps > SaaS security posture**
+3. Review active recommendations
+4. Validate impact on:
+   - Secure Score
+   - Affected controls
+5. Identify recurring configuration gaps
 
-- **Ruta:** `Cloud Apps > Activity log`
-- **Aplicar filtros por:**
-  - **App** (enfocar en aplicaciones de alto riesgo)
-  - **User** (usuarios privilegiados o con anomalías)
-  - **Activity type** (acciones sensibles)
+### Actions
+- Prioritize **High / Medium impact** recommendations
+- Coordinate remediation with:
+  - SaaS teams
+  - Identity / Platform teams
 
-### Recomendaciones aplicadas
-- Usar **ventanas de tiempo estándar** (30 días) para consistencia.
-- Correlacionar actividades con alertas activas del periodo.
-- Validar retención de logs según requisitos de compliance.
-
-### Acción
-- **Exportar logs** cuando:
-  - Exista incidente activo
-  - Sea requerido por auditoría
-  - Se necesite análisis forense
+### Evidence
+- Record applied changes
+- Document risk acceptance if not remediated
 
 ---
 
-## Notas operativas
-- Registrar resultados en el backlog SOC.
-- Escalar hallazgos recurrentes para mejora continua de políticas.
+## Health Check – App Connectors, Log Collectors and SIEM
+
+### Objective
+Ensure continuous and reliable data ingestion into MDCA and SIEM.
+
+### Procedure
+1. Go to https://security.microsoft.com/cloudapps/settings?tabid=appConnectors
+2. Navigate to **Settings > Cloud Apps > App connectors**
+3. Validate:
+   - Status: `Connected`
+   - Last synchronization
+4. Review **Log collectors**:
+   - Active
+   - Error-free
+4. Confirm integration with **Microsoft Sentinel**
+
+### Actions
+- Escalate connectors in `Error` or `Disconnected` state
+- Validate impact of incomplete ingestion
+
+---
+
+## Review Governance Log
+
+### Objective
+Audit administrative and governance actions.
+
+### Procedure
+1. Go to https://security.microsoft.com/cloudapps/governance-log
+2. Navigate to **Cloud Apps > Governance log**
+3. Review recent actions:
+   - App disable/enable
+   - Permission revocations
+   - Policy changes
+
+### Actions
+- Validate that actions align with approved changes
+- Identify unauthorized modifications
+
+---
+
+## Track New Changes – Defender XDR & MDCA
+
+### Objective
+Stay current with product updates and new capabilities.
+
+### Procedure
+1. Review Microsoft 365 Message Center
+2. Check Defender XDR release notes
+3. Evaluate impact of new features on:
+   - Existing policies
+   - Alert configurations
+   - Integration points
+
+### Actions
+- Document relevant changes
+- Plan adoption of new capabilities
+- Update runbooks as needed

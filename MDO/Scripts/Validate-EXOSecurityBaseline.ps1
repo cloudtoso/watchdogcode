@@ -12,62 +12,62 @@
 ##############################################################################################
 <#
 .SYNOPSIS
-    Valida la línea base de seguridad en Exchange Online y genera un dashboard HTML.
+    Validates the security baseline in Exchange Online and generates an HTML dashboard.
 
 .DESCRIPTION
-    Este script verifica las configuraciones recomendadas del documento
-    "Línea base para mejorar la postura de seguridad en Exchange Online":
+    This script verifies the recommended configurations from the document
+    "Baseline to improve the security posture in Exchange Online":
 
-    1. Reglas básicas de flujo de correo – Microsoft 365
+    1. Basic mail flow rules – Microsoft 365
        - Block emails to *.onmicrosoft.com (Comments: "Blocks messages whose 'To' header matches")
        - Quarantine Attachments Can't be inspected (Comments: "content can't be inspected")
 
-    2. RejectDirectSend en Exchange Online
-       - Get-OrganizationConfig | Select RejectDirectSend  (esperado: $true)
+    2. RejectDirectSend in Exchange Online
+       - Get-OrganizationConfig | Select RejectDirectSend  (expected: $true)
 
-    3. Estándares SPF, DKIM, DMARC y MTA-STS
-       - Consulta DNS para todos los dominios aceptados del tenant
+    3. SPF, DKIM, DMARC and MTA-STS Standards
+       - DNS query for all accepted tenant domains
 
-    Genera un reporte HTML tipo dashboard con semáforos de cumplimiento.
+    Generates an HTML dashboard-style report with compliance indicators.
 
 .NOTES
-    Requiere conexión previa a Exchange Online:
+    Requires prior connection to Exchange Online:
         Connect-ExchangeOnline
 
-    Requiere módulos:
+    Requires modules:
         ExchangeOnlineManagement
-        DomainHealthChecker (opcional, para SPF/DKIM/DMARC)
+        DomainHealthChecker (optional, for SPF/DKIM/DMARC)
 
-    Autor  : Ernesto Cobos Roqueñí, Arturo Mandujano
-    Fecha  : 04/marzo/2026
-    Versión: 1.0
+    Author : Ernesto Cobos Roqueñí, Arturo Mandujano
+    Date   : 04/March/2026
+    Version: 1.0
 
-    Referencia:
+    Reference:
     https://github.com/watchdogcode/gol2026/blob/main/MDO/Línea%20base%20para%20mejorar%20la%20postura%20de%20seguridad%20en%20Exchange%20online.md
 #>
 
 # ─────────────────────────────────────────────
-# Validación de módulo
+# Module validation
 # ─────────────────────────────────────────────
 if (Get-Module -ListAvailable -Name ExchangeOnlineManagement) {
-    Write-Host "Módulo ExchangeOnlineManagement instalado correctamente." -ForegroundColor DarkGray
+    Write-Host "ExchangeOnlineManagement module installed correctly." -ForegroundColor DarkGray
 }
 else {
     Install-Module ExchangeOnlineManagement -Force -Scope CurrentUser
 }
 
 # ─────────────────────────────────────────────
-# Conexión a Exchange Online
+# Exchange Online connection
 # ─────────────────────────────────────────────
 try {
     $null = Get-ConnectionInformation -ErrorAction Stop | Where-Object { $_.State -eq 'Connected' }
-    if (-not $_) { throw "No conectado" }
+    if (-not $_) { throw "Not connected" }
 }
 catch {
-    Write-Host "Conectando a Exchange Online..." -ForegroundColor Yellow
+    Write-Host "Connecting to Exchange Online..." -ForegroundColor Yellow
     try {
         Connect-ExchangeOnline -ShowBanner:$false
-        Write-Host "Conexión establecida exitosamente." -ForegroundColor Green
+        Write-Host "Connection established successfully." -ForegroundColor Green
     }
     catch {
         Write-Host $_.Exception.Message -ForegroundColor Red
@@ -76,23 +76,23 @@ catch {
 }
 
 # ─────────────────────────────────────────────
-# Carpeta de reportes
+# Reports folder
 # ─────────────────────────────────────────────
 $reportDir = "C:\Scripts\SecurityBaseline"
 if (-not (Test-Path $reportDir)) {
     New-Item -Path $reportDir -ItemType Directory -Force | Out-Null
 }
-Write-Host "Carpeta de reportes existe: $reportDir" -ForegroundColor DarkGray
+Write-Host "Reports folder exists: $reportDir" -ForegroundColor DarkGray
 
 $timestamp  = Get-Date -Format "yyyyMMdd_HHmmss"
 $orgConfig  = Get-OrganizationConfig
 $tenantName = $orgConfig.DisplayName
 $htmlPath   = Join-Path $reportDir "SecurityBaseline_$timestamp.html"
 
-Write-Host "Analizando líneas base recomendadas..." -ForegroundColor Yellow
+Write-Host "Analyzing recommended baselines..." -ForegroundColor Yellow
 
 # ─────────────────────────────────────────────
-# Función auxiliar para convertir arrays a string
+# Helper function to convert arrays to string
 # ─────────────────────────────────────────────
 function ConvertTo-FlatString {
     param([object]$Value)
@@ -104,7 +104,7 @@ function ConvertTo-FlatString {
 }
 
 # ═════════════════════════════════════════════
-# SECCIÓN 1: Reglas básicas de flujo de correo
+# SECTION 1: Basic mail flow rules
 # ═════════════════════════════════════════════
 
 try {
@@ -114,70 +114,70 @@ catch {
     $allRules = @()
 }
 
-# --- Regla 1: Block emails to *.onmicrosoft.com ---
-# Buscar regla cuyo Comments contenga "Blocks messages whose 'To' header matches"
+# --- Rule 1: Block emails to *.onmicrosoft.com ---
+# Find rule whose Comments contains "Blocks messages whose 'To' header matches"
 $blockOnMicrosoftRule = $allRules | Where-Object { $_.Comments -like "*Blocks messages whose 'To' header matches*" }
 
 if ($blockOnMicrosoftRule) {
-    $blockOnMicrosoftStatus  = "Implementada"
+    $blockOnMicrosoftStatus  = "Implemented"
     $blockOnMicrosoftClass   = "pass"
     $blockOnMicrosoftState   = $blockOnMicrosoftRule.State
     $blockOnMicrosoftName    = $blockOnMicrosoftRule.Name
     $blockOnMicrosoftMode    = $blockOnMicrosoftRule.Mode
-    $blockOnMicrosoftDetails = "Regla: $blockOnMicrosoftName | Estado: $blockOnMicrosoftState | Modo: $blockOnMicrosoftMode"
+    $blockOnMicrosoftDetails = "Rule: $blockOnMicrosoftName | State: $blockOnMicrosoftState | Mode: $blockOnMicrosoftMode"
 }
 else {
-    $blockOnMicrosoftStatus  = "Recomendación no implementada"
+    $blockOnMicrosoftStatus  = "Recommendation not implemented"
     $blockOnMicrosoftClass   = "fail"
     $blockOnMicrosoftState   = "N/A"
     $blockOnMicrosoftName    = "N/A"
     $blockOnMicrosoftMode    = "N/A"
-    $blockOnMicrosoftDetails = "No se encontró ninguna regla cuyo Comments contenga: Blocks messages whose 'To' header matches"
+    $blockOnMicrosoftDetails = "No rule found whose Comments contains: Blocks messages whose 'To' header matches"
 }
 
-# --- Regla 2: Quarantine Attachments Can't be inspected ---
-# Buscar regla cuyo Comments contenga "content can't be inspected"
+# --- Rule 2: Quarantine Attachments Can't be inspected ---
+# Find rule whose Comments contains "content can't be inspected"
 $quarantineRule = $allRules | Where-Object { $_.Comments -like "*content can't be inspected*" }
 
 if ($quarantineRule) {
-    $quarantineStatus  = "Implementada"
+    $quarantineStatus  = "Implemented"
     $quarantineClass   = "pass"
     $quarantineState   = $quarantineRule.State
     $quarantineName    = $quarantineRule.Name
     $quarantineMode    = $quarantineRule.Mode
-    $quarantineDetails = "Regla: $quarantineName | Estado: $quarantineState | Modo: $quarantineMode"
+    $quarantineDetails = "Rule: $quarantineName | State: $quarantineState | Mode: $quarantineMode"
 }
 else {
-    $quarantineStatus  = "Recomendación no implementada"
+    $quarantineStatus  = "Recommendation not implemented"
     $quarantineClass   = "fail"
     $quarantineState   = "N/A"
     $quarantineName    = "N/A"
     $quarantineMode    = "N/A"
-    $quarantineDetails = "No se encontró ninguna regla cuyo Comments contenga: content can't be inspected"
+    $quarantineDetails = "No rule found whose Comments contains: content can't be inspected"
 }
 
 # ═════════════════════════════════════════════
-# SECCIÓN 2: RejectDirectSend
+# SECTION 2: RejectDirectSend
 # ═════════════════════════════════════════════
 
 $rejectDirectSend = $orgConfig.RejectDirectSend
 
 if ($rejectDirectSend -eq $true) {
-    $rejectDSStatus  = "Implementada"
+    $rejectDSStatus  = "Implemented"
     $rejectDSClass   = "pass"
-    $rejectDSDetails = "Set-OrganizationConfig -RejectDirectSend `$true está configurado correctamente."
+    $rejectDSDetails = "Set-OrganizationConfig -RejectDirectSend `$true is configured correctly."
 }
 else {
-    $rejectDSStatus  = "Recomendación no implementada"
+    $rejectDSStatus  = "Recommendation not implemented"
     $rejectDSClass   = "fail"
-    $rejectDSDetails = "RejectDirectSend está en `$false. Se recomienda ejecutar: Set-OrganizationConfig -RejectDirectSend `$true"
+    $rejectDSDetails = "RejectDirectSend is set to `$false. It is recommended to run: Set-OrganizationConfig -RejectDirectSend `$true"
 }
 
 # ═════════════════════════════════════════════
-# SECCIÓN 3: Estándares SPF, DKIM, DMARC, MTA-STS
+# SECTION 3: SPF, DKIM, DMARC, MTA-STS Standards
 # ═════════════════════════════════════════════
 
-# Verificar si el módulo DomainHealthChecker está disponible
+# Check if DomainHealthChecker module is available
 $hasDHC = $false
 if (Get-Module -ListAvailable -Name DomainHealthChecker) {
     Import-Module DomainHealthChecker -ErrorAction SilentlyContinue
@@ -195,7 +195,7 @@ if (-not $hasDHC) {
     catch { }
 }
 
-# Obtener dominios aceptados (incluyendo *.onmicrosoft.com)
+# Get accepted domains (including *.onmicrosoft.com)
 try {
     $acceptedDomains = Get-AcceptedDomain | Sort-Object DomainName
 }
@@ -211,7 +211,7 @@ foreach ($ad in $acceptedDomains) {
     # SPF
     $spfRecord = ""
     $spfStatus = "fail"
-    $spfAdvisory = "No encontrado"
+    $spfAdvisory = "Not found"
     try {
         $spfTxt = Resolve-DnsName -Name $domain -Type TXT -ErrorAction SilentlyContinue |
             Where-Object { ($_.Strings -join '') -match '^\s*v=spf1\b' }
@@ -219,31 +219,31 @@ foreach ($ad in $acceptedDomains) {
             $spfRecord = ($spfTxt.Strings -join '')
             if ($spfRecord -match '-all') {
                 $spfStatus = "pass"
-                $spfAdvisory = "SPF con -all (hard fail) — Correcto"
+                $spfAdvisory = "SPF with -all (hard fail) — Correct"
             }
             elseif ($spfRecord -match '~all') {
                 $spfStatus = "warn"
-                $spfAdvisory = "SPF con ~all (soft fail) — Se recomienda -all"
+                $spfAdvisory = "SPF with ~all (soft fail) — -all recommended"
             }
             else {
                 $spfStatus = "warn"
-                $spfAdvisory = "SPF encontrado pero sin -all"
+                $spfAdvisory = "SPF found but without -all"
             }
         }
     }
     catch { }
 
-    # DKIM (selector1 y selector2 para Microsoft 365)
+    # DKIM (selector1 and selector2 for Microsoft 365)
     $dkimRecord = ""
     $dkimStatus = "fail"
-    $dkimAdvisory = "No encontrado"
+    $dkimAdvisory = "Not found"
     try {
         foreach ($sel in @("selector1","selector2")) {
             $dkimCheck = Resolve-DnsName -Name "$sel._domainkey.$domain" -Type CNAME -ErrorAction SilentlyContinue
             if ($dkimCheck) {
                 $dkimRecord = "$sel → $($dkimCheck.NameHost)"
                 $dkimStatus = "pass"
-                $dkimAdvisory = "DKIM CNAME encontrado para $sel"
+                $dkimAdvisory = "DKIM CNAME found for $sel"
                 break
             }
         }
@@ -253,26 +253,26 @@ foreach ($ad in $acceptedDomains) {
     # DMARC
     $dmarcRecord = ""
     $dmarcStatus = "fail"
-    $dmarcAdvisory = "No encontrado"
+    $dmarcAdvisory = "Not found"
     try {
         $dmarcTxt = Resolve-DnsName -Name "_dmarc.$domain" -Type TXT -ErrorAction SilentlyContinue
         if ($dmarcTxt) {
             $dmarcRecord = ($dmarcTxt.Strings -join '')
             if ($dmarcRecord -match 'p=reject') {
                 $dmarcStatus = "pass"
-                $dmarcAdvisory = "DMARC con p=reject — Óptimo"
+                $dmarcAdvisory = "DMARC with p=reject — Optimal"
             }
             elseif ($dmarcRecord -match 'p=quarantine') {
                 $dmarcStatus = "warn"
-                $dmarcAdvisory = "DMARC con p=quarantine — Se recomienda p=reject"
+                $dmarcAdvisory = "DMARC with p=quarantine — p=reject recommended"
             }
             elseif ($dmarcRecord -match 'p=none') {
                 $dmarcStatus = "warn"
-                $dmarcAdvisory = "DMARC con p=none — Solo monitoreo, se recomienda p=reject"
+                $dmarcAdvisory = "DMARC with p=none — Monitoring only, p=reject recommended"
             }
             else {
                 $dmarcStatus = "warn"
-                $dmarcAdvisory = "DMARC encontrado pero sin política clara"
+                $dmarcAdvisory = "DMARC found but without clear policy"
             }
         }
     }
@@ -281,24 +281,24 @@ foreach ($ad in $acceptedDomains) {
     # MTA-STS
     $mtaRecord = ""
     $mtaStatus = "fail"
-    $mtaAdvisory = "No encontrado"
+    $mtaAdvisory = "Not found"
     try {
         $mtaTxt = Resolve-DnsName -Name "_mta-sts.$domain" -Type TXT -ErrorAction SilentlyContinue
         if ($mtaTxt) {
             $mtaRecord = ($mtaTxt.Strings -join '')
             if ($mtaRecord -match 'v=STSv1') {
                 $mtaStatus = "pass"
-                $mtaAdvisory = "MTA-STS configurado"
+                $mtaAdvisory = "MTA-STS configured"
             }
             else {
                 $mtaStatus = "warn"
-                $mtaAdvisory = "Registro encontrado pero sin v=STSv1"
+                $mtaAdvisory = "Record found but without v=STSv1"
             }
         }
     }
     catch { }
 
-    # Si tenemos DomainHealthChecker, enriquecer con su análisis
+    # If DomainHealthChecker is available, enrich with its analysis
     if ($hasDHC) {
         try {
             $dhc = Invoke-SpfDkimDmarc -Name $domain -ErrorAction SilentlyContinue
@@ -336,14 +336,14 @@ foreach ($ad in $acceptedDomains) {
 }
 
 # ─────────────────────────────────────────────
-# Contadores para el dashboard
+# Dashboard counters
 # ─────────────────────────────────────────────
 $totalChecks = 0
 $passChecks  = 0
 $failChecks  = 0
 $warnChecks  = 0
 
-# Contar reglas de flujo
+# Count flow rules
 foreach ($c in @($blockOnMicrosoftClass, $quarantineClass, $rejectDSClass)) {
     $totalChecks++
     switch ($c) {
@@ -353,7 +353,7 @@ foreach ($c in @($blockOnMicrosoftClass, $quarantineClass, $rejectDSClass)) {
     }
 }
 
-# Contar dominios
+# Count domains
 foreach ($dr in $domainResults) {
     foreach ($st in @($dr.SPFStatus, $dr.DKIMStatus, $dr.DMARCStatus, $dr.MTAStatus)) {
         $totalChecks++
@@ -368,7 +368,7 @@ foreach ($dr in $domainResults) {
 $compliancePercent = if ($totalChecks -gt 0) { [math]::Round(($passChecks / $totalChecks) * 100, 1) } else { 0 }
 
 # ─────────────────────────────────────────────
-# Generar HTML Dashboard
+# Generate HTML Dashboard
 # ─────────────────────────────────────────────
 
 $htmlHead = @"
@@ -428,9 +428,9 @@ $htmlHead = @"
 $htmlBody = @"
 <div class="header">
     <div class="header-text">
-        <h1>&#128737; Validaci&oacute;n de L&iacute;nea Base de Seguridad &mdash; Exchange Online</h1>
-        <p><strong>Tenant:</strong> $tenantName &nbsp;|&nbsp; <strong>Generado:</strong> $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
-        <p class="quote">&ldquo;La tecnolog&iacute;a habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</p>
+        <h1>&#128737; Security Baseline Validation &mdash; Exchange Online</h1>
+        <p><strong>Tenant:</strong> $tenantName &nbsp;|&nbsp; <strong>Generated:</strong> $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
+        <p class="quote">&ldquo;Technology enables security, but discipline ensures its effectiveness&rdquo;</p>
     </div>
     <div class="header-logo">
         <img src="https://cdn.theatlantic.com/assets/marketing/prod/logos/2024/03/MS-Security_logo_horiz_c-gray_rgb_1_O3yRRKf.png" alt="Microsoft Security">
@@ -442,44 +442,44 @@ $htmlBody = @"
 $htmlBody += @"
 <div class="dashboard">
     <div class="card total">
-        <div class="label">Verificaciones</div>
+        <div class="label">Checks</div>
         <div class="number">$totalChecks</div>
     </div>
     <div class="card pass">
-        <div class="label">Cumple</div>
+        <div class="label">Compliant</div>
         <div class="number">$passChecks</div>
     </div>
     <div class="card fail">
-        <div class="label">No Cumple</div>
+        <div class="label">Non-Compliant</div>
         <div class="number">$failChecks</div>
     </div>
     <div class="card warn">
-        <div class="label">Advertencia</div>
+        <div class="label">Warning</div>
         <div class="number">$warnChecks</div>
     </div>
     <div class="card percent">
-        <div class="label">Cumplimiento</div>
+        <div class="label">Compliance</div>
         <div class="number">${compliancePercent}%</div>
     </div>
 </div>
 "@
 
-# ─── Sección 1: Reglas de flujo de correo ───
+# ─── Section 1: Mail flow rules ───
 $blockIcon = if ($blockOnMicrosoftClass -eq "pass") { "&#9989;" } else { "&#10060;" }
 $quarantineIcon = if ($quarantineClass -eq "pass") { "&#9989;" } else { "&#10060;" }
 
 $htmlBody += @"
 <div class="section">
-    <h2>1. Reglas b&aacute;sicas de flujo de correo &mdash; Microsoft 365</h2>
-    <p style="font-size:13px; color:#666;">Se verifican las reglas de transporte recomendadas para proteger contra correos a dominios onmicrosoft.com y adjuntos no inspeccionables.</p>
+    <h2>1. Basic mail flow rules &mdash; Microsoft 365</h2>
+    <p style="font-size:13px; color:#666;">Recommended transport rules are verified to protect against emails to onmicrosoft.com domains and uninspectable attachments.</p>
 
     <div class="status-row $blockOnMicrosoftClass">
         <div class="icon">$blockIcon</div>
         <div class="info">
             <div class="title">Block emails to *.onmicrosoft.com</div>
-            <div class="detail">Estado: <span class="badge $blockOnMicrosoftClass">$blockOnMicrosoftStatus</span></div>
+            <div class="detail">State: <span class="badge $blockOnMicrosoftClass">$blockOnMicrosoftStatus</span></div>
             <div class="detail">$blockOnMicrosoftDetails</div>
-            <div class="detail">Busca en Comments: <em>&quot;Blocks messages whose 'To' header matches&quot;</em></div>
+            <div class="detail">Searches in Comments: <em>&quot;Blocks messages whose 'To' header matches&quot;</em></div>
         </div>
     </div>
 
@@ -487,15 +487,15 @@ $htmlBody += @"
         <div class="icon">$quarantineIcon</div>
         <div class="info">
             <div class="title">Quarantine Attachments Can't be inspected</div>
-            <div class="detail">Estado: <span class="badge $quarantineClass">$quarantineStatus</span></div>
+            <div class="detail">State: <span class="badge $quarantineClass">$quarantineStatus</span></div>
             <div class="detail">$quarantineDetails</div>
-            <div class="detail">Busca en Comments: <em>&quot;If the message has any attachment whose content can't be inspected&quot;</em></div>
+            <div class="detail">Searches in Comments: <em>&quot;If the message has any attachment whose content can't be inspected&quot;</em></div>
         </div>
     </div>
 
-    <h3>Todas las reglas de transporte del tenant</h3>
+    <h3>All tenant transport rules</h3>
     <table>
-        <tr><th>Prioridad</th><th>Nombre</th><th>Estado</th><th>Modo</th><th>&Uacute;ltima Modificaci&oacute;n</th><th>Comments (extracto)</th></tr>
+        <tr><th>Priority</th><th>Name</th><th>State</th><th>Mode</th><th>Last Modified</th><th>Comments (excerpt)</th></tr>
 "@
 
 foreach ($rule in $allRules) {
@@ -512,43 +512,43 @@ foreach ($rule in $allRules) {
 }
 
 $htmlBody += "</table>"
-$htmlBody += '<p style="font-size:11px; margin-top:10px;"><a class="ref-link" href="https://learn.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules" target="_blank">&#128279; Referencia: Mail flow rules in Exchange Online</a></p>'
+$htmlBody += '<p style="font-size:11px; margin-top:10px;"><a class="ref-link" href="https://learn.microsoft.com/en-us/exchange/security-and-compliance/mail-flow-rules" target="_blank">&#128279; Reference: Mail flow rules in Exchange Online</a></p>'
 $htmlBody += "</div>"
 
-# ─── Sección 2: RejectDirectSend ───
+# ─── Section 2: RejectDirectSend ───
 $rejectIcon = if ($rejectDSClass -eq "pass") { "&#9989;" } else { "&#10060;" }
 
 $htmlBody += @"
 <div class="section">
-    <h2>2. RejectDirectSend en Exchange Online</h2>
-    <p style="font-size:13px; color:#666;">Direct Send permite enviar correos a buzones internos del tenant de forma an&oacute;nima por SMTP puerto 25. Habilitando RejectDirectSend se bloquea este vector de ataque.</p>
+    <h2>2. RejectDirectSend in Exchange Online</h2>
+    <p style="font-size:13px; color:#666;">Direct Send allows sending emails to internal tenant mailboxes anonymously via SMTP port 25. Enabling RejectDirectSend blocks this attack vector.</p>
 
     <div class="status-row $rejectDSClass">
         <div class="icon">$rejectIcon</div>
         <div class="info">
             <div class="title">RejectDirectSend = $rejectDirectSend</div>
-            <div class="detail">Estado: <span class="badge $rejectDSClass">$rejectDSStatus</span></div>
+            <div class="detail">State: <span class="badge $rejectDSClass">$rejectDSStatus</span></div>
             <div class="detail">$rejectDSDetails</div>
         </div>
     </div>
 
     <table style="margin-top:15px;">
-        <tr><th>Propiedad</th><th>Valor Actual</th><th>Valor Recomendado</th><th>Resultado</th></tr>
+        <tr><th>Property</th><th>Current Value</th><th>Recommended Value</th><th>Result</th></tr>
         <tr>
             <td><code>RejectDirectSend</code></td>
             <td><strong>$rejectDirectSend</strong></td>
             <td><strong>True</strong></td>
-            <td><span class="badge $rejectDSClass">$(if ($rejectDSClass -eq 'pass') { 'Cumple' } else { 'No Cumple' })</span></td>
+            <td><span class="badge $rejectDSClass">$(if ($rejectDSClass -eq 'pass') { 'Compliant' } else { 'Non-Compliant' })</span></td>
         </tr>
     </table>
 
     <p style="font-size:11px; margin-top:10px;">
-        <a class="ref-link" href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-organizationconfig#-rejectdirectsend" target="_blank">&#128279; Referencia: Set-OrganizationConfig -RejectDirectSend</a>
+        <a class="ref-link" href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-organizationconfig#-rejectdirectsend" target="_blank">&#128279; Reference: Set-OrganizationConfig -RejectDirectSend</a>
     </p>
 </div>
 "@
 
-# ─── Sección 3: SPF, DKIM, DMARC, MTA-STS ───
+# ─── Section 3: SPF, DKIM, DMARC, MTA-STS ───
 $spfPassCount   = ($domainResults | Where-Object { $_.SPFStatus -eq "pass" } | Measure-Object).Count
 $dkimPassCount  = ($domainResults | Where-Object { $_.DKIMStatus -eq "pass" } | Measure-Object).Count
 $dmarcPassCount = ($domainResults | Where-Object { $_.DMARCStatus -eq "pass" } | Measure-Object).Count
@@ -557,11 +557,11 @@ $totalDomains   = ($domainResults | Measure-Object).Count
 
 $htmlBody += @"
 <div class="section">
-    <h2>3. Est&aacute;ndares SPF, DKIM, DMARC y MTA-STS</h2>
-    <p style="font-size:13px; color:#666;">Verificaci&oacute;n DNS de los est&aacute;ndares de autenticaci&oacute;n de correo para todos los dominios aceptados del tenant (excluyendo *.onmicrosoft.com).</p>
+    <h2>3. SPF, DKIM, DMARC and MTA-STS Standards</h2>
+    <p style="font-size:13px; color:#666;">DNS verification of email authentication standards for all accepted tenant domains (excluding *.onmicrosoft.com).</p>
 
     <div class="dashboard" style="margin-bottom:15px;">
-        <div class="card" style="min-width:120px;"><div class="label">Dominios</div><div class="number" style="color:#0078d4;">$totalDomains</div></div>
+        <div class="card" style="min-width:120px;"><div class="label">Domains</div><div class="number" style="color:#0078d4;">$totalDomains</div></div>
         <div class="card" style="min-width:120px;"><div class="label">SPF OK</div><div class="number" style="color:#107c10;">$spfPassCount/$totalDomains</div></div>
         <div class="card" style="min-width:120px;"><div class="label">DKIM OK</div><div class="number" style="color:#107c10;">$dkimPassCount/$totalDomains</div></div>
         <div class="card" style="min-width:120px;"><div class="label">DMARC OK</div><div class="number" style="color:#107c10;">$dmarcPassCount/$totalDomains</div></div>
@@ -570,8 +570,8 @@ $htmlBody += @"
 
     <table>
         <tr>
-            <th>Dominio</th>
-            <th>Tipo</th>
+            <th>Domain</th>
+            <th>Type</th>
             <th>SPF</th>
             <th>DKIM</th>
             <th>DMARC</th>
@@ -592,8 +592,8 @@ foreach ($dr in $domainResults) {
 
 $htmlBody += "</table>"
 
-# Tabla de detalle por dominio
-$htmlBody += "<h3>Detalle por dominio</h3>"
+# Detail by domain table
+$htmlBody += "<h3>Detail by domain</h3>"
 
 foreach ($dr in $domainResults) {
     $htmlBody += @"
@@ -615,12 +615,12 @@ $htmlBody += '<a class="ref-link" href="https://www.rfc-editor.org/rfc/rfc8461" 
 $htmlBody += '</p>'
 $htmlBody += "</div>"
 
-# ─── Referencia ───
+# ─── Reference ───
 $htmlBody += @"
 <div class="section">
-    <h2>Referencia</h2>
-    <p>Este reporte valida las configuraciones definidas en el documento:</p>
-    <p><a class="ref-link" style="font-size:14px;" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/L%C3%ADnea%20base%20para%20mejorar%20la%20postura%20de%20seguridad%20en%20Exchange%20online.md" target="_blank">&#128279; L&iacute;nea base para mejorar la postura de seguridad en Exchange Online</a></p>
+    <h2>Reference</h2>
+    <p>This report validates the configurations defined in the document:</p>
+    <p><a class="ref-link" style="font-size:14px;" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/L%C3%ADnea%20base%20para%20mejorar%20la%20postura%20de%20seguridad%20en%20Exchange%20online.md" target="_blank">&#128279; Baseline to improve the security posture in Exchange Online</a></p>
 </div>
 "@
 
@@ -632,9 +632,9 @@ $utf8Bom = New-Object System.Text.UTF8Encoding $true
 [System.IO.File]::WriteAllText($htmlPath, ($htmlReport -join "`r`n"), $utf8Bom)
 
 # ─────────────────────────────────────────────
-# Resumen final en consola
+# Final console summary
 # ─────────────────────────────────────────────
-Write-Host "Reporte HTML generado: $htmlPath" -ForegroundColor Green
+Write-Host "HTML report generated: $htmlPath" -ForegroundColor Green
 
-# Abrir el reporte HTML
+# Open the HTML report
 Invoke-Item $htmlPath

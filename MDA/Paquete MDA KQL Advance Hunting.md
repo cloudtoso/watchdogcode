@@ -1,38 +1,38 @@
-# Paquete de Consultas KQL (Advanced Hunting) 🛡️
-## *La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad.*
+# KQL Query Package (Advanced Hunting) 🛡️
+## *Technology enables security, but discipline ensures its effectiveness.*
 
-## Recomendaciones rápidas (antes de ejecutar)
+## Quick recommendations (before running)
 
-- Ajusta `TimeRange` y/o filtros (`AccountName`, `DeviceName`, `DomainName`) para reducir ruido.
-- Si una tabla no existe en tu tenant (depende de licenciamiento/ingesta), usa la alternativa indicada en cada query.
-- Para convertir una query en **Custom Detection**, Microsoft recomienda basarla en **Advanced Hunting** y ejecutarla regularmente.
+- Adjust `TimeRange` and/or filters (`AccountName`, `DeviceName`, `DomainName`) to reduce noise.
+- If a table does not exist in your tenant (depends on licensing/ingestion), use the alternative indicated in each query.
+- To convert a query into a **Custom Detection**, Microsoft recommends basing it on **Advanced Hunting** and running it regularly.
 
-Este documento recopila una serie de consultas KQL (Kusto Query Language) diseñadas para la detección, triaje e investigación de amenazas en Microsoft Defender XDR.
+This document compiles a series of KQL (Kusto Query Language) queries designed for threat detection, triage, and investigation in Microsoft Defender XDR.
 
-**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
-
----
-
-## Índice
-
-- [OAuth – Nuevos Consentimientos Otorgados](#oauth--nuevos-consentimientos-otorgados)
-- [Shadow IT – Aplicaciones Cloud por Volumen de Uso](#shadow-it--aplicaciones-cloud-por-volumen-de-uso)
-- [OAuth – Nuevos Consentimientos (últimos 7 días)](#oauth--nuevos-consentimientos-últimos-7-días)
-- [OAuth – Apps con Permisos Potencialmente de Alto Riesgo](#oauth--apps-con-permisos-potencialmente-de-alto-riesgo)
-- [Uso General – Top Aplicaciones Cloud por Actividad](#uso-general--top-aplicaciones-cloud-por-actividad)
-- [Descubrimiento – Aplicaciones Nuevas Detectadas (7d vs 60d)](#descubrimiento--aplicaciones-nuevas-detectadas-7d-vs-60d)
-- [Gobierno – Operaciones Administrativas en Apps Cloud](#gobierno--operaciones-administrativas-en-apps-cloud)
-- [Riesgo – Eliminaciones Masivas de Objetos](#riesgo--eliminaciones-masivas-de-objetos)
-- [Exfiltración – Descargas Masivas desde Apps Cloud](#exfiltración--descargas-masivas-desde-apps-cloud)
-- [Colaboración – Compartición Excesiva con Externos](#colaboración--compartición-excesiva-con-externos)
-- [Geolocalización – Actividad desde Países No Habituales](#geolocalización--actividad-desde-países-no-habituales)
-- [Geolocalización – Viaje Imposible (<2h entre países)](#geolocalización--viaje-imposible-2h-entre-países)
+**Authors:** Ernesto Cobos Roqueñí, Arturo Mandujano
 
 ---
 
-## Queries operativas 
+## Table of Contents
 
-### OAuth – Nuevos Consentimientos Otorgados
+- [OAuth – New Consents Granted](#oauth--new-consents-granted)
+- [Shadow IT – Cloud Applications by Usage Volume](#shadow-it--cloud-applications-by-usage-volume)
+- [OAuth – New Consents (last 7 days)](#oauth--new-consents-last-7-days)
+- [OAuth – Apps with Potentially High-Risk Permissions](#oauth--apps-with-potentially-high-risk-permissions)
+- [General Usage – Top Cloud Applications by Activity](#general-usage--top-cloud-applications-by-activity)
+- [Discovery – Newly Detected Applications (7d vs 60d)](#discovery--newly-detected-applications-7d-vs-60d)
+- [Governance – Administrative Operations in Cloud Apps](#governance--administrative-operations-in-cloud-apps)
+- [Risk – Mass Object Deletions](#risk--mass-object-deletions)
+- [Exfiltration – Mass Downloads from Cloud Apps](#exfiltration--mass-downloads-from-cloud-apps)
+- [Collaboration – Excessive External Sharing](#collaboration--excessive-external-sharing)
+- [Geolocation – Activity from Unusual Countries](#geolocation--activity-from-unusual-countries)
+- [Geolocation – Impossible Travel (<2h between countries)](#geolocation--impossible-travel-2h-between-countries)
+
+---
+
+## Operational Queries 
+
+### OAuth – New Consents Granted
 
 ```kusto
 CloudAppEvents
@@ -42,7 +42,7 @@ CloudAppEvents
 | top 20 by Consents desc
 ```
 
-### Shadow IT – Aplicaciones Cloud por Volumen de Uso
+### Shadow IT – Cloud Applications by Usage Volume
 
 ```kusto
 CloudAppEvents
@@ -53,23 +53,9 @@ CloudAppEvents
 
 ---
 
-## Catálogo MDA – Advanced Hunting (10 detecciones)
+## MDA Catalog – Advanced Hunting (10 detections)
 
-### OAuth – Nuevos Consentimientos (últimos 7 días)
-
-```kusto
-let TimeRange = 7d;
-CloudAppEvents
-| where Timestamp >= ago(TimeRange)
-| where ActionType in ("Consent to application","Grant consent")
-| summarize Consents=count(), Users=dcount(AccountId) by Application, ApplicationId
-| top 20 by Consents desc
-```
-
-### OAuth – Apps con Permisos Potencialmente de Alto Riesgo
-
-> **Nota:** Esta query es funcionalmente equivalente a OAuth – Nuevos Consentimientos
-> Para identificar *alto riesgo real*, se requiere enriquecer con permisos OAuth (p.ej. `Permissions`, `OAuthAppId`, `Scope`).
+### OAuth – New Consents (last 7 days)
 
 ```kusto
 let TimeRange = 7d;
@@ -80,7 +66,21 @@ CloudAppEvents
 | top 20 by Consents desc
 ```
 
-### Uso General – Top Aplicaciones Cloud por Actividad
+### OAuth – Apps with Potentially High-Risk Permissions
+
+> **Note:** This query is functionally equivalent to OAuth – New Consents.
+> To identify *actual high risk*, enrichment with OAuth permissions (e.g., `Permissions`, `OAuthAppId`, `Scope`) is required.
+
+```kusto
+let TimeRange = 7d;
+CloudAppEvents
+| where Timestamp >= ago(TimeRange)
+| where ActionType in ("Consent to application","Grant consent")
+| summarize Consents=count(), Users=dcount(AccountId) by Application, ApplicationId
+| top 20 by Consents desc
+```
+
+### General Usage – Top Cloud Applications by Activity
 
 ```kusto
 let TimeRange = 7d;
@@ -90,7 +90,7 @@ CloudAppEvents
 | top 25 by Events desc
 ```
 
-### Descubrimiento – Aplicaciones Nuevas Detectadas (7d vs 60d)
+### Discovery – Newly Detected Applications (7d vs 60d)
 
 ```kusto
 let Lookback = 7d;
@@ -106,7 +106,7 @@ recent
 | order by Events desc
 ```
 
-### Gobierno – Operaciones Administrativas en Apps Cloud
+### Governance – Administrative Operations in Cloud Apps
 
 ```kusto
 let TimeRange = 7d;
@@ -117,7 +117,7 @@ CloudAppEvents
 | order by Events desc
 ```
 
-### Riesgo – Eliminaciones Masivas de Objetos
+### Risk – Mass Object Deletions
 
 ```kusto
 let TimeRange = 7d;
@@ -130,7 +130,7 @@ CloudAppEvents
 | order by Deletions desc
 ```
 
-### Exfiltración – Descargas Masivas desde Apps Cloud
+### Exfiltration – Mass Downloads from Cloud Apps
 
 ```kusto
 let TimeRange = 7d;
@@ -143,7 +143,7 @@ CloudAppEvents
 | order by Downloads desc
 ```
 
-### Colaboración – Compartición Excesiva con Externos
+### Collaboration – Excessive External Sharing
 
 ```kusto
 let TimeRange = 14d;
@@ -156,7 +156,7 @@ CloudAppEvents
 | order by Shares desc
 ```
 
-### Geolocalización – Actividad desde Países No Habituales
+### Geolocation – Activity from Unusual Countries
 
 ```kusto
 let TimeRange = 7d;
@@ -176,7 +176,7 @@ CloudAppEvents
 | order by array_length(NewCountries) desc
 ```
 
-### Geolocalización – Viaje Imposible (<2h entre países)
+### Geolocation – Impossible Travel (<2h between countries)
 
 ```kusto
 let TimeRange = 1d;
@@ -193,11 +193,10 @@ CloudAppEvents
 
 ---
 
-## Notas de operación
+## Operational Notes
 
-- **Ventanas de tiempo**:
-  - `1d`: detecciones de alta inmediatez (viaje imposible).
-  - `7d`: comportamiento anómalo estándar.
-  - `14d`: patrones de colaboración gradual.
-- **Umbrales** definidos como variables para facilitar tuning por entorno.
-
+- **Time windows**:
+  - `1d`: high-immediacy detections (impossible travel).
+  - `7d`: standard anomalous behavior.
+  - `14d`: gradual collaboration patterns.
+- **Thresholds** defined as variables to facilitate per-environment tuning.

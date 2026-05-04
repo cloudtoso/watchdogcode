@@ -1,326 +1,326 @@
-# Guía Operacional de Seguridad  Microsoft 365 Defender XDR
+# Security Operations Guide  Microsoft 365 Defender XDR
 
-**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
+**Authors:** Ernesto Cobos Roqueñí, Arturo Mandujano
 
-> Marco de operaciones de seguridad (SecOps) para Microsoft Defender XDR con guías operativas, scripts de automatización, líneas base de configuración y paquetes de consultas KQL.
+> Security Operations (SecOps) framework for Microsoft Defender XDR with operational guides, automation scripts, configuration baselines, and KQL query packages.
 
 ---
 
-## Descripción del Proyecto
+## Project Description
 
-Este repositorio contiene el marco completo de operaciones de seguridad para organizaciones que utilizan **Microsoft 365 Defender XDR**. Proporciona:
+This repository contains the complete security operations framework for organizations using **Microsoft 365 Defender XDR**. It provides:
 
-- **Guías operativas** diarias, semanales y mensuales para cada pilar de Defender (MDO, MDE, MDI, MDA, Entra ID).
-- **Scripts de automatización** en PowerShell para reportes ejecutivos, validación de configuraciones y creación de políticas de alerta.
-- **Líneas base de seguridad** alineadas con las recomendaciones de Microsoft (Standard/Strict).
-- **Paquetes de consultas KQL** para Advanced Hunting orientados a detección, triaje e investigación.
-- **Reportes HTML automatizados** (diarios y semanales) que transforman telemetría técnica en información accionable para el CISO y el equipo de SecOps.
+- **Operational guides** (daily, weekly, and monthly) for each Defender pillar (MDO, MDE, MDI, MDA, Entra ID).
+- **Automation scripts** in PowerShell for executive reports, configuration validation, and alert policy creation.
+- **Security baselines** aligned with Microsoft recommendations (Standard/Strict).
+- **KQL query packages** for Advanced Hunting focused on detection, triage, and investigation.
+- **Automated HTML reports** (daily and weekly) that transform technical telemetry into actionable information for the CISO and SecOps team.
 
 ![Report](XDR/Imagen.png)
 ![Report](XDR/Imagen2.png)
 
-### Valor de Negocio
+### Business Value
 
-| Audiencia | Beneficio |
+| Audience | Benefit |
 |---|---|
-| **CISO / Dirección** | KPIs claros de exposición y riesgo, visibilidad ejecutiva sin necesidad de acceder a consolas técnicas |
-| **Equipo de SecOps** | Guías paso a paso para operaciones diarias, scripts automatizados para reducir trabajo manual |
-| **Administradores de Infraestructura** | Validación de configuraciones contra líneas base recomendadas, reportes de higiene del tenant |
+| **CISO / Executive Leadership** | Clear exposure and risk KPIs, executive visibility without needing to access technical consoles |
+| **SecOps Team** | Step-by-step guides for daily operations, automated scripts to reduce manual work |
+| **Infrastructure Administrators** | Configuration validation against recommended baselines, tenant hygiene reports |
 
 ---
 
-## Tabla de Contenidos
+## Table of Contents
 
-- [Requisitos y Dependencias](#requisitos-y-dependencias)
-- [Microsoft Entra ID (Identidad)](#microsoft-entra-id-identidad)
+- [Requirements and Dependencies](#requirements-and-dependencies)
+- [Microsoft Entra ID (Identity)](#microsoft-entra-id-identity)
 - [Microsoft Defender for Office 365 (MDO)](#microsoft-defender-for-office-365-mdo)
 - [Microsoft Defender for Endpoint (MDE)](#microsoft-defender-for-endpoint-mde)
 - [Microsoft Defender for Identity (MDI)](#microsoft-defender-for-identity-mdi)
 - [Microsoft Defender for Cloud Apps (MDA)](#microsoft-defender-for-cloud-apps-mda)
-- [Microsoft Defender XDR (Reportes Cross-Domain)](#microsoft-defender-xdr-reportes-cross-domain)
-- [Estructura del Repositorio](#estructura-del-repositorio)
+- [Microsoft Defender XDR (Cross-Domain Reports)](#microsoft-defender-xdr-cross-domain-reports)
+- [Repository Structure](#repository-structure)
 
 ---
 
-## Requisitos y Dependencias
+## Requirements and Dependencies
 
-Consulte [Requisitos.md](Requisitos.md) para la guía completa de:
+See [Requisitos.md](Requisitos.md) for the complete guide on:
 
-- Licenciamiento Microsoft 365 (E5 o licencias independientes de Defender)
-- Entorno de ejecución (PowerShell 5.1+, módulos necesarios)
-- Registro de aplicación en Entra ID (App Registration, permisos de API, modos de autenticación)
-- Configuración de credenciales y Task Scheduler para automatización
+- Microsoft 365 licensing (E5 or standalone Defender licenses)
+- Execution environment (PowerShell 5.1+, required modules)
+- App Registration in Entra ID (App Registration, API permissions, authentication modes)
+- Credential configuration and Task Scheduler for automation
 
 ---
 
-## Microsoft Entra ID (Identidad)
+## Microsoft Entra ID (Identity)
 
-Guías operativas y herramientas para la gestión de seguridad de identidades.
+Operational guides and tools for identity security management.
 
-### Guías Operativas
+### Operational Guides
 
-| Cadencia | Documento |
+| Cadence | Document |
 |---|---|
-| Diaria | [Guía Operacional Microsoft EntraID Diaria](EntraID/Guía%20Operacional%20Microsoft%20EntraID%20Diaria.md) |
-| Semanal | [Guía Operacional EntraID Tareas Semanales](EntraID/Guía%20Operacional%20EntraID%20Tareas%20Semanales.md) |
-| Mensual / Ad-hoc | [Guía Operacional EntraID Tareas Mensuales AdHoc](EntraID/Guía%20Operacional%20EntraID%20Tareas%20Mensuales%20AdHoc.md) |
+| Daily | [Guía Operacional Microsoft EntraID Diaria](EntraID/Guía%20Operacional%20Microsoft%20EntraID%20Diaria.md) |
+| Weekly | [Guía Operacional EntraID Tareas Semanales](EntraID/Guía%20Operacional%20EntraID%20Tareas%20Semanales.md) |
+| Monthly / Ad-hoc | [Guía Operacional EntraID Tareas Mensuales AdHoc](EntraID/Guía%20Operacional%20EntraID%20Tareas%20Mensuales%20AdHoc.md) |
 
-### Líneas Base
+### Baselines
 
-| Documento | Descripción |
+| Document | Description |
 |---|---|
-| [Línea base Conditional Access Policies](EntraID/Linea%20base%20Conditional%20Access%20Policies.md) | Plantillas de políticas de Conditional Access (MFA para todos los usuarios, exclusiones break-glass, Report-only) |
+| [Línea base Conditional Access Policies](EntraID/Linea%20base%20Conditional%20Access%20Policies.md) | Conditional Access policy templates (MFA for all users, break-glass exclusions, Report-only) |
 
-### Consultas KQL
+### KQL Queries
 
-| Documento | Descripción |
+| Document | Description |
 |---|---|
-| [Paquete KQL Queries EntraID](EntraID/Paquete%20KQL%20Queries%20EntraID%20Advanced%20Hunting.md) | Consultas de Advanced Hunting enfocadas en detección e investigación de amenazas de identidad |
+| [Paquete KQL Queries EntraID](EntraID/Paquete%20KQL%20Queries%20EntraID%20Advanced%20Hunting.md) | Advanced Hunting queries focused on identity threat detection and investigation |
 
 ### Scripts
 
-| Script | Descripción |
+| Script | Description |
 |---|---|
-| [Get-ConditionalAccessPolicies.ps1](EntraID/Scripts/Get-ConditionalAccessPolicies.ps1) | Exporta reporte detallado de todas las Conditional Access Policies (consola + CSV + HTML) |
-| [Get-InactiveUsers.ps1](EntraID/Scripts/Get-InactiveUsers.ps1) | Lista usuarios sin actividad de inicio de sesión en los últimos N días vía Microsoft Graph |
-| [Get-M365RoleReport.ps1](EntraID/Scripts/Get-M365RoleReport.ps1) | Enumera miembros de roles administrativos en Entra ID, Security & Compliance y Exchange Online |
-| [Get-MFAAuthenticationMethodsReport.ps1](EntraID/Scripts/Get-MFAAuthenticationMethodsReport.ps1) | Audita métodos de autenticación MFA de todos los usuarios — [Documentación](EntraID/Scripts/Reporte%20MFA%20con%20Microsoft%20Graph.md) |
+| [Get-ConditionalAccessPolicies.ps1](EntraID/Scripts/Get-ConditionalAccessPolicies.ps1) | Exports a detailed report of all Conditional Access Policies (console + CSV + HTML) |
+| [Get-InactiveUsers.ps1](EntraID/Scripts/Get-InactiveUsers.ps1) | Lists users with no sign-in activity in the last N days via Microsoft Graph |
+| [Get-M365RoleReport.ps1](EntraID/Scripts/Get-M365RoleReport.ps1) | Enumerates administrative role members in Entra ID, Security & Compliance, and Exchange Online |
+| [Get-MFAAuthenticationMethodsReport.ps1](EntraID/Scripts/Get-MFAAuthenticationMethodsReport.ps1) | Audits MFA authentication methods for all users — [Documentation](EntraID/Scripts/Reporte%20MFA%20con%20Microsoft%20Graph.md) |
 
 ---
 
 ## Microsoft Defender for Office 365 (MDO)
 
-Guías, líneas base, políticas y scripts para la seguridad del correo electrónico y colaboración.
+Guides, baselines, policies, and scripts for email and collaboration security.
 
-### Guías Operativas
+### Operational Guides
 
-| Cadencia | Documento |
+| Cadence | Document |
 |---|---|
-| Diaria | [Guía de Seguridad Operacional MDO Diaria](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md) |
-| Semanal | [Guía de Seguridad Operacional MDO Semanal](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Semanal.md) |
-| Mensual / Ad-hoc | [Guía de Seguridad Operacional MDO Mensual Ad-Hoc](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Mensual%20Ad-Hoc.md) |
+| Daily | [Guía de Seguridad Operacional MDO Diaria](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md) |
+| Weekly | [Guía de Seguridad Operacional MDO Semanal](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Semanal.md) |
+| Monthly / Ad-hoc | [Guía de Seguridad Operacional MDO Mensual Ad-Hoc](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Mensual%20Ad-Hoc.md) |
 
-### Líneas Base
+### Baselines
 
-| Documento | Descripción |
+| Document | Description |
 |---|---|
-| [Protección contra BEC](MDO/Linea%20base%20de%20proteccion%20contra%20Business%20Email%20Compromise%20(BEC).md) | Estrategia de defensa en capas contra suplantación de identidad y compromiso de correo empresarial |
-| [Postura de seguridad Exchange Online](MDO/Línea%20base%20para%20mejorar%20la%20postura%20de%20seguridad%20en%20Exchange%20online.md) | Configuración de seguridad del flujo de correo bajo Zero Trust (SPF, DKIM, DMARC, MTA-STS) |
+| [Protección contra BEC](MDO/Linea%20base%20de%20proteccion%20contra%20Business%20Email%20Compromise%20(BEC).md) | Layered defense strategy against identity impersonation and business email compromise |
+| [Postura de seguridad Exchange Online](MDO/Línea%20base%20para%20mejorar%20la%20postura%20de%20seguridad%20en%20Exchange%20online.md) | Mail flow security configuration under Zero Trust (SPF, DKIM, DMARC, MTA-STS) |
 
-### Políticas
+### Policies
 
-| Documento | Descripción |
+| Document | Description |
 |---|---|
-| [Política Anti-Phishing MDO](MDO/Políticas/Política%20Anti-Phishing%20MDO.md) | Guía paso a paso para crear política Anti-Phishing con protección BEC para ejecutivos |
-| [Política de Safe Attachments](MDO/Políticas/Política%20de%20Safe%20Attachments.md) | Guía para crear política de Safe Attachments (detonación en sandbox) |
-| [Política Safe Links](MDO/Políticas/Politica%20Safe%20links.md) | Guía para crear política de Safe Links enfocada en protección BEC de URLs |
+| [Política Anti-Phishing MDO](MDO/Políticas/Política%20Anti-Phishing%20MDO.md) | Step-by-step guide to create an Anti-Phishing policy with BEC protection for executives |
+| [Política de Safe Attachments](MDO/Políticas/Política%20de%20Safe%20Attachments.md) | Guide to create a Safe Attachments policy (sandbox detonation) |
+| [Política Safe Links](MDO/Políticas/Politica%20Safe%20links.md) | Guide to create a Safe Links policy focused on BEC URL protection |
 
-### Consultas KQL
+### KQL Queries
 
-| Documento | Descripción |
+| Document | Description |
 |---|---|
-| [Paquete MDO KQL Advanced Hunting](MDO/Paquete%20MDO%20KQL%20Advance%20Hunting.md) | Consultas de detección, triaje e investigación de amenazas de correo electrónico |
+| [Paquete MDO KQL Advanced Hunting](MDO/Paquete%20MDO%20KQL%20Advance%20Hunting.md) | Detection, triage, and investigation queries for email threats |
 
 ### Scripts
 
-| Script | Descripción |
+| Script | Description |
 |---|---|
-| [New-CustomAlertPolicies.ps1](MDO/Scripts/New-CustomAlertPolicies.ps1) | Crea 23 Alert Policies personalizadas (Threat Management, DLP, Access Governance, SharePoint) |
-| [New-MailboxAuditBypassAlert.ps1](MDO/Scripts/New-MailboxAuditBypassAlert.ps1) | Crea alerta para detectar ejecución de `Set-MailboxAuditBypassAssociation` |
-| [Validate-MDOPolicies.ps1](MDO/Scripts/Validate-MDOPolicies.ps1) | Valida todas las políticas MDO contra recomendaciones Microsoft Standard/Strict |
-| [Validate-EXOSecurityBaseline.ps1](MDO/Scripts/Validate-EXOSecurityBaseline.ps1) | Valida la línea base de seguridad de Exchange Online (transport rules, SPF/DKIM/DMARC/MTA-STS) |
-| [Validate-ZAPConfiguration.ps1](MDO/Scripts/Validate-ZAPConfiguration.ps1) | Valida configuración de Zero-hour Auto Purge (ZAP) y genera dashboard HTML |
-| [Domain-Health-Check.ps1](MDO/Scripts/Domain-Health-Check.ps1) | Verifica registros DNS de autenticación (SPF, DKIM, DMARC, MTA-STS) y genera reporte HTML |
-| [Attachmentscannotbeinspected.ps1](MDO/Scripts/Attachmentscannotbeinspected.ps1) | Crea transport rule para poner en cuarentena correos con adjuntos no inspeccionables |
-| [Block-OnMicrosoftEmails.ps1](MDO/Scripts/Block-OnMicrosoftEmails.ps1) | Crea transport rule para bloquear correos enviados a direcciones `*.onmicrosoft.com` |
+| [New-CustomAlertPolicies.ps1](MDO/Scripts/New-CustomAlertPolicies.ps1) | Creates 23 custom Alert Policies (Threat Management, DLP, Access Governance, SharePoint) |
+| [New-MailboxAuditBypassAlert.ps1](MDO/Scripts/New-MailboxAuditBypassAlert.ps1) | Creates an alert to detect execution of `Set-MailboxAuditBypassAssociation` |
+| [Validate-MDOPolicies.ps1](MDO/Scripts/Validate-MDOPolicies.ps1) | Validates all MDO policies against Microsoft Standard/Strict recommendations |
+| [Validate-EXOSecurityBaseline.ps1](MDO/Scripts/Validate-EXOSecurityBaseline.ps1) | Validates the Exchange Online security baseline (transport rules, SPF/DKIM/DMARC/MTA-STS) |
+| [Validate-ZAPConfiguration.ps1](MDO/Scripts/Validate-ZAPConfiguration.ps1) | Validates Zero-hour Auto Purge (ZAP) configuration and generates an HTML dashboard |
+| [Domain-Health-Check.ps1](MDO/Scripts/Domain-Health-Check.ps1) | Checks authentication DNS records (SPF, DKIM, DMARC, MTA-STS) and generates an HTML report |
+| [Attachmentscannotbeinspected.ps1](MDO/Scripts/Attachmentscannotbeinspected.ps1) | Creates a transport rule to quarantine emails with non-inspectable attachments |
+| [Block-OnMicrosoftEmails.ps1](MDO/Scripts/Block-OnMicrosoftEmails.ps1) | Creates a transport rule to block emails sent to `*.onmicrosoft.com` addresses |
 
 ---
 
 ## Microsoft Defender for Endpoint (MDE)
 
-Guías operativas y reportes de vulnerabilidades para la seguridad de endpoints.
+Operational guides and vulnerability reports for endpoint security.
 
-### Guías Operativas
+### Operational Guides
 
-| Cadencia | Documento |
+| Cadence | Document |
 |---|---|
-| Diaria | [Guía de Seguridad Operacional MDE Diaria](MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md) |
-| Semanal | [Guía de Seguridad Operacional MDE Semanal](MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md) |
+| Daily | [Guía de Seguridad Operacional MDE Diaria](MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md) |
+| Weekly | [Guía de Seguridad Operacional MDE Semanal](MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md) |
 
 ### Scripts
 
-| Script | Descripción |
+| Script | Description |
 |---|---|
-| [New-DefenderVulnerabilityReport.ps1](MDE/New-DefenderVulnerabilityReport.ps1) | Genera reporte ejecutivo HTML de vulnerabilidades vía API de M365 Defender (CVEs, distribución de severidad, explotabilidad) |
+| [New-DefenderVulnerabilityReport.ps1](MDE/New-DefenderVulnerabilityReport.ps1) | Generates an executive HTML vulnerability report via M365 Defender API (CVEs, severity distribution, exploitability) |
 
 ---
 
 ## Microsoft Defender for Identity (MDI)
 
-Guías operativas y consultas KQL para la protección de identidades on-premises y detección de movimiento lateral.
+Operational guides and KQL queries for on-premises identity protection and lateral movement detection.
 
-### Guías Operativas
+### Operational Guides
 
-| Cadencia | Documento |
+| Cadence | Document |
 |---|---|
-| Diaria | [Guía operativa diaria MDI](MDI/Guía%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md) |
-| Semanal | [Guía operativa semanal MDI](MDI/Guía%20operativa%20semanal%20de%20Microsoft%20Defender%20for%20Identity.md) |
-| Mensual / Ad-hoc | [Guía operativa mensual/ad-hoc MDI](MDI/Guía%20opertiva%20mensualad-hoc%20de%20Microsoft%20Defender%20for%20Identity.md) |
+| Daily | [Guía operativa diaria MDI](MDI/Guía%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md) |
+| Weekly | [Guía operativa semanal MDI](MDI/Guía%20operativa%20semanal%20de%20Microsoft%20Defender%20for%20Identity.md) |
+| Monthly / Ad-hoc | [Guía operativa mensual/ad-hoc MDI](MDI/Guía%20opertiva%20mensualad-hoc%20de%20Microsoft%20Defender%20for%20Identity.md) |
 
-### Consultas KQL
+### KQL Queries
 
-| Documento | Descripción |
+| Document | Description |
 |---|---|
-| [Paquete MDI KQL Advanced Hunting](MDI/Paquete%20MDI%20KQL%20Advance%20Hunting.md) | Consultas de detección e investigación de amenazas de identidad para MDI |
+| [Paquete MDI KQL Advanced Hunting](MDI/Paquete%20MDI%20KQL%20Advance%20Hunting.md) | Identity threat detection and investigation queries for MDI |
 
 ---
 
 ## Microsoft Defender for Cloud Apps (MDA)
 
-> Sección en desarrollo. Próximamente se incluirán guías operativas, líneas base y scripts para MDA.
+> Section under development. Operational guides, baselines, and scripts for MDA will be included soon.
 
 ---
 
-## Microsoft Defender XDR (Reportes Cross-Domain)
+## Microsoft Defender XDR (Cross-Domain Reports)
 
-Reportes automatizados que consolidan telemetría de MDO, MDE, MDI y MDA en reportes ejecutivos HTML.
+Automated reports that consolidate telemetry from MDO, MDE, MDI, and MDA into executive HTML reports.
 
 ### Scripts
 
-| Script | Descripción | Instrucciones |
+| Script | Description | Instructions |
 |---|---|---|
-| [New-DefenderXDRDailyReport.ps1](XDR/New-DefenderXDRDailyReport.ps1) | Genera reporte diario HTML vía Advanced Hunting API | [Instrucciones](XDR/Instrucciones%20New-DefenderXDRDailyReport.ps1.md) |
-| [New-DefenderXDRWeeklyReport.ps1](XDR/New-DefenderXDRWeeklyReport.ps1) | Genera reporte semanal ejecutivo HTML con KPIs y tendencias | [Instrucciones](XDR/Instrucciones%20New-DefenderXDRWeeklyReport.ps1.md) |
-| [New-DefenderVulnerabilityReport.ps1](MDE/New-DefenderVulnerabilityReport.ps1) | Genera reporte de vulnerabilidades (TVM) en HTML | [Instrucciones](XDR/Instrucciones%20New-DefenderVulnerabilityReport.ps1.md) |
-| [Setup-DefenderXDRReportServer.ps1](XDR/Setup-DefenderXDRReportServer.ps1) | Setup inicial del servidor: estructura de carpetas, credenciales DPAPI/cert, Task Scheduler para automatización | — |
+| [New-DefenderXDRDailyReport.ps1](XDR/New-DefenderXDRDailyReport.ps1) | Generates a daily HTML report via Advanced Hunting API | [Instructions](XDR/Instrucciones%20New-DefenderXDRDailyReport.ps1.md) |
+| [New-DefenderXDRWeeklyReport.ps1](XDR/New-DefenderXDRWeeklyReport.ps1) | Generates a weekly executive HTML report with KPIs and trends | [Instructions](XDR/Instrucciones%20New-DefenderXDRWeeklyReport.ps1.md) |
+| [New-DefenderVulnerabilityReport.ps1](MDE/New-DefenderVulnerabilityReport.ps1) | Generates a vulnerability report (TVM) in HTML | [Instructions](XDR/Instrucciones%20New-DefenderVulnerabilityReport.ps1.md) |
+| [Setup-DefenderXDRReportServer.ps1](XDR/Setup-DefenderXDRReportServer.ps1) | Initial server setup: folder structure, DPAPI/cert credentials, Task Scheduler for automation | — |
 
-### Características de los Reportes
+### Report Features
 
-- **Grid de KPIs**: Métricas clave (Alertas MDE, Phishing, High Risk Users) en la parte superior
-- **Secciones por dominio**: MDO (campañas y usuarios objetivo), MDE (severidad de alertas), MDI (fuerza bruta y riesgo), MDA (OAuth y cloud apps)
-- **Diseño ejecutivo**: Interfaz basada en Segoe UI, coherente con el ecosistema Microsoft
-- **Automatización**: Task Scheduler para ejecución diaria (7:00 AM) y semanal (lunes 7:30 AM)
+- **KPI Grid**: Key metrics (MDE Alerts, Phishing, High Risk Users) at the top
+- **Domain sections**: MDO (campaigns and targeted users), MDE (alert severity), MDI (brute force and risk), MDA (OAuth and cloud apps)
+- **Executive design**: Segoe UI-based interface, consistent with the Microsoft ecosystem
+- **Automation**: Task Scheduler for daily (7:00 AM) and weekly (Monday 7:30 AM) execution
 
 ---
 
-## Estructura del Repositorio
+## Repository Structure
 
 ```
 gol2026/
-├── README.md                          ← Este archivo
-├── Requisitos.md                      ← Requisitos, licenciamiento y configuración
+├── README.md                          ← This file
+├── Requisitos.md                      ← Requirements, licensing, and configuration
 │
-├── EntraID/                           ← Microsoft Entra ID (Identidad)
-│   ├── Guías operativas (diaria, semanal, mensual)
-│   ├── Línea base Conditional Access Policies
-│   ├── Paquete KQL Advanced Hunting
+├── EntraID/                           ← Microsoft Entra ID (Identity)
+│   ├── Operational guides (daily, weekly, monthly)
+│   ├── Conditional Access Policies baseline
+│   ├── KQL Advanced Hunting package
 │   ├── Políticas/
 │   └── Scripts/                       ← 4 scripts (CA policies, inactive users, roles, MFA)
 │
 ├── MDO/                               ← Microsoft Defender for Office 365
-│   ├── Guías operativas (diaria, semanal, mensual)
-│   ├── Líneas base (BEC, Exchange Online)
-│   ├── Paquete KQL Advanced Hunting
+│   ├── Operational guides (daily, weekly, monthly)
+│   ├── Baselines (BEC, Exchange Online)
+│   ├── KQL Advanced Hunting package
 │   ├── Políticas/                     ← Anti-Phishing, Safe Attachments, Safe Links
 │   ├── Línea Base/
-│   └── Scripts/                       ← 8 scripts (alertas, validaciones, transport rules)
+│   └── Scripts/                       ← 8 scripts (alerts, validations, transport rules)
 │
 ├── MDE/                               ← Microsoft Defender for Endpoint
-│   ├── Guías operativas (diaria, semanal)
+│   ├── Operational guides (daily, weekly)
 │   └── New-DefenderVulnerabilityReport.ps1
 │
 ├── MDI/                               ← Microsoft Defender for Identity
-│   ├── Guías operativas (diaria, semanal, mensual)
-│   └── Paquete KQL Advanced Hunting
+│   ├── Operational guides (daily, weekly, monthly)
+│   └── KQL Advanced Hunting package
 │
 ├── MDA/                               ← Microsoft Defender for Cloud Apps
-│   ├── Guías operativas (diaria, semanal, mensual)
-│   └── Paquete KQL Advanced Hunting
+│   ├── Operational guides (daily, weekly, monthly)
+│   └── KQL Advanced Hunting package
 │
-├── XDR/                               ← Reportes Cross-Domain
-│   ├── Instrucciones de ejecución (.md)
-│   ├── Scripts de reportería (daily, weekly, setup)
-│   └── Reportes generados (.html)
+├── XDR/                               ← Cross-Domain Reports
+│   ├── Execution instructions (.md)
+│   ├── Reporting scripts (daily, weekly, setup)
+│   └── Generated reports (.html)
 │
-└── wiki/                              ← Wiki (en desarrollo)
+└── wiki/                              ← Wiki (under development)
 ```
 
 ---
 
-## Tecnologías Utilizadas
+## Technologies Used
 
-| Tecnología | Uso |
+| Technology | Usage |
 |---|---|
-| **PowerShell 7+** | Scripts de automatización, validación y reportería |
-| **KQL (Kusto Query Language)** | Consultas de Advanced Hunting en Microsoft 365 Defender |
-| **Microsoft Graph API** | Consultas de identidad, roles y métodos de autenticación |
-| **Microsoft 365 Defender API** | Advanced Hunting, reportes de vulnerabilidades |
-| **Exchange Online PowerShell** | Validación de políticas MDO y configuración de Exchange |
-| **HTML5 / CSS3** | Reportes ejecutivos visuales |
+| **PowerShell 7+** | Automation, validation, and reporting scripts |
+| **KQL (Kusto Query Language)** | Advanced Hunting queries in Microsoft 365 Defender |
+| **Microsoft Graph API** | Identity, role, and authentication method queries |
+| **Microsoft 365 Defender API** | Advanced Hunting, vulnerability reports |
+| **Exchange Online PowerShell** | MDO policy validation and Exchange configuration |
+| **HTML5 / CSS3** | Visual executive reports |
 
 ---
 
-## Inicio Rápido
+## Quick Start
 
 ```powershell
-# 1. Instalar módulos necesarios
+# 1. Install required modules
 Install-Module ExchangeOnlineManagement -Scope CurrentUser
 Install-Module Microsoft.Graph -Scope CurrentUser
 
-# 2. Conectar a los servicios
+# 2. Connect to services
 Connect-ExchangeOnline
 Connect-IPPSSession
 
-# 3. Configurar variables de entorno para reportes XDR
-$env:AZURE_TENANT_ID     = "<tu-tenant-id>"
-$env:AZURE_CLIENT_ID     = "<tu-client-id>"
-$env:AZURE_CLIENT_SECRET  = "<tu-client-secret>"
+# 3. Set environment variables for XDR reports
+$env:AZURE_TENANT_ID     = "<your-tenant-id>"
+$env:AZURE_CLIENT_ID     = "<your-client-id>"
+$env:AZURE_CLIENT_SECRET  = "<your-client-secret>"
 
-# 4. Generar un reporte diario
+# 4. Generate a daily report
 .\XDR\New-DefenderXDRDailyReport.ps1
 
-# 5. Validar políticas MDO
+# 5. Validate MDO policies
 .\MDO\Scripts\Validate-MDOPolicies.ps1
 ```
 
-> Para la configuración completa incluyendo App Registration, certificados y Task Scheduler, consulte [Requisitos.md](Requisitos.md).
+> For the complete configuration including App Registration, certificates, and Task Scheduler, see [Requisitos.md](Requisitos.md).
 
 
 
-PowerShell / Graph API (Opcional): Para la automatización y generación del archivo.
+PowerShell / Graph API (Optional): For automation and file generation.
 
 
 
 
 
-## ⚙️ Configuración y Uso
+## ⚙️ Configuration and Usage
 
-### Opción 1: Configuración Automatizada (Recomendado para Servidores)
+### Option 1: Automated Configuration (Recommended for Servers)
 
 ```powershell
-# 1. Ejecutar script de setup
+# 1. Run setup script
 .\Setup-DefenderReportServer.ps1
 
-# 2. Seguir el asistente de configuración
-# - Ingresa Tenant ID y Client ID
-# - Configura Client Secret (encriptado con DPAPI)
-# - Valida permisos de API
+# 2. Follow the configuration wizard
+# - Enter Tenant ID and Client ID
+# - Configure Client Secret (encrypted with DPAPI)
+# - Validate API permissions
 
-# 3. Ejecutar reporte
+# 3. Run report
 .\Run-DefenderXDRWeeklyReport.ps1
 ```
 
-### Opción 2: Configuración Manual
+### Option 2: Manual Configuration
 
 ```powershell
-# Clonar el repositorio
+# Clone the repository
 git clone https://github.com/watchdogcode/gol2026
 
-# Crear SecureString para Client Secret
+# Create SecureString for Client Secret
 $Secret = Read-Host "Client Secret" -AsSecureString
 $Secret | ConvertFrom-SecureString | Out-File "C:\Config\Secret.txt"
 
-# Ejecutar reporte
+# Run report
 $SecureSecret = Get-Content "C:\Config\Secret.txt" | ConvertTo-SecureString
 .\New-DefenderXDRWeeklyReport.ps1 `
     -TenantId "your-tenant-id" `
@@ -331,60 +331,60 @@ $SecureSecret = Get-Content "C:\Config\Secret.txt" | ConvertTo-SecureString
     -ExportCsv
 ```
 
-### Requisitos Previos
+### Prerequisites
 
-- **Azure AD App Registration** con permisos:
+- **Azure AD App Registration** with permissions:
   - `AdvancedHunting.Read.All` (Application)
-  - Admin Consent otorgado
-- **PowerShell 5.1** o superior (7+ recomendado para ejecución paralela)
-- **Licencias requeridas**: Microsoft 365 E5 o Microsoft Defender XDR
+  - Admin Consent granted
+- **PowerShell 5.1** or higher (7+ recommended for parallel execution)
+- **Required licenses**: Microsoft 365 E5 or Microsoft Defender XDR
 
-## 🆕 Nuevas Características (v2.0)
+## 🆕 New Features (v2.0)
 
-### 🔒 Seguridad Mejorada
-- ✅ **SecureString** para Client Secret (encriptación DPAPI local)
-- ✅ **Enmascaramiento** de Tenant ID en reportes
-- ✅ **Limpieza automática** de variables sensibles en memoria
-- ✅ **Cache de tokens** con expiración automática
+### 🔒 Enhanced Security
+- ✅ **SecureString** for Client Secret (local DPAPI encryption)
+- ✅ **Masking** of Tenant ID in reports
+- ✅ **Automatic cleanup** of sensitive variables in memory
+- ✅ **Token caching** with automatic expiration
 
-### ⚡ Rendimiento
-- ✅ **Ejecución paralela** de queries (hasta 5x más rápido)
-- ✅ **Cache de autenticación** (reutiliza tokens válidos)
-- ✅ **Reintentos exponenciales** con backoff inteligente
+### ⚡ Performance
+- ✅ **Parallel execution** of queries (up to 5x faster)
+- ✅ **Authentication caching** (reuses valid tokens)
+- ✅ **Exponential retries** with intelligent backoff
 
-### 📊 Funcionalidad
-- ✅ **Exportación CSV** de todas las tablas
-- ✅ **Comparación con período anterior** (KPI trends)
-- ✅ **Logging estructurado** con niveles (INFO/WARN/ERROR/DEBUG)
-- ✅ **Modo test** para pruebas sin API
+### 📊 Functionality
+- ✅ **CSV export** of all tables
+- ✅ **Comparison with previous period** (KPI trends)
+- ✅ **Structured logging** with levels (INFO/WARN/ERROR/DEBUG)
+- ✅ **Test mode** for testing without API
 
-### 🛡️ Robustez
-- ✅ **Manejo de errores granular** (no falla todo por un query)
-- ✅ **Validación de datos** antes de generar reporte
-- ✅ **Timeout mejorado** en Device Code flow
-- ✅ **Variables configurables** (retry limits, thresholds)
+### 🛡️ Robustness
+- ✅ **Granular error handling** (a single query failure doesn't break the whole report)
+- ✅ **Data validation** before generating the report
+- ✅ **Improved timeout** in Device Code flow
+- ✅ **Configurable variables** (retry limits, thresholds)
 
-Ver [MEJORAS_IMPLEMENTADAS.md](MEJORAS_IMPLEMENTADAS.md) para documentación detallada.
+See [MEJORAS_IMPLEMENTADAS.md](MEJORAS_IMPLEMENTADAS.md) for detailed documentation.
 
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
 ```
 gol2026/
-├── New-DefenderXDRWeeklyReport.ps1      # Script principal (v2.0)
-├── New-DefenderXDRDailyReport.ps1       # Reporte diario
-├── Setup-DefenderReportServer.ps1       # Setup automatizado
-├── Run-DefenderXDRWeeklyReport.ps1      # Wrapper (generado por setup)
-├── MEJORAS_IMPLEMENTADAS.md             # Documentación de mejoras
-├── Paquete KQL Advance Hunting.md       # Queries KQL de referencia
-├── Guia de Seguridad Operacional MDO... # Guías operacionales
-└── README.md                            # Este archivo
+├── New-DefenderXDRWeeklyReport.ps1      # Main script (v2.0)
+├── New-DefenderXDRDailyReport.ps1       # Daily report
+├── Setup-DefenderReportServer.ps1       # Automated setup
+├── Run-DefenderXDRWeeklyReport.ps1      # Wrapper (generated by setup)
+├── MEJORAS_IMPLEMENTADAS.md             # Improvements documentation
+├── Paquete KQL Advance Hunting.md       # Reference KQL queries
+├── Guia de Seguridad Operacional MDO... # Operational guides
+└── README.md                            # This file
 ```
 
-## 🔧 Ejemplos de Uso
+## 🔧 Usage Examples
 
-### Ejecución Programada (Task Scheduler)
+### Scheduled Execution (Task Scheduler)
 ```powershell
-# Crear tarea semanal (Lunes 7 AM)
+# Create weekly task (Monday 7 AM)
 $Action = New-ScheduledTaskAction -Execute 'PowerShell.exe' `
     -Argument '-NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\Run-DefenderXDRWeeklyReport.ps1"'
 $Trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At 7am
@@ -392,9 +392,9 @@ Register-ScheduledTask -TaskName "DefenderXDR-WeeklyReport" `
     -Action $Action -Trigger $Trigger
 ```
 
-### Uso Avanzado
+### Advanced Usage
 ```powershell
-# Con todas las características
+# With all features
 .\New-DefenderXDRWeeklyReport.ps1 `
     -TenantId "xxx" `
     -ClientId "yyy" `
@@ -411,8 +411,8 @@ Register-ScheduledTask -TaskName "DefenderXDR-WeeklyReport" `
 
 ## ⚠️ Disclaimer
 
-Este reporte es una herramienta de visualización. Los datos mostrados dependen de la correcta configuración de las licencias y conectores de Microsoft Defender XDR en tu entorno.
+This report is a visualization tool. The data displayed depends on the correct configuration of Microsoft Defender XDR licenses and connectors in your environment.
 
-**Creado por:** Ernesto Cobos Roqueñi y Jose Arturo Mandujano  
-**Versión:** 2.1
-**Última actualización:** Abril 2026
+**Created by:** Ernesto Cobos Roqueñi and Jose Arturo Mandujano  
+**Version:** 2.1
+**Last updated:** April 2026

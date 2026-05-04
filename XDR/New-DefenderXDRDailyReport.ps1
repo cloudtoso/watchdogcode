@@ -1,83 +1,83 @@
-<#
+﻿<#
 .SYNOPSIS
-    Generador de Reporte Diario de Operaciones de Seguridad usando la API de Microsoft 365 Defender.
-    Automatiza consultas KQL de Advanced Hunting para MDO, MDE, MDI y MDA.
+    Daily Security Operations Report Generator using the Microsoft 365 Defender API.
+    Automates Advanced Hunting KQL queries for MDO, MDE, MDI, and MDA.
 
 .DESCRIPTION
-    Este script se autentica contra la API de M365 Defender, ejecuta un conjunto definido de
-    consultas de hunting diarias y genera un reporte ejecutivo profesional en HTML.
+    This script authenticates against the M365 Defender API, executes a defined set of
+    daily hunting queries, and generates a professional executive report in HTML.
 
 .PARAMETER TimeWindowHours
-    Ventana de tiempo en horas para el análisis (Por defecto: 720).
+    Time window in hours for analysis (Default: 720).
 
 .PARAMETER OutputPath
-    Ruta completa para el archivo HTML de salida.
+    Full path for the output HTML file.
 
 .PARAMETER TenantId
-    Tenant ID de Entra ID. Toma por defecto $env:AZURE_TENANT_ID.
+    Entra ID Tenant ID. Defaults to $env:AZURE_TENANT_ID.
 
 .PARAMETER ClientId
-    App/Client ID de la aplicación registrada. Toma por defecto $env:AZURE_CLIENT_ID.
+    Registered application App/Client ID. Defaults to $env:AZURE_CLIENT_ID.
 
 .PARAMETER ClientSecret
-    Secreto de la aplicación para AuthMode Secret. Toma por defecto $env:AZURE_CLIENT_SECRET.
+    Application secret for AuthMode Secret. Defaults to $env:AZURE_CLIENT_SECRET.
 
 .PARAMETER AuthMode
-    Método de autenticación: 'Secret', 'Certificate', 'Interactive', 'DeviceCode'.
-    Para 'Secret', configure $ClientId, $TenantId y $ClientSecret.
-    Para 'Certificate', configure $ClientId, $TenantId y el certificado por thumbprint o ruta PFX.
+    Authentication method: 'Secret', 'Certificate', 'Interactive', 'DeviceCode'.
+    For 'Secret', set $ClientId, $TenantId and $ClientSecret.
+    For 'Certificate', set $ClientId, $TenantId and the certificate by thumbprint or PFX path.
 
 .PARAMETER CertificateThumbprint
-    Thumbprint del certificado en CurrentUser/My o LocalMachine/My.
+    Certificate thumbprint in CurrentUser/My or LocalMachine/My.
 
 .PARAMETER CertificatePath
-    Ruta a archivo PFX/P12 para autenticación por certificado.
+    Path to PFX/P12 file for certificate authentication.
 
 .PARAMETER CertificatePassword
-    Password SecureString para abrir CertificatePath (opcional si el PFX no tiene password).
+    SecureString password to open CertificatePath (optional if the PFX has no password).
 
 .PARAMETER TimeoutSec
-    Timeout por consulta a la API (segundos). Por defecto: 120.
+    Timeout per API query (seconds). Default: 120.
 
 .PARAMETER FailFast
-    Si es $true, detiene ejecución ante el primer error de consulta.
+    If $true, stops execution on the first query error.
 
 .PARAMETER IncludeMDO
-    Incluir secciones de Microsoft Defender for Office 365. Si no se especifica ningún producto, se incluyen todos.
+    Include Microsoft Defender for Office 365 sections. If no product is specified, all are included.
 
 .PARAMETER IncludeMDE
-    Incluir secciones de Microsoft Defender for Endpoint. Si no se especifica ningún producto, se incluyen todos.
+    Include Microsoft Defender for Endpoint sections. If no product is specified, all are included.
 
 .PARAMETER IncludeMDI
-    Incluir secciones de Microsoft Defender for Identity y Entra ID. Si no se especifica ningún producto, se incluyen todos.
+    Include Microsoft Defender for Identity and Entra ID sections. If no product is specified, all are included.
 
 .PARAMETER IncludeMDA
-    Incluir secciones de Microsoft Defender for Cloud Apps. Si no se especifica ningún producto, se incluyen todos.
+    Include Microsoft Defender for Cloud Apps sections. If no product is specified, all are included.
 
 .EXAMPLE
     .\New-DefenderXDRDailyReport.ps1
-    Ejecuta el reporte con AuthMode Secret (default) y todos los productos habilitados.
+    Runs the report with AuthMode Secret (default) and all products enabled.
 
 .EXAMPLE
     .\New-DefenderXDRDailyReport.ps1 -AuthMode Certificate -TenantId "<tenant>" -ClientId "<appId>" -CertificateThumbprint "<thumbprint>"
-    Ejecuta el reporte usando autenticación por certificado desde el store de certificados.
+    Runs the report using certificate authentication from the certificate store.
 
 .EXAMPLE
-    $pwd = Read-Host "Password del PFX" -AsSecureString
+    $pwd = Read-Host "PFX Password" -AsSecureString
     .\New-DefenderXDRDailyReport.ps1 -AuthMode Certificate -TenantId "<tenant>" -ClientId "<appId>" -CertificatePath "C:\certs\app.pfx" -CertificatePassword $pwd
-    Ejecuta el reporte usando un certificado PFX.
+    Runs the report using a PFX certificate.
 
 .EXAMPLE
     .\New-DefenderXDRDailyReport.ps1 -IncludeMDO -IncludeMDE
-    Ejecuta el reporte solo con las secciones de MDO y MDE.
+    Runs the report with only the MDO and MDE sections.
 
 .EXAMPLE
     .\New-DefenderXDRDailyReport.ps1 -IncludeMDA
-    Ejecuta el reporte solo con la sección de MDA (Cloud Apps).
+    Runs the report with only the MDA (Cloud Apps) section.
 
 .NOTES
-    Endpoint de API: https://api.security.microsoft.com
-    Permiso requerido: AdvancedHunting.Read.All
+    API Endpoint: https://api.security.microsoft.com
+    Required permission: AdvancedHunting.Read.All
     Author  : Ernesto Cobos Roqueñí, Arturo Mandujano
 #>
 
@@ -97,7 +97,7 @@ param(
     [string]$SmtpServer,
     [string]$From,
     [string]$To,
-    [string]$Subject = "Reporte Diario de Seguridad - M365 Defender XDR",
+    [string]$Subject = "Daily Security Report - M365 Defender XDR",
     [int]$TimeoutSec = 120,
     [bool]$FailFast = $false,
     [int]$CustomDetectionsWindowHours = 180,
@@ -114,7 +114,7 @@ $CertificateThumbprint = if ($null -ne $CertificateThumbprint) { ($CertificateTh
 $CertificatePath = if ($null -ne $CertificatePath) { $CertificatePath.Trim() } else { $CertificatePath }
 $AuthMode = if ($null -ne $AuthMode) { $AuthMode.Trim() } else { $AuthMode }
 
-# --- SELECCIÓN DE PRODUCTOS (si no se especifica ninguno, se incluyen todos) ---
+# --- PRODUCT SELECTION (if none specified, all are included) ---
 $RunMDO = $IncludeMDO.IsPresent
 $RunMDE = $IncludeMDE.IsPresent
 $RunMDI = $IncludeMDI.IsPresent
@@ -123,19 +123,19 @@ if (-not ($RunMDO -or $RunMDE -or $RunMDI -or $RunMDA)) {
     $RunMDO = $RunMDE = $RunMDI = $RunMDA = $true
 }
 
-# --- CONFIGURACIÓN Y VARIABLES GLOBALES ---
+# --- CONFIGURATION AND GLOBAL VARIABLES ---
 $ErrorActionPreference = "Stop"
 $ApiBaseUrl = "https://api.security.microsoft.com/api"
 $ResourceUrl = "https://api.security.microsoft.com"
 $ReportDate = Get-Date
 $StartDate = $ReportDate.AddHours(-$TimeWindowHours)
 
-# --- PARSER DE CATÁLOGOS KQL DESDE MARKDOWN ---
-# Carga automáticamente los catálogos KQL desde los archivos .md del repositorio.
-# Formatos soportados:
-#   MDO:     ## emoji Categoría  →  ### N. Título  →  ```kql ... ```
-#   MDI:     ## N. Título  →  ```kql ... ```  (sin categorías)
-#   EntraID: # X) Categoría  →  ## XN) Título  →  ```kql ... ```
+# --- KQL CATALOG PARSER FROM MARKDOWN ---
+# Automatically loads KQL catalogs from the .md files in the repository.
+# Supported formats:
+#   MDO:     ## emoji Category  →  ### N. Title  →  ```kql ... ```
+#   MDI:     ## N. Title  →  ```kql ... ```  (no categories)
+#   EntraID: # X) Category  →  ## XN) Title  →  ```kql ... ```
 function Import-KqlCatalogFromMarkdown {
     param(
         [string]$Url,
@@ -146,30 +146,30 @@ function Import-KqlCatalogFromMarkdown {
     $Content = $null
     $LoadedFrom = $null
 
-    # Intentar descarga desde GitHub (fuente canónica)
+    # Try downloading from GitHub (canonical source)
     if ($Url) {
         try {
             if ($Url -match '^https://github\.com/.+/blob/.+$') {
                 $Url = $Url -replace '^https://github\.com/', 'https://raw.githubusercontent.com/' -replace '/blob/', '/'
             }
-            Write-Log "Descargando catálogo $Format desde GitHub..."
+            Write-Log "Downloading $Format catalog from GitHub..."
             $Content = (Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 15).Content
             if ($Content) { $LoadedFrom = 'GitHub' }
         }
         catch {
-            Write-Log "No se pudo descargar catálogo $Format desde GitHub: $($_.Exception.Message)" -Level WARN
+            Write-Log "Could not download $Format catalog from GitHub: $($_.Exception.Message)" -Level WARN
         }
     }
 
-    # Fallback: archivo local
+    # Fallback: local file
     if (-not $Content -and $LocalPath -and (Test-Path $LocalPath)) {
-        Write-Log "Cargando catálogo $Format desde archivo local: $LocalPath"
+        Write-Log "Loading $Format catalog from local file: $LocalPath"
         $Content = Get-Content $LocalPath -Raw -Encoding UTF8
         if ($Content) { $LoadedFrom = 'Local' }
     }
 
     if (-not $Content) {
-        Write-Log "Catálogo $Format no disponible (ni GitHub ni local)" -Level WARN
+        Write-Log "$Format catalog not available (neither GitHub nor local)" -Level WARN
         return $null
     }
     $Lines     = $Content -split "`n"
@@ -183,7 +183,7 @@ function Import-KqlCatalogFromMarkdown {
     foreach ($Line in $Lines) {
         $Trimmed = $Line.TrimEnd()
 
-        # --- Detectar categoría ---
+        # --- Detect category ---
         switch ($Format) {
             'MDO' {
                 # ## 🎭 Spoofing y Autenticación  (## + emoji + texto)
@@ -195,15 +195,15 @@ function Import-KqlCatalogFromMarkdown {
                 }
             }
             'EntraID' {
-                # Compatibilidad: # A) ... (formato legado) y # 1) ... (formato actual)
+                # Compatibility: # A) ... (legacy format) and # 1) ... (current format)
                 if ($Trimmed -match '^# (?:[A-Z]|\d+)\)\s+(.+)$') {
                     $Category = $Matches[1].Trim()
                 }
             }
-            # MDI: sin categorías, se mantiene el valor vacío
+            # MDI: no categories, empty value is kept
         }
 
-        # --- Detectar encabezado de query ---
+        # --- Detect query header ---
         $QueryMatch = $false
         switch ($Format) {
             'MDO' {
@@ -223,7 +223,7 @@ function Import-KqlCatalogFromMarkdown {
                 }
             }
             'EntraID' {
-                # Compatibilidad: ## A1) ... (formato legado) y ## 1.1) ... (formato actual)
+                # Compatibility: ## A1) ... (legacy format) and ## 1.1) ... (current format)
                 if ($Trimmed -match '^## ((?:[A-Z]\d+|\d+\.\d+))\)\s+(.+)$') {
                     $QueryMatch = $true
                     $CurrentId = $Matches[1].Trim()
@@ -232,7 +232,7 @@ function Import-KqlCatalogFromMarkdown {
             }
         }
 
-        # --- Capturar bloque KQL ---
+        # --- Capture KQL block ---
         if ($Trimmed -match '^```kql' -and $CurrentId) {
             $InKql = $true
             $KqlBuffer = ""
@@ -241,7 +241,7 @@ function Import-KqlCatalogFromMarkdown {
 
         if ($InKql -and $Trimmed -match '^```\s*$') {
             $InKql = $false
-            # Emitir entrada del catálogo
+            # Emit catalog entry
             $Entry = @{
                 Id       = $CurrentId
                 Category = if ($Category) { $Category } else { $CurrentTitle }
@@ -260,7 +260,7 @@ function Import-KqlCatalogFromMarkdown {
         }
     }
 
-    # Para EntraID, re-numerar secuencialmente (1, 2, 3...) ya que los IDs originales son alfanuméricos
+    # For EntraID, renumber sequentially (1, 2, 3...) since original IDs are alphanumeric
     if ($Format -eq 'EntraID') {
         for ($i = 0; $i -lt $Catalog.Count; $i++) {
             $Catalog[$i].Id = $i + 1
@@ -268,15 +268,15 @@ function Import-KqlCatalogFromMarkdown {
     }
 
     if ($Catalog.Count -eq 0 -and $LoadedFrom -eq 'GitHub' -and $LocalPath -and (Test-Path $LocalPath)) {
-        Write-Log "Catálogo $Format en GitHub sin queries parseables. Reintentando archivo local..." -Level WARN
+        Write-Log "$Format catalog on GitHub has no parseable queries. Retrying local file..." -Level WARN
         return Import-KqlCatalogFromMarkdown -Url $null -LocalPath $LocalPath -Format $Format
     }
 
-    Write-Log "Catálogo $Format cargado desde Markdown: $($Catalog.Count) queries"
+    Write-Log "$Format catalog loaded from Markdown: $($Catalog.Count) queries"
     return $Catalog
 }
 
-# --- ENMASCARAMIENTO DE CREDENCIALES ---
+# --- CREDENTIAL MASKING ---
 function Mask-String {
     param([string]$Value, [int]$VisibleChars = 4)
     if ([string]::IsNullOrEmpty($Value)) { return '****' }
@@ -286,19 +286,19 @@ function Mask-String {
 
 $MaskedTenantId  = Mask-String $TenantId
 $MaskedClientId  = Mask-String $ClientId
-$MaskedSecret    = if ($ClientSecret) { '********' } else { '(no configurado)' }
-$MaskedCertThumb = if ($CertificateThumbprint) { Mask-String $CertificateThumbprint 6 } else { '(no configurado)' }
-$MaskedCertPath  = if ($CertificatePath) { $CertificatePath } else { '(no configurado)' }
+$MaskedSecret    = if ($ClientSecret) { '********' } else { '(not configured)' }
+$MaskedCertThumb = if ($CertificateThumbprint) { Mask-String $CertificateThumbprint 6 } else { '(not configured)' }
+$MaskedCertPath  = if ($CertificatePath) { $CertificatePath } else { '(not configured)' }
 
-# --- FUNCIÓN DE REGISTRO (LOG) ---
+# --- LOG FUNCTION ---
 function Write-Log {
     param([string]$Message, [string]$Level="INFO")
     $Color = switch($Level) { "INFO" {"Cyan"} "WARN" {"Yellow"} "ERROR" {"Red"} default {"White"} }
     Write-Host "[$((Get-Date).ToString('HH:mm:ss'))] [$Level] $Message" -ForegroundColor $Color
 }
 
-# --- POSTURA DE SEGURIDAD: Registrar credenciales enmascaradas al inicio ---
-Write-Log "=== Contexto de Seguridad ==="
+# --- SECURITY POSTURE: Log masked credentials at startup ---
+Write-Log "=== Security Context ==="
 Write-Log "  Tenant ID   : $MaskedTenantId"
 Write-Log "  Client ID   : $MaskedClientId"
 Write-Log "  Secret      : $MaskedSecret"
@@ -307,7 +307,7 @@ Write-Log "  Cert Path   : $MaskedCertPath"
 Write-Log "  Auth Mode   : $AuthMode"
 Write-Log "=============================="
 
-# --- AUTENTICACIÓN ---
+# --- AUTHENTICATION ---
 function ConvertTo-Base64Url {
     param([byte[]]$Bytes)
 
@@ -358,7 +358,7 @@ function Get-ExceptionResponseBody {
 function Get-CertificateForAuth {
     if ($CertificatePath) {
         if (-not (Test-Path $CertificatePath)) {
-            throw "No se encontró el certificado en ruta: $CertificatePath"
+            throw "Certificate not found at path: $CertificatePath"
         }
 
         if ($CertificatePassword) {
@@ -377,7 +377,7 @@ function Get-CertificateForAuth {
     }
 
     if (-not $CertificateThumbprint) {
-        throw "Para AuthMode 'Certificate', especifique -CertificateThumbprint o -CertificatePath."
+        throw "For AuthMode 'Certificate', specify -CertificateThumbprint or -CertificatePath."
     }
 
     $NormalizedThumb = ($CertificateThumbprint -replace '\s','').ToUpperInvariant()
@@ -395,7 +395,7 @@ function Get-CertificateForAuth {
         }
     }
 
-    throw "No se encontró un certificado con thumbprint '$CertificateThumbprint' en CurrentUser/My o LocalMachine/My."
+    throw "Certificate with thumbprint '$CertificateThumbprint' not found in CurrentUser/My or LocalMachine/My."
 }
 
 function New-ClientAssertionJwt {
@@ -406,12 +406,12 @@ function New-ClientAssertionJwt {
     )
 
     if (-not $Certificate.HasPrivateKey) {
-        throw "El certificado no contiene clave privada."
+        throw "The certificate does not contain a private key."
     }
 
     $Rsa = $null
     try {
-        # Compatibilidad amplia: en algunos hosts GetRSAPrivateKey no está disponible como método de instancia.
+        # Broad compatibility: in some hosts GetRSAPrivateKey is not available as an instance method.
         $Rsa = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($Certificate)
     }
     catch {
@@ -423,7 +423,7 @@ function New-ClientAssertionJwt {
     }
 
     if (-not $Rsa) {
-        throw "No se pudo obtener la clave privada RSA del certificado. Verifique que tenga clave privada exportable y algoritmo RSA."
+        throw "Could not obtain the RSA private key from the certificate. Verify it has an exportable private key and RSA algorithm."
     }
 
     $Now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
@@ -462,12 +462,12 @@ function New-ClientAssertionJwt {
 }
 
 function Get-M365Token {
-    Write-Log "Obteniendo Token de Acceso vía $AuthMode..."
+    Write-Log "Obtaining Access Token via $AuthMode..."
     
     try {
         if ($AuthMode -eq "Secret") {
             if (-not ($TenantId -and $ClientId -and $ClientSecret)) {
-                throw "Para autenticación 'Secret', se requieren TenantId, ClientId y ClientSecret."
+                throw "For 'Secret' authentication, TenantId, ClientId, and ClientSecret are required."
             }
             $Body = @{
                 grant_type    = "client_credentials"
@@ -480,11 +480,11 @@ function Get-M365Token {
         }
         elseif ($AuthMode -eq "Certificate") {
             if (-not ($TenantId -and $ClientId)) {
-                throw "Para autenticación 'Certificate', se requieren TenantId y ClientId."
+                throw "For 'Certificate' authentication, TenantId and ClientId are required."
             }
 
             $Cert = Get-CertificateForAuth
-            Write-Log "Usando certificado '$($Cert.Subject)' (thumbprint: $($Cert.Thumbprint)) para autenticación por certificado."
+            Write-Log "Using certificate '$($Cert.Subject)' (thumbprint: $($Cert.Thumbprint)) for certificate authentication."
 
             $ClientAssertion = New-ClientAssertionJwt -Certificate $Cert -ClientId $ClientId -TenantId $TenantId
             $Body = @{
@@ -499,14 +499,14 @@ function Get-M365Token {
             return $TokenReq.access_token
         }
         elseif ($AuthMode -in @("Interactive", "DeviceCode")) {
-            # --- Opción 1: Az.Accounts (recomendado) ---
+            # --- Option 1: Az.Accounts (recommended) ---
             if (Get-Module -ListAvailable -Name "Az.Accounts") {
-                Write-Log "Usando Az.Accounts para autenticación $AuthMode..."
+                Write-Log "Using Az.Accounts for $AuthMode authentication..."
 
-                # Verificar si existe un contexto activo; conectar si no
+                # Check if an active context exists; connect if not
                 $AzContext = Get-AzContext -ErrorAction SilentlyContinue
                 if (-not $AzContext) {
-                    Write-Log "No hay sesión activa de Azure. Iniciando conexión ($AuthMode)..."
+                    Write-Log "No active Azure session. Starting connection ($AuthMode)..."
                     if ($AuthMode -eq "DeviceCode") {
                         Connect-AzAccount -UseDeviceAuthentication -ErrorAction Stop | Out-Null
                     } else {
@@ -516,21 +516,21 @@ function Get-M365Token {
 
                 $TokenData = Get-AzAccessToken -ResourceUrl $ResourceUrl -ErrorAction Stop
 
-                # Compatibilidad: Az.Accounts >= 3.0 devuelve Token como SecureString
+                # Compatibility: Az.Accounts >= 3.0 returns Token as SecureString
                 if ($TokenData.Token -is [System.Security.SecureString]) {
                     return $TokenData.Token | ConvertFrom-SecureString -AsPlainText
                 }
                 return $TokenData.Token
             }
-            # --- Opción 2: Device Code manual vía REST (sin dependencias de módulos) ---
+            # --- Option 2: Manual Device Code via REST (no module dependencies) ---
             else {
-                Write-Log "Módulo 'Az.Accounts' no encontrado. Usando flujo Device Code vía REST..." -Level WARN
+                Write-Log "Module 'Az.Accounts' not found. Using Device Code flow via REST..." -Level WARN
 
                 if (-not $ClientId -or -not $TenantId) {
-                    throw "Se requieren ClientId y TenantId para autenticación sin Az.Accounts. Instale el módulo: Install-Module Az.Accounts -Scope CurrentUser"
+                    throw "ClientId and TenantId are required for authentication without Az.Accounts. Install the module: Install-Module Az.Accounts -Scope CurrentUser"
                 }
 
-                # Solicitar código de dispositivo
+                # Request device code
                 $DeviceCodeBody = @{
                     client_id = $ClientId
                     scope     = "$ResourceUrl/.default offline_access"
@@ -539,10 +539,10 @@ function Get-M365Token {
                     -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/devicecode" `
                     -Body $DeviceCodeBody -ErrorAction Stop
 
-                Write-Log "=== AUTENTICACIÓN REQUERIDA ===" -Level WARN
+                Write-Log "=== AUTHENTICATION REQUIRED ===" -Level WARN
                 Write-Log $DeviceCodeReq.message -Level WARN
 
-                # Sondear hasta obtener token o expirar
+                # Poll until token is obtained or expires
                 $Interval = [int]$DeviceCodeReq.interval
                 $ExpiresIn = [int]$DeviceCodeReq.expires_in
                 $Elapsed = 0
@@ -561,7 +561,7 @@ function Get-M365Token {
                             -Uri "https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token" `
                             -Body $PollBody -ErrorAction Stop
 
-                        Write-Log "Token obtenido exitosamente vía Device Code."
+                        Write-Log "Token successfully obtained via Device Code."
                         return $TokenReq.access_token
                     }
                     catch {
@@ -572,13 +572,13 @@ function Get-M365Token {
                         }
                         if ($ErrBody.error -eq "authorization_pending") { continue }
                         elseif ($ErrBody.error -eq "expired_token") {
-                            throw "El código de dispositivo ha expirado. Ejecute el script nuevamente."
+                            throw "The device code has expired. Run the script again."
                         }
                         else { throw $_ }
                     }
                 }
 
-                throw "Tiempo de espera agotado para la autenticación Device Code."
+                throw "Timeout expired for Device Code authentication."
             }
         }
     }
@@ -591,29 +591,29 @@ function Get-M365Token {
         }
 
         if ($ErrorJson -and $ErrorJson.error_codes -contains 700027) {
-            Write-Log "Error de Autenticación (AADSTS700027): certificado no registrado en la aplicación." -Level ERROR
-            Write-Log "AppId objetivo: $ClientId" -Level ERROR
-            Write-Log "Acción requerida: cargue el certificado público (.cer) del mismo certificado usado para firmar en Entra ID > App registrations > Certificates & secrets." -Level ERROR
-            Write-Log "Verifique que TenantId/AppId coincidan con el registro donde cargó el certificado y espere la propagación de claves (1-5 min)." -Level ERROR
+            Write-Log "Authentication Error (AADSTS700027): certificate not registered in the application." -Level ERROR
+            Write-Log "Target AppId: $ClientId" -Level ERROR
+            Write-Log "Action required: upload the public certificate (.cer) of the same certificate used for signing in Entra ID > App registrations > Certificates & secrets." -Level ERROR
+            Write-Log "Verify that TenantId/AppId match the registration where you uploaded the certificate and wait for key propagation (1-5 min)." -Level ERROR
 
             if ($ErrorJson.error_description -match "Thumbprint of key used by client:\s*'([^']+)'") {
-                Write-Log "Thumbprint enviado por el cliente: $($Matches[1])" -Level ERROR
+                Write-Log "Thumbprint sent by client: $($Matches[1])" -Level ERROR
             }
 
             Write-Log $ErrorJson.error_description -Level ERROR
         }
         elseif ($ResponseBody) {
-            Write-Log "Error de Autenticación: $RawMessage" -Level ERROR
-            Write-Log "Detalle devuelto por Entra ID: $ResponseBody" -Level ERROR
+            Write-Log "Authentication Error: $RawMessage" -Level ERROR
+            Write-Log "Detail returned by Entra ID: $ResponseBody" -Level ERROR
         }
         else {
-            Write-Log "Error de Autenticación: $RawMessage" -Level ERROR
+            Write-Log "Authentication Error: $RawMessage" -Level ERROR
         }
         throw $_
     }
 }
 
-# --- EJECUCIÓN DE API ---
+# --- API EXECUTION ---
 function Invoke-HuntingQuery {
     param(
         [string]$Token,
@@ -627,7 +627,7 @@ function Invoke-HuntingQuery {
         "Content-Type"  = "application/json"
     }
     
-    # Inyectar ventana de tiempo
+    # Inject time window
     $FinalQuery = $Query -replace "ago\(24h\)", "ago($($TimeWindowHours)h)"
     $Body = @{ Query = $FinalQuery } | ConvertTo-Json -Compress
 
@@ -640,7 +640,7 @@ function Invoke-HuntingQuery {
             $Response = Invoke-RestMethod -Method Post -Uri $Uri -Headers $Headers -Body $Body -TimeoutSec $TimeoutSec -ErrorAction Stop
             $Sw.Stop()
             
-            Write-Log "Consulta ['$Name'] ejecutada en $($Sw.ElapsedMilliseconds)ms. Filas: $($Response.Results.Count)"
+            Write-Log "Query ['$Name'] executed in $($Sw.ElapsedMilliseconds)ms. Rows: $($Response.Results.Count)"
             
             return @{
                 Name = $Name
@@ -654,21 +654,21 @@ function Invoke-HuntingQuery {
             if ($StatusCode -eq 429 -or $StatusCode -ge 500) {
                 $Retries++
                 $Wait = [math]::Pow(2, $Retries)
-                Write-Log "Error de API $StatusCode. Reintentando en $Wait segundos..." -Level WARN
+                Write-Log "API Error $StatusCode. Retrying in $Wait seconds..." -Level WARN
                 Start-Sleep -Seconds $Wait
             }
             else {
-                Write-Log "Consulta ['$Name'] Falló: $_" -Level ERROR
+                Write-Log "Query ['$Name'] Failed: $_" -Level ERROR
                 if ($FailFast) { throw $_ }
                 return @{ Name = $Name; Results = @(); Error = $_.Exception.Message }
             }
         }
     } while ($Retries -lt $MaxRetries)
 
-    return @{ Name = $Name; Results = @(); Error = "Máximo de reintentos excedido" }
+    return @{ Name = $Name; Results = @(); Error = "Maximum retries exceeded" }
 }
 
-# --- DEFINICIONES KQL ---
+# --- KQL DEFINITIONS ---
 $Queries = @{
     "MDO_Campaigns" = @"
 EmailEvents
@@ -794,12 +794,12 @@ AlertInfo
 "@
 }
 
-# --- EJECUCIÓN PRINCIPAL ---
+# --- MAIN EXECUTION ---
 
-# 1. Autenticar
+# 1. Authenticate
 $Token = Get-M365Token
 
-# 2. Ejecutar Consultas (filtradas por producto activo)
+# 2. Execute Queries (filtered by active product)
 $Data = @{}
 foreach ($Key in $Queries.Keys) {
     if ($Key.StartsWith("MDO_") -and -not $RunMDO) { continue }
@@ -810,7 +810,7 @@ foreach ($Key in $Queries.Keys) {
     $Data[$Key] = $Result.Results
 }
 
-# 3. Calcular KPIs
+# 3. Calculate KPIs
 $Kpi_IncidentCount = $Data["XDR_Incidents"].Count
 if (-not $Kpi_IncidentCount) { $Kpi_IncidentCount = 0 }
 
@@ -846,7 +846,7 @@ if ($Data["XDR_CustomDetections"] -and $Data["XDR_CustomDetections"].Count -gt 0
     if (-not $Kpi_CustomDetections) { $Kpi_CustomDetections = 0 }
 }
 
-# --- Severidad máxima por workload para colorear KPIs ---
+# --- Maximum severity per workload for KPI coloring ---
 function Get-SeverityRank {
     param([string]$Severity)
 
@@ -898,10 +898,10 @@ $AllAlerts = @($Data["XDR_AllAlerts"])
 
 $XdrMaxSeverity = Get-HighestSeverity -Rows @($Data["XDR_Incidents"])
 $Kpi_XdrSeverityClass = Get-KpiSeverityClass -Severity $XdrMaxSeverity
-$Kpi_XdrSeverityLabel = if ($XdrMaxSeverity) { $XdrMaxSeverity } else { 'Sin alertas' }
+$Kpi_XdrSeverityLabel = if ($XdrMaxSeverity) { $XdrMaxSeverity } else { 'No alerts' }
 
 $Kpi_MdoSeverityClass = 'none'
-$Kpi_MdoSeverityLabel = 'Sin alertas'
+$Kpi_MdoSeverityLabel = 'No alerts'
 if ($RunMDO) {
     $MdoAlerts = @($AllAlerts | Where-Object { $_.ServiceSource -match 'Defender for Office 365|Office 365' })
     $MdoMaxSeverity = Get-HighestSeverity -Rows $MdoAlerts
@@ -910,7 +910,7 @@ if ($RunMDO) {
 }
 
 $Kpi_MdeSeverityClass = 'none'
-$Kpi_MdeSeverityLabel = 'Sin alertas'
+$Kpi_MdeSeverityLabel = 'No alerts'
 if ($RunMDE) {
     $MdeAlerts = @($AllAlerts | Where-Object { $_.ServiceSource -match 'Defender for Endpoint|Endpoint' })
     $MdeMaxSeverity = Get-HighestSeverity -Rows $MdeAlerts
@@ -919,7 +919,7 @@ if ($RunMDE) {
 }
 
 $Kpi_MdiSeverityClass = 'none'
-$Kpi_MdiSeverityLabel = 'Sin alertas'
+$Kpi_MdiSeverityLabel = 'No alerts'
 if ($RunMDI) {
     $MdiAlerts = @($AllAlerts | Where-Object { $_.ServiceSource -match 'Defender for Identity|Identity' })
     $MdiMaxSeverity = Get-HighestSeverity -Rows $MdiAlerts
@@ -928,7 +928,7 @@ if ($RunMDI) {
 }
 
 $Kpi_MdaSeverityClass = 'none'
-$Kpi_MdaSeverityLabel = 'Sin alertas'
+$Kpi_MdaSeverityLabel = 'No alerts'
 if ($RunMDA) {
     $MdaAlerts = @($AllAlerts | Where-Object { $_.ServiceSource -match 'Defender for Cloud Apps|Cloud Apps|Microsoft Cloud App Security|MCAS' })
     $MdaMaxSeverity = Get-HighestSeverity -Rows $MdaAlerts
@@ -942,26 +942,26 @@ if ($RunMDI -and $Data["MDI_HighRiskUsers"] -and $Data["MDI_HighRiskUsers"].Coun
     if (-not $Kpi_EntraMaxRiskLevel) { $Kpi_EntraMaxRiskLevel = 0 }
 }
 $Kpi_EntraSeverityClass = Get-KpiClassFromRiskLevel -RiskLevel $Kpi_EntraMaxRiskLevel
-$Kpi_EntraSeverityLabel = if ($Kpi_EntraMaxRiskLevel -eq 100) { 'High (100)' } elseif ($Kpi_EntraMaxRiskLevel -eq 50) { 'Medium (50)' } elseif ($Kpi_EntraMaxRiskLevel -gt 0) { "Riesgo $Kpi_EntraMaxRiskLevel" } else { 'Sin riesgo' }
+$Kpi_EntraSeverityLabel = if ($Kpi_EntraMaxRiskLevel -eq 100) { 'High (100)' } elseif ($Kpi_EntraMaxRiskLevel -eq 50) { 'Medium (50)' } elseif ($Kpi_EntraMaxRiskLevel -gt 0) { "Risk $Kpi_EntraMaxRiskLevel" } else { 'No risk' }
 
 $Kpi_CustomDetectionsSeverityClass = 'none'
-$Kpi_CustomDetectionsSeverityLabel = 'Sin detecciones'
+$Kpi_CustomDetectionsSeverityLabel = 'No detections'
 if ($Data["XDR_CustomDetections"] -and $Data["XDR_CustomDetections"].Count -gt 0) {
     $CustomMaxSeverity = Get-HighestSeverity -Rows $Data["XDR_CustomDetections"]
     $Kpi_CustomDetectionsSeverityClass = Get-KpiSeverityClass -Severity $CustomMaxSeverity
     if ($CustomMaxSeverity) { $Kpi_CustomDetectionsSeverityLabel = $CustomMaxSeverity }
 }
 
-# --- CATÁLOGO COMPLETO DE KQL (MDO Advanced Hunting) ---
-# Se carga dinámicamente desde GitHub (rama main) o archivo local como fallback.
-# Si ambos fallan, se usa el catálogo hardcoded.
+# --- FULL KQL CATALOG (MDO Advanced Hunting) ---
+# Dynamically loaded from GitHub (main branch) or local file as fallback.
+# If both fail, the hardcoded catalog is used.
 $MdoKqlCatalog = Import-KqlCatalogFromMarkdown `
     -Url 'https://raw.githubusercontent.com/watchdogcode/gol2026/main/MDO/Paquete%20MDO%20KQL%20Advance%20Hunting.md' `
     -LocalPath (Join-Path $PSScriptRoot "..\MDO\Paquete MDO KQL Advance Hunting.md") `
     -Format MDO
 
 if (-not $MdoKqlCatalog -or $MdoKqlCatalog.Count -eq 0) {
-Write-Log "Cargando catálogo MDO desde fallback hardcoded..." -Level WARN
+Write-Log "Loading MDO catalog from hardcoded fallback..." -Level WARN
 $MdoKqlCatalog = @(
     # ── Spoofing y Autenticación ──
     @{ Id=1;  Category="Spoofing y Autenticación"; Title="Spoofing: From (Header) ≠ MailFrom (Envelope)"; Query=@"
@@ -1292,12 +1292,12 @@ EmailUrlInfo
 | project Timestamp, NetworkMessageId, Url, UrlThreatType, DetectionMethods
 "@ }
 )
-} # fin fallback MDO
+} # end MDO fallback
 
-# Seleccionar un KQL aleatorio del catálogo MDO
+# Select a random KQL from the MDO catalog
 $SelectedMdoKql = if ($RunMDO) { $MdoKqlCatalog | Get-Random } else { $null }
 
-# --- CATÁLOGO KQL: MDE (Advanced Hunting – Endpoint Security) ---
+# --- KQL CATALOG: MDE (Advanced Hunting – Endpoint Security) ---
 $MdeKqlCatalog = @(
     @{ Id=1; Category="Alertas y Severidad"; Title="Alertas MDE por Severidad y Categoría"; Query=@"
 let TimeRange = 7d;
@@ -1408,15 +1408,15 @@ DeviceInfo
 )
 $SelectedMdeKql = if ($RunMDE) { $MdeKqlCatalog | Get-Random } else { $null }
 
-# --- CATÁLOGO KQL: MDI (Advanced Hunting – Identity Threat Detection) ---
-# Se carga dinámicamente desde GitHub (rama main) o archivo local como fallback.
+# --- KQL CATALOG: MDI (Advanced Hunting – Identity Threat Detection) ---
+# Dynamically loaded from GitHub (main branch) or local file as fallback.
 $MdiKqlCatalog = Import-KqlCatalogFromMarkdown `
     -Url 'https://raw.githubusercontent.com/watchdogcode/gol2026/main/MDI/Paquete%20MDI%20KQL%20Advance%20Hunting.md' `
     -LocalPath (Join-Path $PSScriptRoot "..\MDI\Paquete MDI KQL Advance Hunting.md") `
     -Format MDI
 
 if (-not $MdiKqlCatalog -or $MdiKqlCatalog.Count -eq 0) {
-Write-Log "Cargando catálogo MDI desde fallback hardcoded..." -Level WARN
+Write-Log "Loading MDI catalog from hardcoded fallback..." -Level WARN
 $MdiKqlCatalog = @(
     @{ Id=1; Category="Alertas e Incidentes MDI"; Title="Alertas de Defender for Identity (últimos 7d)"; Query=@"
 let TimeRange = 7d;
@@ -1520,19 +1520,19 @@ DeviceNetworkEvents
 | order by DNSQueries desc
 "@ }
 )
-} # fin fallback MDI
+} # end MDI fallback
 
 $SelectedMdiKql = if ($RunMDI) { $MdiKqlCatalog | Get-Random } else { $null }
 
-# --- CATÁLOGO KQL: Entra ID (Advanced Hunting – Identity Governance) ---
-# Se carga dinámicamente desde GitHub (rama main) o archivo local como fallback.
+# --- KQL CATALOG: Entra ID (Advanced Hunting – Identity Governance) ---
+# Dynamically loaded from GitHub (main branch) or local file as fallback.
 $EntraKqlCatalog = Import-KqlCatalogFromMarkdown `
     -Url 'https://raw.githubusercontent.com/watchdogcode/gol2026/main/EntraID/Paquete%20KQL%20Queries%20EntraID%20Advanced%20Hunting.md' `
     -LocalPath (Join-Path $PSScriptRoot "..\EntraID\Paquete KQL Queries EntraID Advanced Hunting.md") `
     -Format EntraID
 
 if (-not $EntraKqlCatalog -or $EntraKqlCatalog.Count -eq 0) {
-Write-Log "Cargando catálogo EntraID desde fallback hardcoded..." -Level WARN
+Write-Log "Loading EntraID catalog from hardcoded fallback..." -Level WARN
 $EntraKqlCatalog = @(
     # ── A) Detección – Usuarios ──
     @{ Id=1; Category="Detección de Usuarios"; Title="Top Fallos de Inicio de Sesión por Usuario"; Query=@"
@@ -1797,11 +1797,11 @@ CloudAppEvents
 | order by Timestamp desc
 "@ }
 )
-} # fin fallback EntraID
+} # end EntraID fallback
 
 $SelectedEntraKql = if ($RunMDI) { $EntraKqlCatalog | Get-Random } else { $null }
 
-# --- CATÁLOGO KQL: MDA (Advanced Hunting – Cloud App Security) ---
+# --- KQL CATALOG: MDA (Advanced Hunting – Cloud App Security) ---
 $MdaKqlCatalog = @(
     @{ Id=1; Category="OAuth y Consentimientos"; Title="Nuevos Consentimientos OAuth (Últimos 7d)"; Query=@"
 let TimeRange = 7d;
@@ -1903,10 +1903,10 @@ CloudAppEvents
 )
 $SelectedMdaKql = if ($RunMDA) { $MdaKqlCatalog | Get-Random } else { $null }
 
-# 4. Generar HTML
+# 4. Generate HTML
 function ConvertTo-HtmlTable {
     param($Rows, $Columns)
-    if (-not $Rows -or $Rows.Count -eq 0) { return "<tr><td colspan='$($Columns.Count)' style='text-align:center; color:#666;'>No se encontraron datos en el período</td></tr>" }
+    if (-not $Rows -or $Rows.Count -eq 0) { return "<tr><td colspan='$($Columns.Count)' style='text-align:center; color:#666;'>No data found in the period</td></tr>" }
     
     $Html = ""
     foreach ($Row in $Rows) {
@@ -1921,7 +1921,7 @@ function ConvertTo-HtmlTable {
     return $Html
 }
 
-# --- ESTRUCTURA HOMOGÉNEA DE TAREAS OPERATIVAS POR WORKLOAD ---
+# --- UNIFORM OPERATIVE TASKS STRUCTURE PER WORKLOAD ---
 $OperativeTasks = @{
     "MDO" = @(
         @{ Task="Revisar alertas activas"; Portal="https://security.microsoft.com/alerts"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#monitoreo-de-alertas" },
@@ -1968,8 +1968,8 @@ $OperativeTasks = @{
     );
 }
 
-# --- SECCIONES CONDICIONALES (KPIs y Recomendaciones) ---
-Write-Log "Productos incluidos: $(if($RunMDO){'MDO '})$(if($RunMDE){'MDE '})$(if($RunMDI){'MDI '})$(if($RunMDA){'MDA'})"
+# --- CONDITIONAL SECTIONS (KPIs and Recommendations) ---
+Write-Log "Products included: $(if($RunMDO){'MDO '})$(if($RunMDE){'MDE '})$(if($RunMDI){'MDI '})$(if($RunMDA){'MDA'})"
 
 function Build-WorkloadSection {
     param(
@@ -1986,14 +1986,14 @@ function Build-WorkloadSection {
     $TaskRows = ""
     foreach ($Task in $OperativeTasks) {
         $TaskRows += @"
-                        <tr><td class="ops-task-name">$($Task.Task)</td><td><a class="ops-btn portal" href="$($Task.Portal)" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="$($Task.Guide)" target="_blank">&#x1f4d6; Guía</a></td></tr>
+                        <tr><td class="ops-task-name">$($Task.Task)</td><td><a class="ops-btn portal" href="$($Task.Portal)" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="$($Task.Guide)" target="_blank">&#x1f4d6; Guide</a></td></tr>
 "@
     }
 
-    # Procesar alertas activas de los últimos 7 días
+    # Process active alerts from the last 7 days
     $AlertRows = ""
     if ($ActiveAlerts -and $ActiveAlerts.Count -gt 0) {
-        # Ordenar por severidad (crítica primero)
+        # Sort by severity (critical first)
         $SeverityMap = @{ "Critical" = 3; "High" = 2; "Medium" = 1; "Low" = 0; "Informational" = -1 }
         $SortedAlerts = $ActiveAlerts | Sort-Object -Property @{ Expression = { if ($_.Severity) { $SeverityMap[$_.Severity] } else { 0 } }; Descending = $true } | Select-Object -First 5
 
@@ -2006,7 +2006,7 @@ function Build-WorkloadSection {
                 "Low" { "#8764b8" }
                 default { "#0078d4" }
             }
-            $AlertTitle = if ($Alert.Title) { $Alert.Title } else { if ($Alert.AlertName) { $Alert.AlertName } else { "Alerta" } }
+            $AlertTitle = if ($Alert.Title) { $Alert.Title } else { if ($Alert.AlertName) { $Alert.AlertName } else { "Alert" } }
             $AlertTime = if ($Alert.Timestamp) { ([datetime]$Alert.Timestamp).ToString("yyyy-MM-dd HH:mm") } else { "N/D" }
             $AlertUrl = if ($Alert.AlertId) { "https://security.microsoft.com/alerts/$($Alert.AlertId)" } else { "https://security.microsoft.com/alerts" }
             $AlertRows += @"
@@ -2014,7 +2014,7 @@ function Build-WorkloadSection {
                             <td><strong>$AlertTitle</strong></td>
                             <td><span style="background:$SeverityColor; color:#fff; padding:3px 8px; border-radius:3px; font-size:0.75em; font-weight:600;">$AlertSeverity</span></td>
                             <td style="color:#666; font-size:0.9em;">$AlertTime</td>
-                            <td><a class="ops-btn portal" href="$AlertUrl" target="_blank">&#x1f517; Ver Alerta</a></td>
+                            <td><a class="ops-btn portal" href="$AlertUrl" target="_blank">&#x1f517; View Alert</a></td>
                         </tr>
 "@
         }
@@ -2022,8 +2022,8 @@ function Build-WorkloadSection {
         $AlertRows = @"
                         <tr>
                             <td colspan="4" style="text-align:center; padding:30px; color:#666;">
-                                <strong>No existen Alertas</strong><br/>
-                                <span style="font-size:0.9em;">No se detectaron alertas activas en el período analizado</span>
+                                <strong>No Alerts Found</strong><br/>
+                                <span style="font-size:0.9em;">No active alerts were detected in the analyzed period</span>
                             </td>
                         </tr>
 "@
@@ -2033,15 +2033,15 @@ function Build-WorkloadSection {
     if ($SelectedKql) {
         $KqlCatalogButton = ""
         if ($KqlCatalogUrl) {
-            $KqlCatalogButton = "<a class=`"ops-btn doc`" href=`"$KqlCatalogUrl`" target=`"_blank`">&#x1f4da; Ver catálogo KQL de $WorkloadName</a>"
+            $KqlCatalogButton = "<a class=`"ops-btn doc`" href=`"$KqlCatalogUrl`" target=`"_blank`">&#x1f4da; View $WorkloadName KQL catalog</a>"
         }
 
         $KqlSection = @"
 
-        <!-- Recomendación de KQL diario – $WorkloadName -->
+        <!-- Daily KQL Recommendation – $WorkloadName -->
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: $HeaderColor;">
-                <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – $WorkloadName
+                <span class="icon">&#x1f50d;</span> Daily KQL Recommendation – $WorkloadName
                 <span class="ops-badge daily">#$($SelectedKql.Id)</span>
             </div>
             <div style="padding: 20px;">
@@ -2051,7 +2051,7 @@ function Build-WorkloadSection {
                 <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">$($SelectedKql.Title)</h3>
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">$($SelectedKql.Query)</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
+                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
                     $KqlCatalogButton
                 </div>
             </div>
@@ -2071,11 +2071,11 @@ function Build-WorkloadSection {
         <div class="ops-section">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: $HeaderColor;">
-                    $WorkloadEmoji Tareas Operativas - $WorkloadName
-                    <span class="ops-badge daily">$TaskCount Diarias</span>
+                    $WorkloadEmoji Operative Tasks - $WorkloadName
+                    <span class="ops-badge daily">$TaskCount Daily</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:50%">Tarea</th><th style="width:25%">Portal</th><th style="width:25%">Documentación</th></tr></thead>
+                    <thead><tr><th style="width:50%">Task</th><th style="width:25%">Portal</th><th style="width:25%">Documentation</th></tr></thead>
                     <tbody>
 $TaskRows
                     </tbody>
@@ -2087,11 +2087,11 @@ $TaskRows
         <div class="ops-section" style="margin-top: 30px;">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: $HeaderColor;">
-                    &#x26a0; Alertas del Workload - Top 5 por Criticidad
+                    &#x26a0; Workload Alerts - Top 5 by Criticality
                     <span class="ops-badge daily">Critical/High</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:35%">Alerta</th><th style="width:15%">Severidad</th><th style="width:20%">Portal</th><th style="width:30%">Acción</th></tr></thead>
+                    <thead><tr><th style="width:35%">Alert</th><th style="width:15%">Severity</th><th style="width:20%">Portal</th><th style="width:30%">Action</th></tr></thead>
                     <tbody>
 $AlertRows
                     </tbody>
@@ -2168,8 +2168,8 @@ if ($RunMDO) {
 $HtmlKpiMDO = @"
             <div class="kpi-card $Kpi_MdoSeverityClass">
                 <div class="kpi-val">$Kpi_MdoAlerts</div>
-                <div class="kpi-label">Alertas de Defender for Office</div>
-                <div class="kpi-severity">Máx: $Kpi_MdoSeverityLabel</div>
+                <div class="kpi-label">Defender for Office Alerts</div>
+                <div class="kpi-severity">Max: $Kpi_MdoSeverityLabel</div>
             </div>
 "@
 }
@@ -2179,8 +2179,8 @@ if ($RunMDE) {
 $HtmlKpiMDE = @"
             <div class="kpi-card $Kpi_MdeSeverityClass">
                 <div class="kpi-val">$Kpi_MdeAlerts</div>
-                <div class="kpi-label">Alertas Defender for Endpoint</div>
-                <div class="kpi-severity">Máx: $Kpi_MdeSeverityLabel</div>
+                <div class="kpi-label">Defender for Endpoint Alerts</div>
+                <div class="kpi-severity">Max: $Kpi_MdeSeverityLabel</div>
             </div>
 "@
 }
@@ -2190,13 +2190,13 @@ if ($RunMDI) {
 $HtmlKpiMDI = @"
             <div class="kpi-card $Kpi_EntraSeverityClass">
                 <div class="kpi-val">$Kpi_HighRiskUsers</div>
-                <div class="kpi-label">Usuarios en Riesgos Entra ID</div>
-                <div class="kpi-severity">Máx: $Kpi_EntraSeverityLabel</div>
+                <div class="kpi-label">Entra ID At-Risk Users</div>
+                <div class="kpi-severity">Max: $Kpi_EntraSeverityLabel</div>
             </div>
             <div class="kpi-card $Kpi_MdiSeverityClass">
                 <div class="kpi-val">$Kpi_MdiAlerts</div>
-                <div class="kpi-label">Alertas Defender for Identity</div>
-                <div class="kpi-severity">Máx: $Kpi_MdiSeverityLabel</div>
+                <div class="kpi-label">Defender for Identity Alerts</div>
+                <div class="kpi-severity">Max: $Kpi_MdiSeverityLabel</div>
             </div>
 "@
 }
@@ -2206,8 +2206,8 @@ if ($RunMDA) {
 $HtmlKpiMDA = @"
             <div class="kpi-card $Kpi_MdaSeverityClass">
                 <div class="kpi-val">$Kpi_NewOAuth</div>
-                <div class="kpi-label">Consentimientos OAuth Defender for Cloud Apps</div>
-                <div class="kpi-severity">Máx: $Kpi_MdaSeverityLabel</div>
+                <div class="kpi-label">OAuth Consents Defender for Cloud Apps</div>
+                <div class="kpi-severity">Max: $Kpi_MdaSeverityLabel</div>
             </div>
 "@
 }
@@ -2215,8 +2215,8 @@ $HtmlKpiMDA = @"
 $HtmlKpiCustomDetections = @"
             <div class="kpi-card $Kpi_CustomDetectionsSeverityClass">
                 <div class="kpi-val">$Kpi_CustomDetections</div>
-                <div class="kpi-label">Detecciones Personalizadas</div>
-                <div class="kpi-severity">Máx: $Kpi_CustomDetectionsSeverityLabel</div>
+                <div class="kpi-label">Custom Detections</div>
+                <div class="kpi-severity">Max: $Kpi_CustomDetectionsSeverityLabel</div>
             </div>
 "@
 
@@ -2226,7 +2226,7 @@ $HtmlContent = @"
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Diario de Seguridad</title>
+    <title>Daily Security Report</title>
     <style>
         :root {
             --primary-color: #0078d4;
@@ -2281,7 +2281,7 @@ $HtmlContent = @"
             align-items: center;
         }
 
-        /* Cuadrícula de KPIs */
+        /* KPI Grid */
         .kpi-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(220px, 250px)); 
@@ -2344,7 +2344,7 @@ $HtmlContent = @"
         .kpi-card.info .kpi-severity { background: var(--info-color); }
         .kpi-card.none .kpi-severity { background: var(--none-color); }
         
-        /* Tablas */
+        /* Tables */
         .table-container {
             background: var(--card-bg);
             border-radius: 8px;
@@ -2358,7 +2358,7 @@ $HtmlContent = @"
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f8f9fa; }
         
-        /* Recomendaciones */
+        /* Recommendations */
         .recs { 
             background-color: #e6f2ff; 
             padding: 20px; 
@@ -2368,7 +2368,7 @@ $HtmlContent = @"
         .recs ul { margin: 0; padding-left: 20px; }
         .recs li { margin-bottom: 8px; line-height: 1.6; }
         
-        /* Actividades Diarias */
+        /* Daily Activities */
         .activities { 
             background-color: var(--card-bg); 
             border-radius: 8px; 
@@ -2385,7 +2385,7 @@ $HtmlContent = @"
         
         .footer { text-align: center; margin-top: 50px; color: #8a8886; font-size: 0.85em; padding-bottom: 20px; }
 
-        /* Tareas Operativas */
+        /* Operative Tasks */
         .ops-section { margin-bottom: 30px; }
         .ops-group {
             background: var(--card-bg);
@@ -2473,11 +2473,11 @@ $HtmlContent = @"
 <body>
     <div class="header">
         <div>
-            <h1>Reporte Diario de Operaciones de Seguridad</h1>
-            <div class="subtitle">La tecnología habilita la seguridad, pero la disciplina la hace efectiva</div>
+            <h1>Daily Security Operations Report</h1>
+            <div class="subtitle">Technology enables security, but discipline makes it effective</div>
         </div>
         <div class="meta">
-            <div><strong>Período:</strong> $($StartDate.ToString("yyyy-MM-dd HH:mm")) - $($ReportDate.ToString("yyyy-MM-dd HH:mm"))</div>
+            <div><strong>Period:</strong> $($StartDate.ToString("yyyy-MM-dd HH:mm")) - $($ReportDate.ToString("yyyy-MM-dd HH:mm"))</div>
             <div style="font-size: 0.85em; margin-top: 4px;">Tenant ID: $MaskedTenantId</div>
         </div>
     </div>
@@ -2487,8 +2487,8 @@ $HtmlContent = @"
         <div class="kpi-grid">
             <div class="kpi-card $Kpi_XdrSeverityClass">
                 <div class="kpi-val">$Kpi_IncidentCount</div>
-                <div class="kpi-label">Incidentes Activos</div>
-                <div class="kpi-severity">Máx: $Kpi_XdrSeverityLabel</div>
+                <div class="kpi-label">Active Incidents</div>
+                <div class="kpi-severity">Max: $Kpi_XdrSeverityLabel</div>
             </div>
 $HtmlKpiMDO$HtmlKpiMDE$HtmlKpiMDI$HtmlKpiMDA$HtmlKpiCustomDetections
         </div>
@@ -2498,56 +2498,56 @@ $HtmlContent += @"
 $HtmlMDOSection$HtmlMDESection$HtmlMDISection$HtmlEntraSection$HtmlMDASection
 
         <!-- ═══════════════════════════════════════════════════════ -->
-        <!-- ═══ SECCIÓN XDR: Alertas e Incidentes Consolidados ═══ -->
+        <!-- ═══ SECCIÓN XDR: Consolidated Alerts and Incidents ═══ -->
         <!-- ═══════════════════════════════════════════════════════ -->
 
-        <h2>XDR: Alertas e Incidentes Consolidados</h2>
+        <h2>XDR: Consolidated Alerts and Incidents</h2>
 
-        <h3>Alertas por Servicio y Severidad</h3>
+        <h3>Alerts by Service and Severity</h3>
         <div style="margin-bottom:10px;">
             <a href="https://security.microsoft.com/alerts" target="_blank" rel="noopener noreferrer"
                style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#0078d4;color:#fff;text-decoration:none;border-radius:4px;font-size:0.85em;font-weight:600;">
-                &#x1F6E1; Ver Alertas en Microsoft Defender XDR
+                &#x1F6E1; View Alerts in Microsoft Defender XDR
             </a>
         </div>
         <div class="table-container">
             <table>
-                <thead><tr><th>Servicio</th><th>Severidad</th><th>Cantidad</th></tr></thead>
+                <thead><tr><th>Service</th><th>Severity</th><th>Count</th></tr></thead>
                 <tbody>$(ConvertTo-HtmlTable $Data["XDR_AllAlerts"] @("ServiceSource","Severity","Count"))</tbody>
             </table>
         </div>
 
         <div class="footer">
-            Generado por Operaciones de Seguridad Automatizadas | Microsoft 365 Defender XDR
+            Generated by Automated Security Operations | Microsoft 365 Defender XDR
         </div>
     </div>
 </body>
 </html>
 "@
 
-# 5. Guardar Resultado
+# 5. Save Result
 try {
     $Dir = Split-Path $OutputPath -Parent
     if (-not (Test-Path $Dir)) { New-Item -ItemType Directory -Path $Dir -Force | Out-Null }
     $HtmlContent | Out-File -FilePath $OutputPath -Encoding UTF8 -Force
-    Write-Log "Reporte guardado en: $OutputPath"
+    Write-Log "Report saved to: $OutputPath"
 }
 catch {
-    Write-Log "Error al guardar el reporte: $_" -Level ERROR
+    Write-Log "Error saving the report: $_" -Level ERROR
 }
 
-# 6. Enviar Correo (Opcional)
+# 6. Send Email (Optional)
 if ($SendMail) {
     if ($SmtpServer -and $From -and $To) {
         try {
-            Write-Log "Enviando correo a $To..."
+            Write-Log "Sending email to $To..."
             Send-MailMessage -SmtpServer $SmtpServer -From $From -To $To -Subject $Subject -Body $HtmlContent -BodyAsHtml -Priority High
-            Write-Log "Correo enviado exitosamente."
+            Write-Log "Email sent successfully."
         }
         catch {
-            Write-Log "Error al enviar correo: $_" -Level ERROR
+            Write-Log "Error sending email: $_" -Level ERROR
         }
     } else {
-        Write-Log "Envío de correo omitido. Faltan parámetros SMTP." -Level WARN
+        Write-Log "Email sending skipped. Missing SMTP parameters." -Level WARN
     }
 }

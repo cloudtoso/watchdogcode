@@ -12,10 +12,10 @@
 ##############################################################################################
 <#
 .SYNOPSIS
-    Valida todas las políticas de Microsoft Defender for Office 365 (MDO).
+    Validates all Microsoft Defender for Office 365 (MDO) policies.
 
 .DESCRIPTION
-    Este script revisa la configuración de las políticas de:
+    This script reviews the configuration of the following policies:
     - Anti-Spam (HostedContentFilterPolicy)
     - Anti-Malware (MalwareFilterPolicy)
     - Anti-Phishing (AntiPhishPolicy)
@@ -24,42 +24,42 @@
     - Connection Filtering (HostedConnectionFilterPolicy)
     - Preset Security Policies (EOPProtectionPolicyRule + ATPProtectionPolicyRule)
 
-    Compara los valores actuales contra las configuraciones recomendadas por Microsoft
-    (Standard y Strict) y genera un reporte con el estado de cada política.
+    Compares current values against Microsoft recommended configurations
+    (Standard and Strict) and generates a report with the status of each policy.
 
 .NOTES
-    Requiere conexión previa a Exchange Online y Security & Compliance:
+    Requires prior connection to Exchange Online and Security & Compliance:
         Connect-ExchangeOnline
         Connect-IPPSSession
 
-    Autor : Ernesto Cobos Roqueñí, Arturo Mandujano
-    Fecha : 3/Marzo/2026
-    Versión: 2.6
+    Author: Ernesto Cobos Roqueñí, Arturo Mandujano
+    Date  : 3/March/2026
+    Version: 2.6
 #>
 
 # ─────────────────────────────────────────────
-# Validación de módulo y carpeta de reportes
+# Module validation and reports folder
 # ─────────────────────────────────────────────
 if (Get-Module -ListAvailable -Name ExchangeOnlineManagement) {
-    Write-Host "Módulo ExchangeOnlineManagement instalado correctamente." -ForegroundColor DarkGray
+    Write-Host "ExchangeOnlineManagement module installed correctly." -ForegroundColor DarkGray
 }
 else {
-    Write-Host "[X] Módulo ExchangeOnlineManagement no encontrado. " -ForegroundColor Red -NoNewline
-    Write-Host "Descargando e instalando..." -ForegroundColor Yellow
+    Write-Host "[X] ExchangeOnlineManagement module not found. " -ForegroundColor Red -NoNewline
+    Write-Host "Downloading and installing..." -ForegroundColor Yellow
     Install-Module ExchangeOnlineManagement 
 }
 
 $reportDir = "C:\Scripts\MDO"
 if (-not (Test-Path $reportDir)) {
     New-Item -Path $reportDir -ItemType Directory -Force | Out-Null
-    Write-Host "Carpeta creada: $reportDir" -ForegroundColor DarkGray
+    Write-Host "Folder created: $reportDir" -ForegroundColor DarkGray
 }
 else {
-    Write-Host "Carpeta de reportes existe: $reportDir" -ForegroundColor DarkGray
+    Write-Host "Reports folder exists: $reportDir" -ForegroundColor DarkGray
 }
 
 # ─────────────────────────────────────────────
-# Colores y formato
+# Colors and formatting
 # ─────────────────────────────────────────────
 function Write-Status {
     param(
@@ -97,14 +97,14 @@ function Write-PolicyHeader {
 }
 
 # ─────────────────────────────────────────────
-# Contadores globales y tracking de políticas
+# Global counters and policy tracking
 # ─────────────────────────────────────────────
 $script:totalChecks = 0
 $script:passCount   = 0
 $script:warnCount   = 0
 $script:failCount   = 0
 
-# Tracking por política: clave = "Seccion|NombrePolitica", valor = @{Pass=0; Fail=0; Warn=0}
+# Policy tracking: key = "Section|PolicyName", value = @{Pass=0; Fail=0; Warn=0}
 $script:policyResults = @{}
 $script:currentPolicyKey = $null
 $script:currentPolicyName = $null
@@ -190,56 +190,56 @@ function Test-SettingWarn {
 }
 
 # ─────────────────────────────────────────────
-# Conexión a Exchange Online y Security & Compliance
+# Exchange Online and Security & Compliance connection
 # ─────────────────────────────────────────────
 Write-Host ""
-Write-Host "Validando conexion a Exchange Online / Security & Compliance..." -ForegroundColor DarkGray
+Write-Host "Validating Exchange Online / Security & Compliance connection..." -ForegroundColor DarkGray
 
-# Intentar conectar a Exchange Online si no hay sesión activa
+# Try to connect to Exchange Online if no active session
 try {
     $null = Get-OrganizationConfig -ErrorAction Stop
-    Write-Host "  Conexion a Exchange Online activa." -ForegroundColor Green
+    Write-Host "  Exchange Online connection active." -ForegroundColor Green
 }
 catch {
-    Write-Host "  No hay conexion activa a Exchange Online. Conectando..." -ForegroundColor Yellow
+    Write-Host "  No active Exchange Online connection. Connecting..." -ForegroundColor Yellow
     try {
         Connect-ExchangeOnline -ShowBanner:$false -ErrorAction Stop
-        Write-Host "  Conexion a Exchange Online establecida." -ForegroundColor Green
+        Write-Host "  Exchange Online connection established." -ForegroundColor Green
     }
     catch {
-        Write-Host "[X] No se pudo conectar a Exchange Online: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[X] Could not connect to Exchange Online: $($_.Exception.Message)" -ForegroundColor Red
         return
     }
 }
 
-# Intentar conectar a Security & Compliance (IPPSSession) si los cmdlets de MDO no están disponibles
+# Try to connect to Security & Compliance (IPPSSession) if MDO cmdlets are not available
 $mdoAvailable = $true
 try {
     $null = Get-Command Get-SafeLinksPolicy -ErrorAction Stop
-    Write-Host "  Cmdlets de MDO (Safe Links/Attachments) disponibles." -ForegroundColor Green
+    Write-Host "  MDO cmdlets (Safe Links/Attachments) available." -ForegroundColor Green
 }
 catch {
-    Write-Host "  Cmdlets de MDO no disponibles. Conectando a Security & Compliance..." -ForegroundColor Yellow
+    Write-Host "  MDO cmdlets not available. Connecting to Security & Compliance..." -ForegroundColor Yellow
     try {
         Connect-IPPSSession -ShowBanner:$false -ErrorAction Stop
-        # Verificar de nuevo después de conectar
+        # Verify again after connecting
         $null = Get-Command Get-SafeLinksPolicy -ErrorAction Stop
-        Write-Host "  Conexion a Security & Compliance establecida." -ForegroundColor Green
+        Write-Host "  Security & Compliance connection established." -ForegroundColor Green
     }
     catch {
         $mdoAvailable = $false
-        Write-Host "[!!] No se pudieron habilitar los cmdlets de MDO." -ForegroundColor Yellow
-        Write-Host "     Asegurate de tener licencia MDO P1/P2. Las secciones Safe Links/Attachments se omitiran." -ForegroundColor Yellow
+        Write-Host "[!!] Could not enable MDO cmdlets." -ForegroundColor Yellow
+        Write-Host "     Make sure you have MDO P1/P2 license. Safe Links/Attachments sections will be skipped." -ForegroundColor Yellow
     }
 }
 
 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 Write-Host ""
-Write-Host "Reporte de Validación de Políticas MDO" -ForegroundColor White
-Write-Host "Fecha: $timestamp" -ForegroundColor DarkGray
+Write-Host "MDO Policy Validation Report" -ForegroundColor White
+Write-Host "Date: $timestamp" -ForegroundColor DarkGray
 Write-Host "Tenant: $((Get-OrganizationConfig).DisplayName)" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "Validando políticas de MDO..." -ForegroundColor Yellow
+Write-Host "Validating MDO policies..." -ForegroundColor Yellow
 
 # ═════════════════════════════════════════════
 # 1. ANTI-SPAM — Get-HostedContentFilterPolicy
@@ -252,17 +252,17 @@ foreach ($policy in $spamPolicies) {
     Set-CurrentPolicy -Section "Anti-Spam" -PolicyName $policy.Name
     Write-PolicyHeader $policy.Name
 
-    # Acciones por veredicto (recomendaciones Strict)
+    # Actions per verdict (Strict recommendations)
     Test-Setting -Setting "SpamAction"                  -CurrentValue $policy.SpamAction                  -RecommendedValue "MoveToJmf"
     Test-Setting -Setting "HighConfidenceSpamAction"    -CurrentValue $policy.HighConfidenceSpamAction    -RecommendedValue "Quarantine"
     Test-Setting -Setting "PhishSpamAction"             -CurrentValue $policy.PhishSpamAction             -RecommendedValue "Quarantine"
     Test-Setting -Setting "HighConfidencePhishAction"   -CurrentValue $policy.HighConfidencePhishAction   -RecommendedValue "Quarantine"
     Test-Setting -Setting "BulkSpamAction"              -CurrentValue $policy.BulkSpamAction              -RecommendedValue "MoveToJmf"
 
-    # Umbral de correo masivo (Strict = 5, Standard = 6)
+    # Bulk email threshold (Strict = 5, Standard = 6)
     Test-Setting -Setting "BulkThreshold"               -CurrentValue $policy.BulkThreshold               -RecommendedValue "5"
 
-    # Retención en cuarentena
+    # Quarantine retention
     Test-Setting -Setting "QuarantineRetentionPeriod"   -CurrentValue $policy.QuarantineRetentionPeriod   -RecommendedValue "30"
 
     # Safety Tips
@@ -272,19 +272,19 @@ foreach ($policy in $spamPolicies) {
     Test-Setting -Setting "SpamZapEnabled"              -CurrentValue $policy.SpamZapEnabled              -RecommendedValue "True"
     Test-Setting -Setting "PhishZapEnabled"             -CurrentValue $policy.PhishZapEnabled             -RecommendedValue "True"
 
-    # Allowed / Blocked senders y dominios
+    # Allowed / Blocked senders and domains
     if ($policy.AllowedSenders.Count -gt 0 -or $policy.AllowedSenderDomains.Count -gt 0) {
         $script:totalChecks++
         $script:warnCount++
         Write-Status -Setting "AllowedSenders/Domains" `
                      -CurrentValue "Senders: $($policy.AllowedSenders.Count), Domains: $($policy.AllowedSenderDomains.Count)" `
-                     -RecommendedValue "0 (evitar listas allow)" `
+                     -RecommendedValue "0 (avoid allow lists)" `
                      -Status 'WARN'
     }
     else {
         $script:totalChecks++
         $script:passCount++
-        Write-Status -Setting "AllowedSenders/Domains" -CurrentValue "Ninguno" -RecommendedValue "0" -Status 'PASS'
+        Write-Status -Setting "AllowedSenders/Domains" -CurrentValue "None" -RecommendedValue "0" -Status 'PASS'
     }
 }
 
@@ -299,31 +299,31 @@ foreach ($policy in $malwarePolicies) {
     Set-CurrentPolicy -Section "Anti-Malware" -PolicyName $policy.Name
     Write-PolicyHeader $policy.Name
 
-    # ZAP para malware
+    # ZAP for malware
     Test-Setting -Setting "ZapEnabled"                          -CurrentValue $policy.ZapEnabled                          -RecommendedValue "True"
 
-    # Filtro de tipos de archivo comunes
+    # Common file type filter
     Test-Setting -Setting "EnableFileFilter"                    -CurrentValue $policy.EnableFileFilter                    -RecommendedValue "True"
 
-    # Notificaciones internas
+    # Internal notifications
     Test-SettingWarn -Setting "EnableInternalSenderAdminNotifications" -CurrentValue $policy.EnableInternalSenderAdminNotifications -RecommendedValue "True"
 
-    # Política de adjuntos no escaneables
+    # Unscannable attachments policy
     Test-Setting -Setting "FileTypeAction"                      -CurrentValue $policy.FileTypes.Count                     -RecommendedValue ($policy.FileTypes.Count)
 
     # Quarantine tag
     if ($policy.QuarantineTag) {
         $script:totalChecks++
         $script:passCount++
-        Write-Status -Setting "QuarantineTag" -CurrentValue $policy.QuarantineTag -RecommendedValue "Configurado" -Status 'INFO'
+        Write-Status -Setting "QuarantineTag" -CurrentValue $policy.QuarantineTag -RecommendedValue "Configured" -Status 'INFO'
     }
     else {
         $script:totalChecks++
         $script:warnCount++
-        Write-Status -Setting "QuarantineTag" -CurrentValue "<no configurado>" -RecommendedValue "Configurar" -Status 'WARN'
+        Write-Status -Setting "QuarantineTag" -CurrentValue "<not configured>" -RecommendedValue "Configure" -Status 'WARN'
     }
 
-    # Extensiones bloqueadas comunes
+    # Common blocked extensions
     $recommendedExtensions = @('ace','ani','apk','app','appx','arj','bat','cab','cmd','com','deb','dex',
         'dll','docm','elf','exe','hta','img','iso','jar','jnlp','kext','lha','lib','library','lnk','lzh',
         'macho','mde','msc','msi','msix','msp','mst','pif','ppa','ppam','reg','rev','scf','scr','sct',
@@ -334,15 +334,15 @@ foreach ($policy in $malwarePolicies) {
         $script:totalChecks++
         $script:warnCount++
         $allMissing = $missingExtensions -join ', '
-        Write-Status -Setting "Extensiones bloqueadas faltantes" `
-                     -CurrentValue "$($missingExtensions.Count) faltantes" `
-                     -RecommendedValue "Agregar: $allMissing" `
+        Write-Status -Setting "Missing blocked extensions" `
+                     -CurrentValue "$($missingExtensions.Count) missing" `
+                     -RecommendedValue "Add: $allMissing" `
                      -Status 'WARN'
     }
     elseif ($policy.EnableFileFilter -eq $true) {
         $script:totalChecks++
         $script:passCount++
-        Write-Status -Setting "Extensiones bloqueadas" -CurrentValue "Todas cubiertas" -RecommendedValue "Completo" -Status 'PASS'
+        Write-Status -Setting "Blocked extensions" -CurrentValue "All covered" -RecommendedValue "Complete" -Status 'PASS'
     }
 }
 
@@ -357,10 +357,10 @@ foreach ($policy in $phishPolicies) {
     Set-CurrentPolicy -Section "Anti-Phishing" -PolicyName $policy.Name
     Write-PolicyHeader $policy.Name
 
-    # Estado general
+    # General state
     Test-Setting -Setting "Enabled"                             -CurrentValue $policy.Enabled                             -RecommendedValue "True"
 
-    # Protección de suplantación (Impersonation)
+    # Impersonation protection
     Test-Setting -Setting "EnableMailboxIntelligence"           -CurrentValue $policy.EnableMailboxIntelligence           -RecommendedValue "True"
     Test-Setting -Setting "EnableMailboxIntelligenceProtection" -CurrentValue $policy.EnableMailboxIntelligenceProtection -RecommendedValue "True"
     Test-Setting -Setting "EnableSpoofIntelligence"             -CurrentValue $policy.EnableSpoofIntelligence             -RecommendedValue "True"
@@ -369,11 +369,11 @@ foreach ($policy in $phishPolicies) {
     # Acciones
     Test-Setting -Setting "AuthenticationFailAction"            -CurrentValue $policy.AuthenticationFailAction            -RecommendedValue "MoveToJmf"
 
-    # Suplantación de usuario
+    # User impersonation
     Test-SettingWarn -Setting "EnableTargetedUserProtection"    -CurrentValue $policy.EnableTargetedUserProtection        -RecommendedValue "True"
     Test-SettingWarn -Setting "EnableTargetedDomainsProtection" -CurrentValue $policy.EnableTargetedDomainsProtection     -RecommendedValue "True"
 
-    # Umbrales de phishing
+    # Phishing thresholds
     Test-Setting -Setting "PhishThresholdLevel"                 -CurrentValue $policy.PhishThresholdLevel                 -RecommendedValue "3"
 
     # Safety Tips
@@ -384,10 +384,10 @@ foreach ($policy in $phishPolicies) {
     # Honor DMARC
     Test-SettingWarn -Setting "HonorDmarcPolicy"                -CurrentValue $policy.HonorDmarcPolicy                   -RecommendedValue "True"
 
-    # Primer contacto
+    # First contact
     Test-Setting -Setting "EnableFirstContactSafetyTips"        -CurrentValue $policy.EnableFirstContactSafetyTips        -RecommendedValue "True"
 
-    # Acciones impersonación
+    # Impersonation actions
     if ($policy.EnableTargetedUserProtection -eq $true) {
         Test-Setting -Setting "TargetedUserProtectionAction"    -CurrentValue $policy.TargetedUserProtectionAction        -RecommendedValue "Quarantine"
     }
@@ -424,13 +424,13 @@ if ($mdoAvailable) {
         Test-Setting -Setting "TrackClicks"                     -CurrentValue $policy.TrackClicks                     -RecommendedValue "True"
         Test-SettingWarn -Setting "EnableOrganizationBranding"  -CurrentValue $policy.EnableOrganizationBranding      -RecommendedValue "True"
 
-        # URLs en lista de exclusión
+        # URLs in exclusion list
         if ($policy.DoNotRewriteUrls.Count -gt 0) {
             $script:totalChecks++
             $script:warnCount++
             Write-Status -Setting "DoNotRewriteUrls" `
-                         -CurrentValue "$($policy.DoNotRewriteUrls.Count) URLs excluidas" `
-                         -RecommendedValue "Revisar lista de exclusiones" `
+                         -CurrentValue "$($policy.DoNotRewriteUrls.Count) excluded URLs" `
+                         -RecommendedValue "Review exclusion list" `
                          -Status 'WARN'
             foreach ($url in $policy.DoNotRewriteUrls) {
                 # URL listed in HTML report
@@ -439,7 +439,7 @@ if ($mdoAvailable) {
         else {
             $script:totalChecks++
             $script:passCount++
-            Write-Status -Setting "DoNotRewriteUrls" -CurrentValue "Ninguna" -RecommendedValue "0 exclusiones" -Status 'PASS'
+            Write-Status -Setting "DoNotRewriteUrls" -CurrentValue "None" -RecommendedValue "0 exclusions" -Status 'PASS'
         }
     }
 }
@@ -461,7 +461,7 @@ if ($mdoAvailable) {
         Set-CurrentPolicy -Section "Safe Attachments" -PolicyName $policy.Name
         Write-PolicyHeader $policy.Name
 
-        # Acción: Block es la más segura, Dynamic Delivery es la recomendada para balance
+        # Action: Block is the safest, Dynamic Delivery is the recommended for balance
         $actionOk = $policy.Action -in @('Block', 'DynamicDelivery')
         $script:totalChecks++
         if ($actionOk) {
@@ -476,31 +476,31 @@ if ($mdoAvailable) {
         Test-Setting -Setting "Enable"                          -CurrentValue $policy.Enable                          -RecommendedValue "True"
         Test-Setting -Setting "QuarantineTag"                   -CurrentValue ($null -ne $policy.QuarantineTag)       -RecommendedValue "True"
 
-        # Redirección (para análisis)
+        # Redirect (for analysis)
         Test-SettingWarn -Setting "Redirect"                    -CurrentValue $policy.Redirect                        -RecommendedValue "True"
 
         if ($policy.Redirect -eq $true -and $policy.RedirectAddress) {
-            Write-Status -Setting "RedirectAddress" -CurrentValue $policy.RedirectAddress -RecommendedValue "Configurado" -Status 'INFO'
+            Write-Status -Setting "RedirectAddress" -CurrentValue $policy.RedirectAddress -RecommendedValue "Configured" -Status 'INFO'
             $script:totalChecks++
             $script:passCount++
         }
         elseif ($policy.Redirect -eq $true -and -not $policy.RedirectAddress) {
             $script:totalChecks++
             $script:failCount++
-            Write-Status -Setting "RedirectAddress" -CurrentValue "<vacio>" -RecommendedValue "Debe configurarse si Redirect=True" -Status 'FAIL'
+            Write-Status -Setting "RedirectAddress" -CurrentValue "<empty>" -RecommendedValue "Must be configured if Redirect=True" -Status 'FAIL'
         }
 
-        # ActionOnError (propiedad deprecada en versiones recientes, verificar si existe)
+        # ActionOnError (deprecated property in recent versions, check if it exists)
         if ($null -ne $policy.PSObject.Properties['ActionOnError']) {
             Test-Setting -Setting "ActionOnError"               -CurrentValue $policy.ActionOnError               -RecommendedValue "True"
         }
     }
 
     # ─────────────────────────────────────────
-    # Configuración global de Safe Attachments
+    # Safe Attachments global configuration
     # ─────────────────────────────────────────
-    Set-CurrentPolicy -Section "Safe Attachments (ATP Global)" -PolicyName "Configuración Global"
-    Write-PolicyHeader "Configuración Global (ATP)"
+    Set-CurrentPolicy -Section "Safe Attachments (ATP Global)" -PolicyName "Global Configuration"
+    Write-PolicyHeader "Global Configuration (ATP)"
     try {
         $atpPolicy = Get-AtpPolicyForO365 -ErrorAction Stop
         Test-Setting -Setting "EnableATPForSPOTeamsODB"         -CurrentValue $atpPolicy.EnableATPForSPOTeamsODB       -RecommendedValue "True"
@@ -512,30 +512,30 @@ if ($mdoAvailable) {
     }
 
     # ─────────────────────────────────────────
-    # Safe Attachment Rules (a quién aplican)
+    # Safe Attachment Rules (who they apply to)
     # ─────────────────────────────────────────
     try {
         $safeAttachRules = Get-SafeAttachmentRule -ErrorAction Stop
         if ($safeAttachRules.Count -eq 0) {
             $script:totalChecks++
             $script:failCount++
-            Write-Status -Setting "SafeAttachmentRules" -CurrentValue "No hay reglas configuradas" -RecommendedValue "Al menos 1 regla activa" -Status 'FAIL'
+            Write-Status -Setting "SafeAttachmentRules" -CurrentValue "No rules configured" -RecommendedValue "At least 1 active rule" -Status 'FAIL'
         }
         foreach ($rule in $safeAttachRules) {
             Set-CurrentPolicy -Section "Safe Attachment Rules" -PolicyName $rule.Name
 
-            # Estado de la regla
+            # Rule state
             Test-Setting -Setting "State"         -CurrentValue $rule.State         -RecommendedValue "Enabled"
 
             # Prioridad
             $script:totalChecks++
             $script:passCount++
-            Write-Status -Setting "Priority" -CurrentValue $rule.Priority -RecommendedValue "Configurado" -Status 'INFO'
+            Write-Status -Setting "Priority" -CurrentValue $rule.Priority -RecommendedValue "Configured" -Status 'INFO'
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) {
                 $script:policyResults[$script:currentPolicyKey].Pass++
             }
 
-            # Verificar que tenga destinatarios asignados
+            # Verify it has assigned recipients
             $hasRecipients = ($rule.SentTo.Count -gt 0) -or ($rule.SentToMemberOf.Count -gt 0) -or ($rule.RecipientDomainIs.Count -gt 0)
             $script:totalChecks++
             if ($hasRecipients) {
@@ -547,17 +547,17 @@ if ($mdoAvailable) {
                 if ($rule.SentTo.Count -gt 0)            { $recipientInfo += "SentTo: $($rule.SentTo.Count)" }
                 if ($rule.SentToMemberOf.Count -gt 0)    { $recipientInfo += "Groups: $($rule.SentToMemberOf.Count)" }
                 if ($rule.RecipientDomainIs.Count -gt 0)  { $recipientInfo += "Domains: $($rule.RecipientDomainIs -join ', ')" }
-                Write-Status -Setting "Destinatarios asignados" -CurrentValue ($recipientInfo -join '; ') -RecommendedValue "Configurado" -Status 'PASS'
+                Write-Status -Setting "Assigned recipients" -CurrentValue ($recipientInfo -join '; ') -RecommendedValue "Configured" -Status 'PASS'
             }
             else {
                 $script:warnCount++
                 if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) {
                     $script:policyResults[$script:currentPolicyKey].Warn++
                 }
-                Write-Status -Setting "Destinatarios asignados" -CurrentValue "Ninguno" -RecommendedValue "Asignar usuarios, grupos o dominios" -Status 'WARN'
+                Write-Status -Setting "Assigned recipients" -CurrentValue "None" -RecommendedValue "Assign users, groups or domains" -Status 'WARN'
             }
 
-            # Excepciones
+            # Exceptions
             $hasExceptions = ($rule.ExceptIfSentTo.Count -gt 0) -or ($rule.ExceptIfSentToMemberOf.Count -gt 0) -or ($rule.ExceptIfRecipientDomainIs.Count -gt 0)
             if ($hasExceptions) {
                 $script:totalChecks++
@@ -569,7 +569,7 @@ if ($mdoAvailable) {
                 if ($rule.ExceptIfSentTo.Count -gt 0)            { $exceptInfo += "ExceptSentTo: $($rule.ExceptIfSentTo.Count)" }
                 if ($rule.ExceptIfSentToMemberOf.Count -gt 0)    { $exceptInfo += "ExceptGroups: $($rule.ExceptIfSentToMemberOf.Count)" }
                 if ($rule.ExceptIfRecipientDomainIs.Count -gt 0)  { $exceptInfo += "ExceptDomains: $($rule.ExceptIfRecipientDomainIs -join ', ')" }
-                Write-Status -Setting "Excepciones" -CurrentValue ($exceptInfo -join '; ') -RecommendedValue "Revisar exclusiones" -Status 'WARN'
+                Write-Status -Setting "Exceptions" -CurrentValue ($exceptInfo -join '; ') -RecommendedValue "Review exclusions" -Status 'WARN'
             }
         }
     }
@@ -599,7 +599,7 @@ try {
             }
             Write-Status -Setting "IPAllowList" `
                          -CurrentValue "$($policy.IPAllowList.Count) IPs: $($policy.IPAllowList -join ', ')" `
-                         -RecommendedValue "Revisar - minimizar IPs permitidas" `
+                         -RecommendedValue "Review - minimize allowed IPs" `
                          -Status 'WARN'
         }
         else {
@@ -608,7 +608,7 @@ try {
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) {
                 $script:policyResults[$script:currentPolicyKey].Pass++
             }
-            Write-Status -Setting "IPAllowList" -CurrentValue "Vacia" -RecommendedValue "Sin IPs permitidas (ideal)" -Status 'PASS'
+            Write-Status -Setting "IPAllowList" -CurrentValue "Empty" -RecommendedValue "No allowed IPs (ideal)" -Status 'PASS'
         }
 
         # IP Block List
@@ -619,8 +619,8 @@ try {
                 $script:policyResults[$script:currentPolicyKey].Pass++
             }
             Write-Status -Setting "IPBlockList" `
-                         -CurrentValue "$($policy.IPBlockList.Count) IPs bloqueadas" `
-                         -RecommendedValue "Configurado" `
+                         -CurrentValue "$($policy.IPBlockList.Count) blocked IPs" `
+                         -RecommendedValue "Configured" `
                          -Status 'INFO'
         }
         else {
@@ -629,10 +629,10 @@ try {
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) {
                 $script:policyResults[$script:currentPolicyKey].Pass++
             }
-            Write-Status -Setting "IPBlockList" -CurrentValue "Vacia" -RecommendedValue "Opcional" -Status 'INFO'
+            Write-Status -Setting "IPBlockList" -CurrentValue "Empty" -RecommendedValue "Optional" -Status 'INFO'
         }
 
-        # EnableSafeList (usar lista segura de Microsoft)
+        # EnableSafeList (use Microsoft safe list)
         Test-Setting -Setting "EnableSafeList"                  -CurrentValue $policy.EnableSafeList                  -RecommendedValue "False"
 
         # DirectoryBasedEdgeBlockMode
@@ -667,31 +667,31 @@ try {
         Test-Setting -Setting "StandardPreset-EOP-Priority" -CurrentValue $standardEOP.Priority -RecommendedValue "1"
 
         # Sentto / ExceptIf groups
-        $stdSentTo = if ($standardEOP.SentTo.Count -gt 0 -or $standardEOP.SentToMemberOf.Count -gt 0 -or $standardEOP.RecipientDomainIs.Count -gt 0) { 'Configurado' } else { 'Todos los destinatarios' }
+        $stdSentTo = if ($standardEOP.SentTo.Count -gt 0 -or $standardEOP.SentToMemberOf.Count -gt 0 -or $standardEOP.RecipientDomainIs.Count -gt 0) { 'Configured' } else { 'All recipients' }
         $script:totalChecks++
         $script:passCount++
         if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "StandardPreset-EOP-Scope" -CurrentValue $stdSentTo -RecommendedValue "Configurado o Todos" -Status 'PASS'
+        Write-Status -Setting "StandardPreset-EOP-Scope" -CurrentValue $stdSentTo -RecommendedValue "Configured or All" -Status 'PASS'
 
         if ($standardEOP.ExceptIfSentTo.Count -gt 0 -or $standardEOP.ExceptIfSentToMemberOf.Count -gt 0 -or $standardEOP.ExceptIfRecipientDomainIs.Count -gt 0) {
             $exceptCount = ($standardEOP.ExceptIfSentTo.Count + $standardEOP.ExceptIfSentToMemberOf.Count + $standardEOP.ExceptIfRecipientDomainIs.Count)
             $script:totalChecks++
             $script:warnCount++
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
-            Write-Status -Setting "StandardPreset-EOP-Exceptions" -CurrentValue "$exceptCount exclusiones configuradas" -RecommendedValue "Revisar exclusiones" -Status 'WARN'
+            Write-Status -Setting "StandardPreset-EOP-Exceptions" -CurrentValue "$exceptCount configured exclusions" -RecommendedValue "Review exclusions" -Status 'WARN'
         }
         else {
             $script:totalChecks++
             $script:passCount++
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-            Write-Status -Setting "StandardPreset-EOP-Exceptions" -CurrentValue "Ninguna" -RecommendedValue "Sin exclusiones (ideal)" -Status 'PASS'
+            Write-Status -Setting "StandardPreset-EOP-Exceptions" -CurrentValue "None" -RecommendedValue "No exclusions (ideal)" -Status 'PASS'
         }
     }
     else {
         $script:totalChecks++
         $script:failCount++
         if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Fail++ }
-        Write-Status -Setting "StandardPreset-EOP" -CurrentValue "No configurada" -RecommendedValue "Habilitada" -Status 'FAIL'
+        Write-Status -Setting "StandardPreset-EOP" -CurrentValue "Not configured" -RecommendedValue "Enabled" -Status 'FAIL'
     }
 
     # Strict Preset — EOP
@@ -703,31 +703,31 @@ try {
         Test-Setting -Setting "StrictPreset-EOP-State" -CurrentValue $eopStrState -RecommendedValue "Enabled"
         Test-Setting -Setting "StrictPreset-EOP-Priority" -CurrentValue $strictEOP.Priority -RecommendedValue "0"
 
-        $strSentTo = if ($strictEOP.SentTo.Count -gt 0 -or $strictEOP.SentToMemberOf.Count -gt 0 -or $strictEOP.RecipientDomainIs.Count -gt 0) { 'Configurado' } else { 'Todos los destinatarios' }
+        $strSentTo = if ($strictEOP.SentTo.Count -gt 0 -or $strictEOP.SentToMemberOf.Count -gt 0 -or $strictEOP.RecipientDomainIs.Count -gt 0) { 'Configured' } else { 'All recipients' }
         $script:totalChecks++
         $script:passCount++
         if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-        Write-Status -Setting "StrictPreset-EOP-Scope" -CurrentValue $strSentTo -RecommendedValue "Configurado o Todos" -Status 'PASS'
+        Write-Status -Setting "StrictPreset-EOP-Scope" -CurrentValue $strSentTo -RecommendedValue "Configured or All" -Status 'PASS'
 
         if ($strictEOP.ExceptIfSentTo.Count -gt 0 -or $strictEOP.ExceptIfSentToMemberOf.Count -gt 0 -or $strictEOP.ExceptIfRecipientDomainIs.Count -gt 0) {
             $exceptCount = ($strictEOP.ExceptIfSentTo.Count + $strictEOP.ExceptIfSentToMemberOf.Count + $strictEOP.ExceptIfRecipientDomainIs.Count)
             $script:totalChecks++
             $script:warnCount++
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
-            Write-Status -Setting "StrictPreset-EOP-Exceptions" -CurrentValue "$exceptCount exclusiones configuradas" -RecommendedValue "Revisar exclusiones" -Status 'WARN'
+            Write-Status -Setting "StrictPreset-EOP-Exceptions" -CurrentValue "$exceptCount configured exclusions" -RecommendedValue "Review exclusions" -Status 'WARN'
         }
         else {
             $script:totalChecks++
             $script:passCount++
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-            Write-Status -Setting "StrictPreset-EOP-Exceptions" -CurrentValue "Ninguna" -RecommendedValue "Sin exclusiones (ideal)" -Status 'PASS'
+            Write-Status -Setting "StrictPreset-EOP-Exceptions" -CurrentValue "None" -RecommendedValue "No exclusions (ideal)" -Status 'PASS'
         }
     }
     else {
         $script:totalChecks++
         $script:warnCount++
         if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
-        Write-Status -Setting "StrictPreset-EOP" -CurrentValue "No configurada" -RecommendedValue "Habilitada (recomendado para admins/VIP)" -Status 'WARN'
+        Write-Status -Setting "StrictPreset-EOP" -CurrentValue "Not configured" -RecommendedValue "Enabled (recommended for admins/VIP)" -Status 'WARN'
     }
 }
 catch {
@@ -753,31 +753,31 @@ if ($script:mdoAvailable) {
             Test-Setting -Setting "StandardPreset-ATP-State" -CurrentValue $atpStdState -RecommendedValue "Enabled"
             Test-Setting -Setting "StandardPreset-ATP-Priority" -CurrentValue $standardATP.Priority -RecommendedValue "1"
 
-            $stdAtpSentTo = if ($standardATP.SentTo.Count -gt 0 -or $standardATP.SentToMemberOf.Count -gt 0 -or $standardATP.RecipientDomainIs.Count -gt 0) { 'Configurado' } else { 'Todos los destinatarios' }
+            $stdAtpSentTo = if ($standardATP.SentTo.Count -gt 0 -or $standardATP.SentToMemberOf.Count -gt 0 -or $standardATP.RecipientDomainIs.Count -gt 0) { 'Configured' } else { 'All recipients' }
             $script:totalChecks++
             $script:passCount++
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-            Write-Status -Setting "StandardPreset-ATP-Scope" -CurrentValue $stdAtpSentTo -RecommendedValue "Configurado o Todos" -Status 'PASS'
+            Write-Status -Setting "StandardPreset-ATP-Scope" -CurrentValue $stdAtpSentTo -RecommendedValue "Configured or All" -Status 'PASS'
 
             if ($standardATP.ExceptIfSentTo.Count -gt 0 -or $standardATP.ExceptIfSentToMemberOf.Count -gt 0 -or $standardATP.ExceptIfRecipientDomainIs.Count -gt 0) {
                 $exceptCount = ($standardATP.ExceptIfSentTo.Count + $standardATP.ExceptIfSentToMemberOf.Count + $standardATP.ExceptIfRecipientDomainIs.Count)
                 $script:totalChecks++
                 $script:warnCount++
                 if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
-                Write-Status -Setting "StandardPreset-ATP-Exceptions" -CurrentValue "$exceptCount exclusiones configuradas" -RecommendedValue "Revisar exclusiones" -Status 'WARN'
+                Write-Status -Setting "StandardPreset-ATP-Exceptions" -CurrentValue "$exceptCount configured exclusions" -RecommendedValue "Review exclusions" -Status 'WARN'
             }
             else {
                 $script:totalChecks++
                 $script:passCount++
                 if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-                Write-Status -Setting "StandardPreset-ATP-Exceptions" -CurrentValue "Ninguna" -RecommendedValue "Sin exclusiones (ideal)" -Status 'PASS'
+                Write-Status -Setting "StandardPreset-ATP-Exceptions" -CurrentValue "None" -RecommendedValue "No exclusions (ideal)" -Status 'PASS'
             }
         }
         else {
             $script:totalChecks++
             $script:failCount++
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Fail++ }
-            Write-Status -Setting "StandardPreset-ATP" -CurrentValue "No configurada" -RecommendedValue "Habilitada" -Status 'FAIL'
+            Write-Status -Setting "StandardPreset-ATP" -CurrentValue "Not configured" -RecommendedValue "Enabled" -Status 'FAIL'
         }
 
         # Strict Preset — ATP (MDO)
@@ -789,31 +789,31 @@ if ($script:mdoAvailable) {
             Test-Setting -Setting "StrictPreset-ATP-State" -CurrentValue $atpStrState -RecommendedValue "Enabled"
             Test-Setting -Setting "StrictPreset-ATP-Priority" -CurrentValue $strictATP.Priority -RecommendedValue "0"
 
-            $strAtpSentTo = if ($strictATP.SentTo.Count -gt 0 -or $strictATP.SentToMemberOf.Count -gt 0 -or $strictATP.RecipientDomainIs.Count -gt 0) { 'Configurado' } else { 'Todos los destinatarios' }
+            $strAtpSentTo = if ($strictATP.SentTo.Count -gt 0 -or $strictATP.SentToMemberOf.Count -gt 0 -or $strictATP.RecipientDomainIs.Count -gt 0) { 'Configured' } else { 'All recipients' }
             $script:totalChecks++
             $script:passCount++
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-            Write-Status -Setting "StrictPreset-ATP-Scope" -CurrentValue $strAtpSentTo -RecommendedValue "Configurado o Todos" -Status 'PASS'
+            Write-Status -Setting "StrictPreset-ATP-Scope" -CurrentValue $strAtpSentTo -RecommendedValue "Configured or All" -Status 'PASS'
 
             if ($strictATP.ExceptIfSentTo.Count -gt 0 -or $strictATP.ExceptIfSentToMemberOf.Count -gt 0 -or $strictATP.ExceptIfRecipientDomainIs.Count -gt 0) {
                 $exceptCount = ($strictATP.ExceptIfSentTo.Count + $strictATP.ExceptIfSentToMemberOf.Count + $strictATP.ExceptIfRecipientDomainIs.Count)
                 $script:totalChecks++
                 $script:warnCount++
                 if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
-                Write-Status -Setting "StrictPreset-ATP-Exceptions" -CurrentValue "$exceptCount exclusiones configuradas" -RecommendedValue "Revisar exclusiones" -Status 'WARN'
+                Write-Status -Setting "StrictPreset-ATP-Exceptions" -CurrentValue "$exceptCount configured exclusions" -RecommendedValue "Review exclusions" -Status 'WARN'
             }
             else {
                 $script:totalChecks++
                 $script:passCount++
                 if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Pass++ }
-                Write-Status -Setting "StrictPreset-ATP-Exceptions" -CurrentValue "Ninguna" -RecommendedValue "Sin exclusiones (ideal)" -Status 'PASS'
+                Write-Status -Setting "StrictPreset-ATP-Exceptions" -CurrentValue "None" -RecommendedValue "No exclusions (ideal)" -Status 'PASS'
             }
         }
         else {
             $script:totalChecks++
             $script:warnCount++
             if ($script:currentPolicyKey -and $script:policyResults.ContainsKey($script:currentPolicyKey)) { $script:policyResults[$script:currentPolicyKey].Warn++ }
-            Write-Status -Setting "StrictPreset-ATP" -CurrentValue "No configurada" -RecommendedValue "Habilitada (recomendado para admins/VIP)" -Status 'WARN'
+            Write-Status -Setting "StrictPreset-ATP" -CurrentValue "Not configured" -RecommendedValue "Enabled (recommended for admins/VIP)" -Status 'WARN'
         }
     }
     catch {
@@ -822,11 +822,11 @@ if ($script:mdoAvailable) {
 }
 
 # ═════════════════════════════════════════════
-# RESUMEN FINAL (solo para HTML)
+# FINAL SUMMARY (HTML only)
 # ═════════════════════════════════════════════
 
 # ═════════════════════════════════════════════
-# GENERACION DE REPORTE HTML
+# HTML REPORT GENERATION
 # ═════════════════════════════════════════════
 
 $tenantName = (Get-OrganizationConfig).DisplayName
@@ -865,7 +865,7 @@ foreach ($row in $script:htmlRows) {
     $safeSetting      = [System.Web.HttpUtility]::HtmlEncode($row.Setting)
     $safePolicyName   = [System.Web.HttpUtility]::HtmlEncode($row.PolicyName)
 
-    # Resaltar Built-In Protection Policy en rojo para Safe Links / Safe Attachments
+    # Highlight Built-In Protection Policy in red for Safe Links / Safe Attachments
     $policyNameHtml = if ($row.PolicyName -eq 'Built-In Protection Policy' -and $row.Section -in @('Safe Links','Safe Attachments')) {
         "<span style='color:#dc3545;font-weight:700;'>$safePolicyName</span>"
     } else { $safePolicyName }
@@ -894,7 +894,7 @@ foreach ($key in $script:policyResults.Keys | Sort-Object) {
     # Progress bar color
     if ($pctP -ge 80) { $barColor = '#28a745' } elseif ($pctP -ge 60) { $barColor = '#ffc107' } else { $barColor = '#dc3545' }
 
-    # Resaltar Built-In Protection Policy en rojo para Safe Links / Safe Attachments
+    # Highlight Built-In Protection Policy in red for Safe Links / Safe Attachments
     $nameHtml = if ($name -eq 'Built-In Protection Policy' -and $section -in @('Safe Links','Safe Attachments')) {
         "<strong style='color:#dc3545;'>$name</strong>"
     } else { "<strong>$name</strong>" }
@@ -926,7 +926,7 @@ if ($overallPct -ge 80) { $overallColor = '#28a745' } elseif ($overallPct -ge 60
 
 $htmlReport = @"
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>MDO Policy Validation Report</title>
@@ -968,10 +968,10 @@ $htmlReport = @"
     <!-- Hero Header -->
     <div class="hero">
         <img src="https://dco.microsoft.com/Images/microsoft-white-logo.png" alt="Microsoft" class="logo-img">
-        <h1>Reporte de Validación de Políticas MDO</h1>
-        <p>Fecha: $reportTimestamp</p>
+        <h1>MDO Policy Validation Report</h1>
+        <p>Date: $reportTimestamp</p>
         <p style="font-size: 1.15rem;">Tenant: <strong>$tenantName</strong></p>
-        <p><em>&ldquo;La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</em></p>
+        <p><em>&ldquo;Technology enables security, but discipline ensures its effectiveness&rdquo;</em></p>
     </div>
 
     <div class="container-fluid px-4">
@@ -980,31 +980,31 @@ $htmlReport = @"
         <div class="row g-3 mt-3 text-center">
             <div class="col">
                 <div class="card-stat" style="background-color: #0078d4;">
-                    <div class="stat-label">Total Verificaciones</div>
+                    <div class="stat-label">Total Checks</div>
                     <div class="stat-number">$($script:totalChecks)</div>
                 </div>
             </div>
             <div class="col">
                 <div class="card-stat" style="background-color: $overallColor;">
-                    <div class="stat-label">Cumplimiento</div>
+                    <div class="stat-label">Compliance</div>
                     <div class="stat-number">$overallPct%</div>
                 </div>
             </div>
             <div class="col">
                 <div class="card-stat" style="background-color: #28a745;">
-                    <div class="stat-label">Correctas</div>
+                    <div class="stat-label">Passed</div>
                     <div class="stat-number">$($script:passCount)</div>
                 </div>
             </div>
             <div class="col">
                 <div class="card-stat" style="background-color: #ffc107; color: #333;">
-                    <div class="stat-label">Advertencias</div>
+                    <div class="stat-label">Warnings</div>
                     <div class="stat-number">$($script:warnCount)</div>
                 </div>
             </div>
             <div class="col">
                 <div class="card-stat" style="background-color: #dc3545;">
-                    <div class="stat-label">Fallidas</div>
+                    <div class="stat-label">Failed</div>
                     <div class="stat-number">$($script:failCount)</div>
                 </div>
             </div>
@@ -1012,16 +1012,16 @@ $htmlReport = @"
 
         <!-- Policy Summary -->
         <div class="table-card">
-            <div class="section-divider">&#128202; Resumen por Política</div>
+            <div class="section-divider">&#128202; Summary by Policy</div>
             <table class="table table-sm table-hover">
                 <thead>
                     <tr>
-                        <th>Sección</th>
-                        <th>Política</th>
+                        <th>Section</th>
+                        <th>Policy</th>
                         <th class="text-center">OK</th>
                         <th class="text-center">WARN</th>
                         <th class="text-center">FAIL</th>
-                        <th style="min-width:150px;">Cumplimiento</th>
+                        <th style="min-width:150px;">Compliance</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1032,15 +1032,15 @@ $htmlReport = @"
 
         <!-- Detail Table -->
         <div class="table-card">
-            <div class="section-divider">&#128269; Detalle de Verificaciones ($($script:totalChecks) checks)</div>
+            <div class="section-divider">&#128269; Verification Details ($($script:totalChecks) checks)</div>
             <table class="table table-sm table-hover detail-table">
                 <thead>
                     <tr>
-                        <th style="width:80px;">Estado</th>
-                        <th>Política</th>
-                        <th>Configuración</th>
-                        <th>Valor Actual</th>
-                        <th>Recomendado</th>
+                        <th style="width:80px;">Status</th>
+                        <th>Policy</th>
+                        <th>Setting</th>
+                        <th>Current Value</th>
+                        <th>Recommended</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1051,7 +1051,7 @@ $htmlReport = @"
 
         <!-- Action Items & Recommendations -->
         <div class="card shadow-sm border-primary mb-4">
-            <div class="card-header text-white" style="background-color: #0078d4;">&#128221; Documentación y Recomendaciones Microsoft</div>
+            <div class="card-header text-white" style="background-color: #0078d4;">&#128221; Microsoft Documentation and Recommendations</div>
             <div class="card-body">
                 <div class="list-group">
                     <div class="list-group-item task-link">
@@ -1111,5 +1111,5 @@ $htmlReport = @"
 # Save and open HTML report
 $reportPath = Join-Path -Path $reportDir -ChildPath $htmlFile
 $htmlReport | Out-File -FilePath $reportPath -Encoding utf8 -Force
-Write-Host "  Reporte HTML generado: $reportPath" -ForegroundColor Green
+Write-Host "  HTML report generated: $reportPath" -ForegroundColor Green
 Invoke-Item $reportPath

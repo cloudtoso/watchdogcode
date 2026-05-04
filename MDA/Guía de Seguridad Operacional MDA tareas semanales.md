@@ -1,113 +1,69 @@
-# Guía de Seguridad Operacional Semanal: Microsoft Defender for Cloud Apps 🛡️
+# Weekly Operational Security Guide: Microsoft Defender for Cloud Apps 🛡️
 
-## *La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad.*
+## *Technology enables security, but discipline ensures its effectiveness.*
 
-Esta guía establece los procedimientos diarios para analizar tendencias, identificar usuarios de alto riesgo y gestionar campañas de amenazas en Microsoft Defender for Cloud Apps
+This guide establishes weekly procedures to analyze trends, identify high-risk users, and manage threat campaigns in Microsoft Defender for Cloud Apps.
 
-**Autores:** Ernesto Cobos Roqueñí, Arturo Mandujano
-
----
-
-> **Objetivo general:** Asegurar postura continua de seguridad, salud operativa de integraciones y alineación con cambios de producto.
->
-> **Roles:**
-> - **L1:** Revisión y validación básica
-> - **L2:** Análisis de impacto y coordinación de remediación
-> - **L3:** Ajustes de arquitectura, gobierno y runbooks
-
----
-## Índice
-- [Review SaaS Security Posture Management (SSPM)](#review-saas-security-posture-management-sspm)
-- [Health Check – App Connectors, Log Collectors y SIEM](#health-check--app-connectors-log-collectors-y-siem)
-- [Review Governance Log](#review-governance-log)
-- [Track New Changes – Defender XDR & MDCA](#track-new-changes--defender-xdr--mdca)
+**Authors:** Ernesto Cobos Roqueñí, Arturo Mandujano
 
 ---
 
-## Review SaaS Security Posture Management (SSPM)
+## Table of Contents
 
-### Objetivo
-Mantener una postura segura de aplicaciones SaaS monitoreadas por MDCA.
-
-### Procedimiento
-1. Accede a https://security.microsoft.com/cloudapps
-2. Ir a **Cloud Apps > SaaS security posture**
-3. Revisar recomendaciones activas
-4. Validar impacto en:
-   - Secure Score
-   - Controles afectados
-5. Identificar brechas de configuración recurrentes
-
-### Acciones
-- Priorizar recomendaciones **High / Medium impact**
-- Coordinar remediación con:
-  - Equipos SaaS
-  - Identity / Platform teams
-
-### Evidencia
-- Registrar cambios aplicados
-- Documentar aceptación de riesgo si no se remedia
-
----
-
-## Health Check – App Connectors, Log Collectors y SIEM
-
-### Objetivo
-Asegurar ingestión continua y confiable de datos hacia MDCA y SIEM.
-
-### Procedimiento
-1. Accede a https://security.microsoft.com/cloudapps/settings?tabid=appConnectors
-2. Ir a **Settings > Cloud Apps > App connectors**
-3. Validar:
-   - Estado: `Connected`
-   - Última sincronización
-4. Revisar **Log collectors**:
-   - Activos
-   - Sin errores
-4. Confirmar integración con **Microsoft Sentinel**
-
-### Acciones
-- Escalar conectores en estado `Error` o `Disconnected`
-- Validar impacto de ingestión incompleta
-
----
-
-## Review Governance Log
-
-### Objetivo
-Auditoría de acciones administrativas y de gobierno.
-
-### Procedimiento
-1. Accede a  https://security.microsoft.com/cloudapps/governance-log
-2. Ir a **Cloud Apps > Governance log**
-3. Revisar eventos:
-   - Policy changes
-   - App actions
-   - Admin actions
-
-### Validaciones
-- Cambios autorizados vs no planeados
-- Acciones fuera de ventana de cambio
-
-### Registro
-- Documentar cambios relevantes
-- Asociar ticket / change request si aplica
+- [Review policy assessments](#review-policy-assessments)
+- [Review activity logs](#review-activity-logs)
 
 
 ---
 
-## Checklist Semanal SOC
-- SSPM revisado
-- Conectores y SIEM saludables
-- Governance log auditado
+## Review policy assessments
+**Objective:** Policy effectiveness.
+
+### Step by step
+
+Go to https://security.microsoft.com/cloudapps/policies/management
+
+- **Path:** `Cloud Apps > Policies`
+- **Evaluate:**
+  - **Alert volume** (trends vs. previous months)
+  - **False positives** (operational impact and noise)
+
+### Applied recommendations
+- Define **monthly baselines** for alerts per policy.
+- Document policies with **>20% false positives** for adjustment.
+- Prioritize critical policies aligned with business risks.
+
+### Action
+- **Adjust thresholds** incrementally and record changes.
 
 ---
 
-## Auditoría y Evidencia
-- Mantener evidencia semanal de:
-  - Revisiones realizadas
-  - Hallazgos
-  - Acciones correctivas
+## Review activity logs
+**Objective:** Investigation and compliance.
+
+### Step by step
+
+Go to https://security.microsoft.com/cloudapps/activity-log
+
+- **Path:** `Cloud Apps > Activity log`
+- **Apply filters by:**
+  - **App** (focus on high-risk applications)
+  - **User** (privileged users or those with anomalies)
+  - **Activity type** (sensitive actions)
+
+### Applied recommendations
+- Use **standard time windows** (30 days) for consistency.
+- Correlate activities with active alerts from the period.
+- Validate log retention according to compliance requirements.
+
+### Action
+- **Export logs** when:
+  - There is an active incident
+  - Required by audit
+  - Forensic analysis is needed
 
 ---
 
+## Operational notes
+- Record results in the SOC backlog.
+- Escalate recurring findings for continuous policy improvement.
