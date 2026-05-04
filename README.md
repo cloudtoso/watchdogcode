@@ -61,21 +61,21 @@ Operational guides and tools for identity security management.
 
 | Cadence | Document |
 |---|---|
-| Daily | [Guía Operacional Microsoft EntraID Diaria](EntraID/Guía%20Operacional%20Microsoft%20EntraID%20Diaria.md) |
-| Weekly | [Guía Operacional EntraID Tareas Semanales](EntraID/Guía%20Operacional%20EntraID%20Tareas%20Semanales.md) |
-| Monthly / Ad-hoc | [Guía Operacional EntraID Tareas Mensuales AdHoc](EntraID/Guía%20Operacional%20EntraID%20Tareas%20Mensuales%20AdHoc.md) |
+| Daily | [Daily Operations Guide - EntraID](EntraID/Daily%20Operations%20Guide.md) |
+| Weekly | [Weekly Operations Guide - EntraID](EntraID/Weekly%20Operations%20Guide.md) |
+| Monthly / Ad-hoc | [Monthly Operations Guide - EntraID Ad-Hoc](EntraID/Monthly%20Operations%20Guide%20-%20AdHoc%20Tasks.md) |
 
 ### Baselines
 
 | Document | Description |
 |---|---|
-| [Línea base Conditional Access Policies](EntraID/Linea%20base%20Conditional%20Access%20Policies.md) | Conditional Access policy templates (MFA for all users, break-glass exclusions, Report-only) |
+| [Baseline Conditional Access Policies](EntraID/Baseline/Baseline%20Conditional%20Access%20Policies.md) | Conditional Access policy templates (MFA for all users, break-glass exclusions, Report-only) |
 
 ### KQL Queries
 
 | Document | Description |
 |---|---|
-| [Paquete KQL Queries EntraID](EntraID/Paquete%20KQL%20Queries%20EntraID%20Advanced%20Hunting.md) | Advanced Hunting queries focused on identity threat detection and investigation |
+| [KQL Query Package - EntraID Advanced Hunting](EntraID/KQL%20Query%20Package%20-%20EntraID%20Advanced%20Hunting.md) | Advanced Hunting queries focused on identity threat detection and investigation |
 
 ### Scripts
 
@@ -96,30 +96,30 @@ Guides, baselines, policies, and scripts for email and collaboration security.
 
 | Cadence | Document |
 |---|---|
-| Daily | [Guía de Seguridad Operacional MDO Diaria](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md) |
-| Weekly | [Guía de Seguridad Operacional MDO Semanal](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Semanal.md) |
-| Monthly / Ad-hoc | [Guía de Seguridad Operacional MDO Mensual Ad-Hoc](MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Mensual%20Ad-Hoc.md) |
+| Daily | [Daily Operations Guide MDO Daily Tasks](MDO/Daily%20Operations%20Guide%20MDO%20Daily%20Tasks.md) |
+| Weekly | [Daily Operations Guide MDO Weekly](MDO/Daily%20Operations%20Guide%20MDO%20Weekly.md) |
+| Monthly / Ad-hoc | [Daily Operations Guide MDO Monthly Ad-Hoc](MDO/Daily%20Operations%20Guide%20MDO%20Monthly%20Ad-Hoc.md) |
 
 ### Baselines
 
 | Document | Description |
 |---|---|
-| [Protección contra BEC](MDO/Linea%20base%20de%20proteccion%20contra%20Business%20Email%20Compromise%20(BEC).md) | Layered defense strategy against identity impersonation and business email compromise |
-| [Postura de seguridad Exchange Online](MDO/Línea%20base%20para%20mejorar%20la%20postura%20de%20seguridad%20en%20Exchange%20online.md) | Mail flow security configuration under Zero Trust (SPF, DKIM, DMARC, MTA-STS) |
+| [Baseline for Protection Against Business Email Compromise (BEC)](MDO/Baseline/Baseline%20for%20Protection%20Against%20Business%20Email%20Compromise%20(BEC).md) | Layered defense strategy against identity impersonation and business email compromise |
+| [Baseline for Improving Security Posture in Exchange Online](MDO/Baseline/Baseline%20for%20Improving%20Security%20Posture%20in%20Exchange%20Online.md) | Mail flow security configuration under Zero Trust (SPF, DKIM, DMARC, MTA-STS) |
 
 ### Policies
 
 | Document | Description |
 |---|---|
-| [Política Anti-Phishing MDO](MDO/Políticas/Política%20Anti-Phishing%20MDO.md) | Step-by-step guide to create an Anti-Phishing policy with BEC protection for executives |
-| [Política de Safe Attachments](MDO/Políticas/Política%20de%20Safe%20Attachments.md) | Guide to create a Safe Attachments policy (sandbox detonation) |
-| [Política Safe Links](MDO/Políticas/Politica%20Safe%20links.md) | Guide to create a Safe Links policy focused on BEC URL protection |
+| [Anti-Phishing Policy MDO](MDO/Policies/Anti-Phishing%20Policy%20MDO.md) | Step-by-step guide to create an Anti-Phishing policy with BEC protection for executives |
+| [Safe Attachments Policy](MDO/Policies/Safe%20Attachments%20Policy.md) | Guide to create a Safe Attachments policy (sandbox detonation) |
+| [Safe Links Policy](MDO/Policies/Safe%20Links%20Policy.md) | Guide to create a Safe Links policy focused on BEC URL protection |
 
 ### KQL Queries
 
 | Document | Description |
 |---|---|
-| [Paquete MDO KQL Advanced Hunting](MDO/Paquete%20MDO%20KQL%20Advance%20Hunting.md) | Detection, triage, and investigation queries for email threats |
+| [KQL Query Package MDO Advance Hunting](MDO/KQL%20Query%20Package%20MDO%20Advance%20Hunting.md) | Detection, triage, and investigation queries for email threats |
 
 ### Scripts
 
@@ -144,8 +144,8 @@ Operational guides and vulnerability reports for endpoint security.
 
 | Cadence | Document |
 |---|---|
-| Daily | [Guía de Seguridad Operacional MDE Diaria](MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md) |
-| Weekly | [Guía de Seguridad Operacional MDE Semanal](MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md) |
+| Daily | [Daily Operations Guide MDE Daily Tasks](MDE/Daily%20Operations%20Guide%20MDE%20Daily%20Tasks.md) |
+| Weekly | [Daily Operations Guide MDE Weekly Tasks](MDE/Daily%20Operations%20Guide%20MDE%20Weekly%20Tasks.md) |
 
 ### Scripts
 
@@ -163,15 +163,15 @@ Operational guides and KQL queries for on-premises identity protection and later
 
 | Cadence | Document |
 |---|---|
-| Daily | [Guía operativa diaria MDI](MDI/Guía%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md) |
-| Weekly | [Guía operativa semanal MDI](MDI/Guía%20operativa%20semanal%20de%20Microsoft%20Defender%20for%20Identity.md) |
-| Monthly / Ad-hoc | [Guía operativa mensual/ad-hoc MDI](MDI/Guía%20opertiva%20mensualad-hoc%20de%20Microsoft%20Defender%20for%20Identity.md) |
+| Daily | [Daily Operations Guide - Microsoft Defender for Identity](MDI/Daily%20Operations%20Guide%20-%20Microsoft%20Defender%20for%20Identity.md) |
+| Weekly | [Weekly Operations Guide - Microsoft Defender for Identity](MDI/Weekly%20Operations%20Guide%20-%20Microsoft%20Defender%20for%20Identity.md) |
+| Monthly / Ad-hoc | [Monthly Operations Guide - Ad-Hoc - Microsoft Defender for Identity](MDI/Monthly%20Operations%20Guide%20-%20Ad-Hoc%20-%20Microsoft%20Defender%20for%20Identity.md) |
 
 ### KQL Queries
 
 | Document | Description |
 |---|---|
-| [Paquete MDI KQL Advanced Hunting](MDI/Paquete%20MDI%20KQL%20Advance%20Hunting.md) | Identity threat detection and investigation queries for MDI |
+| [KQL Query Package - MDI Advanced Hunting](MDI/KQL%20Query%20Package%20-%20MDI%20Advanced%20Hunting.md) | Identity threat detection and investigation queries for MDI |
 
 ---
 
@@ -189,9 +189,9 @@ Automated reports that consolidate telemetry from MDO, MDE, MDI, and MDA into ex
 
 | Script | Description | Instructions |
 |---|---|---|
-| [New-DefenderXDRDailyReport.ps1](XDR/New-DefenderXDRDailyReport.ps1) | Generates a daily HTML report via Advanced Hunting API | [Instructions](XDR/Instrucciones%20New-DefenderXDRDailyReport.ps1.md) |
-| [New-DefenderXDRWeeklyReport.ps1](XDR/New-DefenderXDRWeeklyReport.ps1) | Generates a weekly executive HTML report with KPIs and trends | [Instructions](XDR/Instrucciones%20New-DefenderXDRWeeklyReport.ps1.md) |
-| [New-DefenderVulnerabilityReport.ps1](MDE/New-DefenderVulnerabilityReport.ps1) | Generates a vulnerability report (TVM) in HTML | [Instructions](XDR/Instrucciones%20New-DefenderVulnerabilityReport.ps1.md) |
+| [New-DefenderXDRDailyReport.ps1](XDR/New-DefenderXDRDailyReport.ps1) | Generates a daily HTML report via Advanced Hunting API | [Instructions](XDR/Instructions%20New-DefenderXDRDailyReport.ps1.md) |
+| [New-DefenderXDRWeeklyReport.ps1](XDR/New-DefenderXDRWeeklyReport.ps1) | Generates a weekly executive HTML report with KPIs and trends | [Instructions](XDR/Instructions%20New-DefenderXDRWeeklyReport.ps1.md) |
+| [New-DefenderVulnerabilityReport.ps1](MDE/New-DefenderVulnerabilityReport.ps1) | Generates a vulnerability report (TVM) in HTML | [Instructions](XDR/Instructions%20New-DefenderVulnerabilityReport.ps1.md) |
 | [Setup-DefenderXDRReportServer.ps1](XDR/Setup-DefenderXDRReportServer.ps1) | Initial server setup: folder structure, DPAPI/cert credentials, Task Scheduler for automation | — |
 
 ### Report Features
@@ -214,15 +214,16 @@ gol2026/
 │   ├── Operational guides (daily, weekly, monthly)
 │   ├── Conditional Access Policies baseline
 │   ├── KQL Advanced Hunting package
-│   ├── Políticas/
+│   ├── Policies/
+│   ├── Baseline/
 │   └── Scripts/                       ← 4 scripts (CA policies, inactive users, roles, MFA)
 │
 ├── MDO/                               ← Microsoft Defender for Office 365
 │   ├── Operational guides (daily, weekly, monthly)
 │   ├── Baselines (BEC, Exchange Online)
 │   ├── KQL Advanced Hunting package
-│   ├── Políticas/                     ← Anti-Phishing, Safe Attachments, Safe Links
-│   ├── Línea Base/
+│   ├── Policies/                      ← Anti-Phishing, Safe Attachments, Safe Links
+│   ├── Baseline/
 │   └── Scripts/                       ← 8 scripts (alerts, validations, transport rules)
 │
 ├── MDE/                               ← Microsoft Defender for Endpoint
