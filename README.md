@@ -44,7 +44,7 @@ This repository contains the complete security operations framework for organiza
 
 ## Requirements and Dependencies
 
-See [Requisitos.md](Requisitos.md) for the complete guide on:
+See [Requirements.md](Requirements.md) for the complete guide on:
 
 - Microsoft 365 licensing (E5 or standalone Defender licenses)
 - Execution environment (PowerShell 5.1+, required modules)
@@ -208,7 +208,7 @@ Automated reports that consolidate telemetry from MDO, MDE, MDI, and MDA into ex
 ```
 gol2026/
 ├── README.md                          ← This file
-├── Requisitos.md                      ← Requirements, licensing, and configuration
+├── Requirements.md                    ← Requirements, licensing, and configuration
 │
 ├── EntraID/                           ← Microsoft Entra ID (Identity)
 │   ├── Operational guides (daily, weekly, monthly)
@@ -283,7 +283,7 @@ $env:AZURE_CLIENT_SECRET  = "<your-client-secret>"
 .\MDO\Scripts\Validate-MDOPolicies.ps1
 ```
 
-> For the complete configuration including App Registration, certificates, and Task Scheduler, see [Requisitos.md](Requisitos.md).
+> For the complete configuration including App Registration, certificates, and Task Scheduler, see [Requirements.md](Requirements.md).
 
 
 
