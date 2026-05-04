@@ -1048,8 +1048,8 @@ EmailEvents
 | summarize count(), Victims=dcount(RecipientEmailAddress) by FromDomain
 | order by count_ desc
 "@ },
-    # ── Phishing, BEC & Ingeniería Social ──
-    @{ Id=9;  Category="Phishing, BEC e Ingeniería Social"; Title="BEC: Señales de Urgencia y Pagos"; Query=@"
+    # ── Phishing, BEC & Social Engineering ──
+    @{ Id=9;  Category="Phishing, BEC & Social Engineering"; Title="BEC: Urgency and Payment Signals"; Query=@"
 let lookback = 7d;
 let becKeywords = dynamic(["urgent","wire","payment","invoice","transfer","bank","remittance","pago","transferencia","factura","urgente"]);
 EmailEvents
@@ -1926,11 +1926,11 @@ $OperativeTasks = @{
     "MDO" = @(
         @{ Task="Revisar alertas activas"; Portal="https://security.microsoft.com/alerts"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#monitoreo-de-alertas" },
         @{ Task="Monitoreo de Incidentes"; Portal="https://security.microsoft.com/incidents"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#monitoreo-de-incidentes" },
-        @{ Task="Validar correos entregados con algún tipo de amenaza"; Portal="https://security.microsoft.com/v2/advanced-hunting"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#validar-correos-entregados-con-alg%C3%BAn-tipo-de-amenaza" },
+        @{ Task="Validate delivered emails with threat indicators"; Portal="https://security.microsoft.com/v2/advanced-hunting"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Daily%20Operations%20Guide%20MDO%20Daily%20Tasks.md#validate-delivered-emails-with-threat-indicators" },
         @{ Task="Triage de Mensajes de Teams Reportados"; Portal="https://admin.teams.microsoft.com/policies/messaging?view=reportedsafety"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#triage-de-mensajes-de-teams-reportados-por-usuarios" },
         @{ Task="Revisar y Actuar sobre los AIRs"; Portal="https://security.microsoft.com/action-center/pending"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-y-actuar-sobre-los-airs" },
-        @{ Task="Revisar Tendencias de Detección MDO"; Portal="https://security.microsoft.com/reports/TPSAggregateReportATP"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-las-tendencias-de-detecci%C3%B3n-de-correo-en-microsoft-defender-for-office-365" },
-        @{ Task="Revisar Campañas Entregadas"; Portal="https://security.microsoft.com/threatexplorerv3"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-campa%C3%B1as-de-phishing-y-malware-que-resultaron-en-correos-entregados" },
+        @{ Task="Review MDO Detection Trends"; Portal="https://security.microsoft.com/reports/TPSAggregateReportATP"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Daily%20Operations%20Guide%20MDO%20Daily%20Tasks.md#review-mdo-detection-trends" },
+        @{ Task="Review Delivered Campaigns"; Portal="https://security.microsoft.com/threatexplorerv3"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Daily%20Operations%20Guide%20MDO%20Daily%20Tasks.md#review-delivered-campaigns" },
         @{ Task="Revisión de Top Targeted Users"; Portal="https://security.microsoft.com/threatexplorerv3"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisi%C3%B3n-de-top-targeted-users" }
     );
     "MDE" = @(
@@ -1945,7 +1945,7 @@ $OperativeTasks = @{
         @{ Task="Revisar ITDR Dashboard"; Portal="https://security.microsoft.com/identities/dashboard"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#revisar-itdr-dashboard-identities--dashboard" },
         @{ Task="Triage de Incidentes por Prioridad"; Portal="https://security.microsoft.com/incidents"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#triage-de-incidentes-por-prioridad-incidents--alerts" },
         @{ Task="Configurar Tuning para False Positives"; Portal="https://security.microsoft.com/advanced-hunting"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#configurar-tuning-para-benign--false-positives-advanced-hunting" },
-        @{ Task="Proactive hunting diario"; Portal="https://security.microsoft.com/v2/advanced-hunting"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#proactive-hunting-diario-o-semanal-seg%C3%BAn-madurez" },
+        @{ Task="Daily proactive hunting"; Portal="https://security.microsoft.com/v2/advanced-hunting"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDI/Daily%20Operations%20Guide%20-%20Microsoft%20Defender%20for%20Identity.md#daily-proactive-hunting" },
         @{ Task="Revisar Health Issues"; Portal="https://security.microsoft.com/identities/health-issues"; Guide="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#revisar-health-issues-global-y-sensor" }
     );
     "ENTRA" = @(

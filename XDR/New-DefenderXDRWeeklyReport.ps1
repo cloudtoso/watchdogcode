@@ -1064,10 +1064,10 @@ $HtmlContent = @"
                 <table class="ops-table">
                     <thead><tr><th style="width:50%">Task</th><th style="width:25%">Portal</th><th style="width:25%">Guide</th></tr></thead>
                     <tbody>
-                        <tr><td class="ops-task-name">Review email detection trends</td><td><a class="ops-btn portal" href="https://security.microsoft.com/emailandcollabreport" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Semanal.md#revisar-tendencias-de-detecci%C3%B3n-de-correo-en-microsoft-defender-for-office-365" target="_blank">&#x1f4d6; View Guide</a></td></tr>
-                        <tr><td class="ops-task-name">Identify most attacked users</td><td><a class="ops-btn portal" href="https://security.microsoft.com/emailandcollabreport" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Semanal.md#identificar-usuarios-m%C3%A1s-atacados-por-malware-y-phishing" target="_blank">&#x1f4d6; View Guide</a></td></tr>
-                        <tr><td class="ops-task-name">Review malware and phishing campaigns</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatexplorerv3" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Semanal.md#revisar-campa%C3%B1as-de-malware-y-phishing" target="_blank">&#x1f4d6; View Guide</a></td></tr>
-                        <tr><td class="ops-task-name">Validate delivered emails with threats</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatexplorerv3" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Semanal.md#validar-correos-entregados-con-amenazas" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Review email detection trends</td><td><a class="ops-btn portal" href="https://security.microsoft.com/emailandcollabreport" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Daily%20Operations%20Guide%20MDO%20Weekly.md#revisar-tendencias-de-detecci%C3%B3n-de-correo-en-microsoft-defender-for-office-365" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Identify most attacked users</td><td><a class="ops-btn portal" href="https://security.microsoft.com/emailandcollabreport" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Daily%20Operations%20Guide%20MDO%20Weekly.md#identificar-usuarios-m%C3%A1s-atacados-por-malware-y-phishing" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Review malware and phishing campaigns</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatexplorerv3" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Daily%20Operations%20Guide%20MDO%20Weekly.md#revisar-campa%C3%B1as-de-malware-y-phishing" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Validate delivered emails with threats</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatexplorerv3" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Daily%20Operations%20Guide%20MDO%20Weekly.md#validar-correos-entregados-con-amenazas" target="_blank">&#x1f4d6; View Guide</a></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1086,7 +1086,7 @@ $HtmlContent = @"
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">$($SelectedMdoWeeklyKql.Query)</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20Semanal.md" target="_blank">&#x1f4d6; MDO Weekly Guide</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Daily%20Operations%20Guide%20MDO%20Weekly.md" target="_blank">&#x1f4d6; MDO Weekly Guide</a>
                 </div>
             </div>
         </div>
@@ -1127,12 +1127,12 @@ $HtmlContent = @"
                 <table class="ops-table">
                     <thead><tr><th style="width:50%">Task</th><th style="width:25%">Portal</th><th style="width:25%">Guide</th></tr></thead>
                     <tbody>
-                        <tr><td class="ops-task-name">Threat trend analysis</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatanalytics3" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md#an%C3%A1lisis-de-tendencias-de-amenazas" target="_blank">&#x1f4d6; View Guide</a></td></tr>
-                        <tr><td class="ops-task-name">Weekly Advanced Hunting</td><td><a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md#advanced-hunting-semanal" target="_blank">&#x1f4d6; View Guide</a></td></tr>
-                        <tr><td class="ops-task-name">Exposure and vulnerabilities (MDVM)</td><td><a class="ops-btn portal" href="https://security.microsoft.com/tvm_dashboard" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md#exposici%C3%B3n-y-vulnerabilidades" target="_blank">&#x1f4d6; View Guide</a></td></tr>
-                        <tr><td class="ops-task-name">Security configuration review</td><td><a class="ops-btn portal" href="https://security.microsoft.com/asr" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md#revisi%C3%B3n-de-configuraciones-de-seguridad" target="_blank">&#x1f4d6; View Guide</a></td></tr>
-                        <tr><td class="ops-task-name">Repeat-offender devices</td><td><a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md#dispositivos-reincidentes" target="_blank">&#x1f4d6; View Guide</a></td></tr>
-                        <tr><td class="ops-task-name">Operational / executive report</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md#reporte-operativo--ejecutivo" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Threat trend analysis</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatanalytics3" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Daily%20Operations%20Guide%20MDE%20Weekly%20Tasks.md#an%C3%A1lisis-de-tendencias-de-amenazas" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Weekly Advanced Hunting</td><td><a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Daily%20Operations%20Guide%20MDE%20Weekly%20Tasks.md#advanced-hunting-semanal" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Exposure and vulnerabilities (MDVM)</td><td><a class="ops-btn portal" href="https://security.microsoft.com/tvm_dashboard" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Daily%20Operations%20Guide%20MDE%20Weekly%20Tasks.md#exposici%C3%B3n-y-vulnerabilidades" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Security configuration review</td><td><a class="ops-btn portal" href="https://security.microsoft.com/asr" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Daily%20Operations%20Guide%20MDE%20Weekly%20Tasks.md#revisi%C3%B3n-de-configuraciones-de-seguridad" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Repeat-offender devices</td><td><a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Daily%20Operations%20Guide%20MDE%20Weekly%20Tasks.md#dispositivos-reincidentes" target="_blank">&#x1f4d6; View Guide</a></td></tr>
+                        <tr><td class="ops-task-name">Operational / executive report</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Open Portal</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Daily%20Operations%20Guide%20MDE%20Weekly%20Tasks.md#reporte-operativo--ejecutivo" target="_blank">&#x1f4d6; View Guide</a></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1175,7 +1175,7 @@ $HtmlContent = @"
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">$($SelectedMdeWeeklyKql.Query)</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20semanales.md" target="_blank">&#x1f4d6; MDE Weekly Guide</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Daily%20Operations%20Guide%20MDE%20Weekly%20Tasks.md" target="_blank">&#x1f4d6; MDE Weekly Guide</a>
                 </div>
             </div>
         </div>
@@ -1237,7 +1237,7 @@ $HtmlContent = @"
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">$($SelectedMdiWeeklyKql.Query)</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20semanal%20de%20Microsoft%20Defender%20for%20Identity.md" target="_blank">&#x1f4d6; MDI Weekly Guide</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Weekly%20Operations%20Guide%20-%20Microsoft%20Defender%20for%20Identity.md" target="_blank">&#x1f4d6; MDI Weekly Guide</a>
                 </div>
             </div>
         </div>
@@ -1274,7 +1274,7 @@ $HtmlContent = @"
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">$($SelectedEntraWeeklyKql.Query)</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
                     <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20EntraID%20Tareas%20Semanales.md" target="_blank">&#x1f4d6; Entra ID Weekly Guide</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Weekly%20Operations%20Guide.md" target="_blank">&#x1f4d6; Entra ID Weekly Guide</a>
                 </div>
             </div>
         </div>
