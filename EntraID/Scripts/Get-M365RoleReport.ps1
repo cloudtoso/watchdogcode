@@ -77,8 +77,8 @@ foreach ($mod in $requiredModules) {
     }
     else {
         Write-Host "[X] Module $($mod.Name) not found$(if ($mod.MinVersion) { " (minimum v$($mod.MinVersion))" })." -ForegroundColor Red
-        $respuesta = Read-Host "    Do you want to install module $($mod.Name)? (Y/N)"
-        if ($respuesta -match '^[Yy]$') {
+        $response = Read-Host "    Do you want to install module $($mod.Name)? (Y/N)"
+        if ($response -match '^[Yy]$') {
             Write-Host "    Downloading and installing $($mod.Name)..." -ForegroundColor Yellow
             try {
                 Install-Module -Name $mod.Name -Force -Scope CurrentUser -ErrorAction Stop
@@ -608,7 +608,7 @@ if ($pUsers.Count -gt 0) {
 "@
 
 	$htmlBody = @"
-<h1>Administrative Role Assignment Report - Microsoft 365 <em style="font-size: 0.75em; font-weight: normal; margin-left: 80px;">&ldquo;La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</em></h1>
+<h1>Administrative Role Assignment Report - Microsoft 365 <em style="font-size: 0.75em; font-weight: normal; margin-left: 80px;">&ldquo;Technology enables security, but it is discipline that guarantees its effectiveness&rdquo;</em></h1>
 <p>Tenant: $tenantName | Tenant ID: $tenantId | Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
 <p>Workloads evaluated: <strong>$($workLoads -join ', ')</strong> | Password age threshold: <strong>$PasswordAgeThreshold days</strong></p>
 <p><em>If the assignment is through a group, the sign-in name is shown with the group prefix.</em></p>

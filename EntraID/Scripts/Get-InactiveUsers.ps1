@@ -229,7 +229,7 @@ if ($result.Count -gt 0) {
         $tenantId = (Get-MgContext).TenantId
 
         $htmlBody = @"
-<h1>Inactive Users Report - Microsoft Entra ID <em style="font-size: 0.75em; font-weight: normal; margin-left: 80px;">&ldquo;La tecnología habilita la seguridad, pero es la disciplina la que garantiza su efectividad&rdquo;</em></h1>
+<h1>Inactive Users Report - Microsoft Entra ID <em style="font-size: 0.75em; font-weight: normal; margin-left: 80px;">&ldquo;Technology enables security, but it is discipline that guarantees its effectiveness&rdquo;</em></h1>
 <p>Tenant: $tenantName | Tenant ID: $tenantId | Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')</p>
 <p>Sign-in type evaluated: <strong>$SignInType</strong> | Member inactivity: <strong>$MemberDaysOfInactivity days</strong> | Guest inactivity: <strong>$GuestDaysOfInactivity days</strong></p>
 
@@ -246,7 +246,7 @@ if ($result.Count -gt 0) {
             Select-Object -Property UserPrincipalName,UserType,LastSuccessfulSignIn,LastInteractiveSignIn,LastNonInteractiveSignIn |
             ConvertTo-Html -Fragment | Out-String
 
-        # Colorear tipos de usuario en HTML
+        # Color-code user types in HTML
         $htmlTable = $htmlTable -replace '<td>Member</td>', '<td class="member">Member</td>'
         $htmlTable = $htmlTable -replace '<td>Guest</td>',  '<td class="guest">Guest</td>'
 
