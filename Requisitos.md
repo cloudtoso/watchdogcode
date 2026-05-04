@@ -90,22 +90,22 @@ Una vez completados los pasos anteriores, debe tener los siguientes tres valores
 
 ## 4. Módulos de PowerShell
 
-### 4.1 Instalar PowerShell 7 (En caso no no estar instalado)
+### 4.1 Instalar PowerShell 7 (Critico instalarlo desde el archivo PowerShell-7.x.x-win-x64.msi o PowerShell-7.x.x-win-arm64.msi)
 
-  - Abrir PowerShell 5 como Administrador
-  - Buscar la ultima version de PowerShell 7 con el siguiente comando
-```powershell
-  winget search --id Microsoft.PowerShell --exact
+1. Ir a https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell-on-windows?view=powershell-7.6#install-the-msi-package
+
+2. Selecciona la version que corresponda a la arquitectura de CPU
+
+3. Haz doble clic sobre el archivo .msi
+
+4. Se abrirá el asistente → haz clic en Next.
+
+5. Una vez instalado ejecuta este comando para validar la ruta de instalación **Ruta critica**
+
+```PowerShell
+Get-Command pwsh
 ```
-- Resultado esperdo (similar)
-```powershell
-Name               Id                           Version   Source
------------------------------------------------------------------
-PowerShell         Microsoft.PowerShell         7.6.1.0   winget
-```
-- Instalar PowerShel 7
-```powershell
-winget install --id Microsoft.PowerShell --source winget
+6. Salida esperada ** C:\Program Files\PowerShell\7\pwsh.exe**
 ```
 
 ### 4.2 Módulos por script
