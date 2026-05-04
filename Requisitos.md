@@ -21,7 +21,7 @@ Se requieren licencias que incluyan los servicios de Microsoft Defender XDR
 
 | Requisito | Detalle |
 |---|---|
-| **PowerShell** | PowerShell 7+ **Requerido** ver punto 4 |
+| **PowerShell** | PowerShell 7+ **Requerido** ver punto 4 **Crítico**|
 | **Sistema Operativo** | Windows 11 o Windows Server 2016+ |
 | **Privilegios de administrador** | Requerido únicamente para `Domain-Health-Check.ps1` (`#Requires -RunAsAdministrator`) |
 | **Global Administrator** | Permiso requerido para registro de Aplicación |
@@ -90,7 +90,7 @@ Una vez completados los pasos anteriores, debe tener los siguientes tres valores
 
 ## 4. Módulos de PowerShell
 
-### 4.1 Instalar PowerShell 7 (Critico instalarlo desde el archivo PowerShell-7.x.x-win-x64.msi o PowerShell-7.x.x-win-arm64.msi)
+### 4.1 Instalar PowerShell 7 (Crítico instalarlo desde el archivo PowerShell-7.x.x-win-x64.msi o PowerShell-7.x.x-win-arm64.msi)
 
 1. Ir a https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell-on-windows?view=powershell-7.6#install-the-msi-package
 
