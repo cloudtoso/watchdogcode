@@ -21,7 +21,7 @@ Se requieren licencias que incluyan los servicios de Microsoft Defender XDR
 
 | Requisito | Detalle |
 |---|---|
-| **PowerShell** | PowerShell 7+ **Requerido** |
+| **PowerShell** | PowerShell 7+ **Requerido** ver punto 4 |
 | **Sistema Operativo** | Windows 11 o Windows Server 2016+ |
 | **Privilegios de administrador** | Requerido únicamente para `Domain-Health-Check.ps1` (`#Requires -RunAsAdministrator`) |
 | **Global Administrator** | Permiso requerido para registro de Aplicación |
@@ -105,7 +105,7 @@ Una vez completados los pasos anteriores, debe tener los siguientes tres valores
 ```PowerShell
 Get-Command pwsh
 ```
-6. Salida esperada ** C:\Program Files\PowerShell\7\pwsh.exe**
+6. Salida esperada **C:\Program Files\PowerShell\7\pwsh.exe**
 
 
 ### 4.2 Módulos por script
