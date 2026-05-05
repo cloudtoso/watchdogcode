@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Diario de Seguridad</title>
+    <title>Daily Security Report</title>
     <style>
         :root {
             --primary-color: #0078d4;
@@ -58,7 +58,7 @@
             align-items: center;
         }
 
-        /* Cuadrícula de KPIs */
+        /* KPI Grid */
         .kpi-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(220px, 250px)); 
@@ -121,7 +121,7 @@
         .kpi-card.info .kpi-severity { background: var(--info-color); }
         .kpi-card.none .kpi-severity { background: var(--none-color); }
         
-        /* Tablas */
+        /* Tables */
         .table-container {
             background: var(--card-bg);
             border-radius: 8px;
@@ -135,7 +135,7 @@
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f8f9fa; }
         
-        /* Recomendaciones */
+        /* Recommendations */
         .recs { 
             background-color: #e6f2ff; 
             padding: 20px; 
@@ -145,7 +145,7 @@
         .recs ul { margin: 0; padding-left: 20px; }
         .recs li { margin-bottom: 8px; line-height: 1.6; }
         
-        /* Actividades Diarias */
+        /* Actividades Daily */
         .activities { 
             background-color: var(--card-bg); 
             border-radius: 8px; 
@@ -162,7 +162,7 @@
         
         .footer { text-align: center; margin-top: 50px; color: #8a8886; font-size: 0.85em; padding-bottom: 20px; }
 
-        /* Tareas Operativas */
+        /* Operational Tasks */
         .ops-section { margin-bottom: 30px; }
         .ops-group {
             background: var(--card-bg);
@@ -250,11 +250,11 @@
 <body>
     <div class="header">
         <div>
-            <h1>Reporte Diario de Operaciones de Seguridad</h1>
-            <div class="subtitle">La tecnología habilita la seguridad, pero la disciplina la hace efectiva</div>
+            <h1>Daily Security Operations Report</h1>
+            <div class="subtitle">Technology enables security, but discipline makes it effective</div>
         </div>
         <div class="meta">
-            <div><strong>Período:</strong> 2026-04-21 16:32 - 2026-04-22 16:32</div>
+            <div><strong>Period:</strong> 2026-04-21 16:32 - 2026-04-22 16:32</div>
             <div style="font-size: 0.85em; margin-top: 4px;">Tenant ID: ********************************3efa</div>
         </div>
     </div>
@@ -264,34 +264,34 @@
         <div class="kpi-grid">
             <div class="kpi-card high">
                 <div class="kpi-val">14</div>
-                <div class="kpi-label">Incidentes Activos</div>
-                <div class="kpi-severity">Máx: High</div>
+                <div class="kpi-label">Active Incidents</div>
+                <div class="kpi-severity">MAX: High</div>
             </div>
             <div class="kpi-card none">
                 <div class="kpi-val">0</div>
-                <div class="kpi-label">Alertas de Defender for Office</div>
-                <div class="kpi-severity">Máx: Sin alertas</div>
+                <div class="kpi-label">Defender for Office Alerts</div>
+                <div class="kpi-severity">MAX: No alerts</div>
             </div>            <div class="kpi-card none">
                 <div class="kpi-val">0</div>
-                <div class="kpi-label">Alertas Defender for Endpoint</div>
-                <div class="kpi-severity">Máx: Sin alertas</div>
+                <div class="kpi-label">Defender for Endpoint Alerts</div>
+                <div class="kpi-severity">MAX: No alerts</div>
             </div>            <div class="kpi-card none">
                 <div class="kpi-val">0</div>
-                <div class="kpi-label">Usuarios en Riesgos Entra ID</div>
-                <div class="kpi-severity">Máx: Sin riesgo</div>
+                <div class="kpi-label">Users at Risk Entra ID</div>
+                <div class="kpi-severity">MAX: No risk</div>
             </div>
             <div class="kpi-card none">
                 <div class="kpi-val">0</div>
-                <div class="kpi-label">Alertas Defender for Identity</div>
-                <div class="kpi-severity">Máx: Sin alertas</div>
+                <div class="kpi-label">Defender for Identity Alerts</div>
+                <div class="kpi-severity">MAX: No alerts</div>
             </div>            <div class="kpi-card none">
                 <div class="kpi-val">0</div>
-                <div class="kpi-label">Consentimientos OAuth Defender for Cloud Apps</div>
-                <div class="kpi-severity">Máx: Sin alertas</div>
+                <div class="kpi-label">OAuth Consents Defender for Cloud Apps</div>
+                <div class="kpi-severity">MAX: No alerts</div>
             </div>            <div class="kpi-card high">
                 <div class="kpi-val">19</div>
-                <div class="kpi-label">Detecciones Personalizadas</div>
-                <div class="kpi-severity">Máx: High</div>
+                <div class="kpi-label">Custom Detections</div>
+                <div class="kpi-severity">MAX: High</div>
             </div>
         </div>
         <!-- ═══════════════════════════════════════════════════════ -->
@@ -300,36 +300,36 @@
 
         <h2>MDO: Microsoft Defender for Office 365</h2>
 
-        <!-- Tareas Operativas MDO: Microsoft Defender for Office 365 -->
+        <!-- Operational Tasks MDO: Microsoft Defender for Office 365 -->
         <div class="ops-section">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #0078d4;">
-                    &#x1f4e7; Tareas Operativas - MDO: Microsoft Defender for Office 365
-                    <span class="ops-badge daily">8 Diarias</span>
+                    &#x1f4e7; Operational Tasks - MDO: Microsoft Defender for Office 365
+                    <span class="ops-badge daily">8 Daily</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:50%">Tarea</th><th style="width:25%">Portal</th><th style="width:25%">Documentación</th></tr></thead>
+                    <thead><tr><th style="width:50%">Task</th><th style="width:25%">Portal</th><th style="width:25%">Documentation</th></tr></thead>
                     <tbody>
-                        <tr><td class="ops-task-name">Revisar alertas activas</td><td><a class="ops-btn portal" href="https://security.microsoft.com/alerts" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#monitoreo-de-alertas" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Monitoreo de Incidentes</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#monitoreo-de-incidentes" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Validar correos entregados con algún tipo de amenaza</td><td><a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#validar-correos-entregados-con-alg%C3%BAn-tipo-de-amenaza" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Triage de Mensajes de Teams Reportados</td><td><a class="ops-btn portal" href="https://admin.teams.microsoft.com/policies/messaging?view=reportedsafety" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#triage-de-mensajes-de-teams-reportados-por-usuarios" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisar y Actuar sobre los AIRs</td><td><a class="ops-btn portal" href="https://security.microsoft.com/action-center/pending" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-y-actuar-sobre-los-airs" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisar Tendencias de Detección MDO</td><td><a class="ops-btn portal" href="https://security.microsoft.com/reports/TPSAggregateReportATP" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-las-tendencias-de-detecci%C3%B3n-de-correo-en-microsoft-defender-for-office-365" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisar Campañas Entregadas</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatexplorerv3" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-campa%C3%B1as-de-phishing-y-malware-que-resultaron-en-correos-entregados" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisión de Top Targeted Users</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatexplorerv3" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisi%C3%B3n-de-top-targeted-users" target="_blank">&#x1f4d6; Guía</a></td></tr>
+                        <tr><td class="ops-task-name">Review active alerts</td><td><a class="ops-btn portal" href="https://security.microsoft.com/alerts" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#monitoreo-de-alertas" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Incident Monitoring</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#monitoreo-de-incidentes" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Validate delivered emails with any type of threat</td><td><a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#validar-correos-entregados-con-alg%C3%BAn-tipo-de-amenaza" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Triage of Reported Teams Messages</td><td><a class="ops-btn portal" href="https://admin.teams.microsoft.com/policies/messaging?view=reportedsafety" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#triage-de-mensajes-de-teams-reportados-por-usuarios" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Review and Act on AIRs</td><td><a class="ops-btn portal" href="https://security.microsoft.com/action-center/pending" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-y-actuar-sobre-los-airs" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Review MDO Detection Trends</td><td><a class="ops-btn portal" href="https://security.microsoft.com/reports/TPSAggregateReportATP" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-las-tendencias-de-detecci%C3%B3n-de-correo-en-microsoft-defender-for-office-365" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Review Delivered Campaigns</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatexplorerv3" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisar-campa%C3%B1as-de-phishing-y-malware-que-resultaron-en-correos-entregados" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Top Targeted Users Review</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatexplorerv3" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Guia%20de%20Seguridad%20Operacional%20MDO%20tareas%20diarias.md#revisi%C3%B3n-de-top-targeted-users" target="_blank">&#x1f4d6; Guide</a></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Alertas del Workload -->
+        <!-- Workload Alerts -->
         <div class="ops-section" style="margin-top: 30px;">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #0078d4;">
-                    &#x26a0; Alertas del Workload - Top 5 por Criticidad
+                    &#x26a0; Workload Alerts - Top 5 by Criticality
                     <span class="ops-badge daily">Critical/High</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:35%">Alerta</th><th style="width:15%">Severidad</th><th style="width:20%">Portal</th><th style="width:30%">Acción</th></tr></thead>
+                    <thead><tr><th style="width:35%">Alert</th><th style="width:15%">Severity</th><th style="width:20%">Portal</th><th style="width:30%">Action</th></tr></thead>
                     <tbody>
                         <tr>
                             <td colspan="4" style="text-align:center; padding:30px; color:#666;">
-                                <strong>No existen Alertas</strong><br/>
-                                <span style="font-size:0.9em;">No se detectaron alertas activas en el período analizado</span>
+                                <strong>No existen Alerts</strong><br/>
+                                <span style="font-size:0.9em;">No active alerts were detected in the analyzed period</span>
                             </td>
                         </tr>
                     </tbody>
@@ -337,17 +337,17 @@
             </div>
         </div>
 
-        <!-- Recomendación de KQL diario – MDO: Microsoft Defender for Office 365 -->
+        <!-- Daily KQL Recommendation – MDO: Microsoft Defender for Office 365 -->
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #0078d4;">
-                <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – MDO: Microsoft Defender for Office 365
+                <span class="icon">&#x1f50d;</span> Daily KQL Recommendation – MDO: Microsoft Defender for Office 365
                 <span class="ops-badge daily">#19</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#0078d4; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Análisis de URLs & Adjuntos</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#0078d4; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">URL & Attachment Analysis</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Adjuntos HTML/HTA con Data URI</h3>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">HTML/HTA Attachments with Data URI</h3>
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">
 EmailAttachmentInfo
 | where Timestamp > ago(7d)
@@ -358,8 +358,8 @@ EmailAttachmentInfo
 | summarize Total=count(), DataUri=countif(IsDataUri) by SenderFromAddress
 | order by DataUri desc, Total desc</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Paquete%20MDO%20KQL%20Advance%20Hunting.md" target="_blank">&#x1f4da; Ver catálogo KQL de MDO: Microsoft Defender for Office 365</a>
+                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDO/Paquete%20MDO%20KQL%20Advance%20Hunting.md" target="_blank">&#x1f4da; View KQL Catalog de MDO: Microsoft Defender for Office 365</a>
                 </div>
             </div>
         </div>
@@ -369,36 +369,36 @@ EmailAttachmentInfo
 
         <h2>MDE: Microsoft Defender for Endpoint</h2>
 
-        <!-- Tareas Operativas MDE: Microsoft Defender for Endpoint -->
+        <!-- Operational Tasks MDE: Microsoft Defender for Endpoint -->
         <div class="ops-section">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #d83b01;">
-                    &#x1f5a5; Tareas Operativas - MDE: Microsoft Defender for Endpoint
-                    <span class="ops-badge daily">6 Diarias</span>
+                    &#x1f5a5; Operational Tasks - MDE: Microsoft Defender for Endpoint
+                    <span class="ops-badge daily">6 Daily</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:50%">Tarea</th><th style="width:25%">Portal</th><th style="width:25%">Documentación</th></tr></thead>
+                    <thead><tr><th style="width:50%">Task</th><th style="width:25%">Portal</th><th style="width:25%">Documentation</th></tr></thead>
                     <tbody>
-                        <tr><td class="ops-task-name">Monitoreo de Incidentes y Alertas</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#monitoreo-de-incidentes-y-alertas" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Gestión y Clasificación de Alertas</td><td><a class="ops-btn portal" href="https://security.microsoft.com/alerts" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#gesti%C3%B3n-y-clasificaci%C3%B3n-de-alertas" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Dispositivos en Riesgo</td><td><a class="ops-btn portal" href="https://security.microsoft.com/machines" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#monitoreo-de-incidentes-y-alertas" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Salud del Sensor y Cobertura EDR</td><td><a class="ops-btn portal" href="https://security.microsoft.com/machines" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#monitoreo-de-incidentes-y-alertas" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Acciones de Respuesta a Incidentes</td><td><a class="ops-btn portal" href="https://security.microsoft.com/action-center/pending" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#monitoreo-de-incidentes-y-alertas" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisión de Threat Analytics</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatanalytics3" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#revisi%C3%B3n-de-threat-analytics" target="_blank">&#x1f4d6; Guía</a></td></tr>
+                        <tr><td class="ops-task-name">Incident and Alert Monitoring</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#monitoreo-de-incidentes-y-alertas" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Alert Management and Classification</td><td><a class="ops-btn portal" href="https://security.microsoft.com/alerts" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#gesti%C3%B3n-y-clasificaci%C3%B3n-de-alertas" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Devices at Risk</td><td><a class="ops-btn portal" href="https://security.microsoft.com/machines" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#monitoreo-de-incidentes-y-alertas" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Sensor Health and EDR Coverage</td><td><a class="ops-btn portal" href="https://security.microsoft.com/machines" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#monitoreo-de-incidentes-y-alertas" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Incident Response Actions</td><td><a class="ops-btn portal" href="https://security.microsoft.com/action-center/pending" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#monitoreo-de-incidentes-y-alertas" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Threat Analytics Review</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatanalytics3" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Guia%20de%20Seguridad%20Operacional%20MDE%20tareas%20diarias.md#revisi%C3%B3n-de-threat-analytics" target="_blank">&#x1f4d6; Guide</a></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Alertas del Workload -->
+        <!-- Workload Alerts -->
         <div class="ops-section" style="margin-top: 30px;">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #d83b01;">
-                    &#x26a0; Alertas del Workload - Top 5 por Criticidad
+                    &#x26a0; Workload Alerts - Top 5 by Criticality
                     <span class="ops-badge daily">Critical/High</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:35%">Alerta</th><th style="width:15%">Severidad</th><th style="width:20%">Portal</th><th style="width:30%">Acción</th></tr></thead>
+                    <thead><tr><th style="width:35%">Alert</th><th style="width:15%">Severity</th><th style="width:20%">Portal</th><th style="width:30%">Action</th></tr></thead>
                     <tbody>
                         <tr>
                             <td colspan="4" style="text-align:center; padding:30px; color:#666;">
-                                <strong>No existen Alertas</strong><br/>
-                                <span style="font-size:0.9em;">No se detectaron alertas activas en el período analizado</span>
+                                <strong>No existen Alerts</strong><br/>
+                                <span style="font-size:0.9em;">No active alerts were detected in the analyzed period</span>
                             </td>
                         </tr>
                     </tbody>
@@ -406,17 +406,17 @@ EmailAttachmentInfo
             </div>
         </div>
 
-        <!-- Recomendación de KQL diario – MDE: Microsoft Defender for Endpoint -->
+        <!-- Daily KQL Recommendation – MDE: Microsoft Defender for Endpoint -->
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #d83b01;">
-                <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – MDE: Microsoft Defender for Endpoint
+                <span class="icon">&#x1f50d;</span> Daily KQL Recommendation – MDE: Microsoft Defender for Endpoint
                 <span class="ops-badge daily">#12</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#d83b01; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Exposición de Dispositivos</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#d83b01; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Device Exposure</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Dispositivos con Exposición Alta o Media</h3>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Devices with High or Medium Exposure</h3>
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">DeviceInfo
 | summarize arg_max(Timestamp, *) by DeviceId
 | where ExposureLevel in ("High","Medium")
@@ -424,8 +424,8 @@ EmailAttachmentInfo
 | order by ExposureLevel asc, Timestamp desc
 | take 50</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Paquete%20MDE%20KQL%20Advance%20Hunting.md#paquete-de-consultas-kql-advanced-hunting-%EF%B8%8F" target="_blank">&#x1f4da; Ver catálogo KQL de MDE: Microsoft Defender for Endpoint</a>
+                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDE/Paquete%20MDE%20KQL%20Advance%20Hunting.md#paquete-de-consultas-kql-advanced-hunting-%EF%B8%8F" target="_blank">&#x1f4da; View KQL Catalog de MDE: Microsoft Defender for Endpoint</a>
                 </div>
             </div>
         </div>
@@ -435,36 +435,36 @@ EmailAttachmentInfo
 
         <h2>MDI: Microsoft Defender for Identity</h2>
 
-        <!-- Tareas Operativas MDI: Microsoft Defender for Identity -->
+        <!-- Operational Tasks MDI: Microsoft Defender for Identity -->
         <div class="ops-section">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #e97a00;">
-                    &#x1f6e1; Tareas Operativas - MDI: Microsoft Defender for Identity
-                    <span class="ops-badge daily">5 Diarias</span>
+                    &#x1f6e1; Operational Tasks - MDI: Microsoft Defender for Identity
+                    <span class="ops-badge daily">5 Daily</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:50%">Tarea</th><th style="width:25%">Portal</th><th style="width:25%">Documentación</th></tr></thead>
+                    <thead><tr><th style="width:50%">Task</th><th style="width:25%">Portal</th><th style="width:25%">Documentation</th></tr></thead>
                     <tbody>
-                        <tr><td class="ops-task-name">Revisar ITDR Dashboard</td><td><a class="ops-btn portal" href="https://security.microsoft.com/identities/dashboard" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#revisar-itdr-dashboard-identities--dashboard" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Triage de Incidentes por Prioridad</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#triage-de-incidentes-por-prioridad-incidents--alerts" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Configurar Tuning para False Positives</td><td><a class="ops-btn portal" href="https://security.microsoft.com/advanced-hunting" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#configurar-tuning-para-benign--false-positives-advanced-hunting" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Proactive hunting diario</td><td><a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#proactive-hunting-diario-o-semanal-seg%C3%BAn-madurez" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisar Health Issues</td><td><a class="ops-btn portal" href="https://security.microsoft.com/identities/health-issues" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#revisar-health-issues-global-y-sensor" target="_blank">&#x1f4d6; Guía</a></td></tr>
+                        <tr><td class="ops-task-name">Review ITDR Dashboard</td><td><a class="ops-btn portal" href="https://security.microsoft.com/identities/dashboard" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#revisar-itdr-dashboard-identities--dashboard" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Incident Triage by Priority</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#triage-de-incidentes-por-prioridad-incidents--alerts" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Configure Tuning for False Positives</td><td><a class="ops-btn portal" href="https://security.microsoft.com/advanced-hunting" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#configurar-tuning-para-benign--false-positives-advanced-hunting" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Daily Proactive Hunting</td><td><a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#proactive-hunting-diario-o-semanal-seg%C3%BAn-madurez" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Review Health Issues</td><td><a class="ops-btn portal" href="https://security.microsoft.com/identities/health-issues" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Gu%C3%ADa%20operativa%20diaria%20de%20Microsoft%20Defender%20for%20Identity.md#revisar-health-issues-global-y-sensor" target="_blank">&#x1f4d6; Guide</a></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Alertas del Workload -->
+        <!-- Workload Alerts -->
         <div class="ops-section" style="margin-top: 30px;">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #e97a00;">
-                    &#x26a0; Alertas del Workload - Top 5 por Criticidad
+                    &#x26a0; Workload Alerts - Top 5 by Criticality
                     <span class="ops-badge daily">Critical/High</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:35%">Alerta</th><th style="width:15%">Severidad</th><th style="width:20%">Portal</th><th style="width:30%">Acción</th></tr></thead>
+                    <thead><tr><th style="width:35%">Alert</th><th style="width:15%">Severity</th><th style="width:20%">Portal</th><th style="width:30%">Action</th></tr></thead>
                     <tbody>
                         <tr>
                             <td colspan="4" style="text-align:center; padding:30px; color:#666;">
-                                <strong>No existen Alertas</strong><br/>
-                                <span style="font-size:0.9em;">No se detectaron alertas activas en el período analizado</span>
+                                <strong>No existen Alerts</strong><br/>
+                                <span style="font-size:0.9em;">No active alerts were detected in the analyzed period</span>
                             </td>
                         </tr>
                     </tbody>
@@ -472,17 +472,17 @@ EmailAttachmentInfo
             </div>
         </div>
 
-        <!-- Recomendación de KQL diario – MDI: Microsoft Defender for Identity -->
+        <!-- Daily KQL Recommendation – MDI: Microsoft Defender for Identity -->
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #e97a00;">
-                <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – MDI: Microsoft Defender for Identity
+                <span class="icon">&#x1f50d;</span> Daily KQL Recommendation – MDI: Microsoft Defender for Identity
                 <span class="ops-badge daily">#5</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#e97a00; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Enumeración LDAP / SAM-R anómala</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#e97a00; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Anomalous LDAP / SAM-R Enumeration</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Enumeración LDAP / SAM-R anómala</h3>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Anomalous LDAP / SAM-R Enumeration</h3>
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">let TimeRange = 1d;
 IdentityQueryEvents
 | where Timestamp >= ago(TimeRange)
@@ -491,8 +491,8 @@ IdentityQueryEvents
 | where QueryCount > 500
 | order by QueryCount desc</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Paquete%20MDI%20KQL%20Advance%20Hunting.md" target="_blank">&#x1f4da; Ver catálogo KQL de MDI: Microsoft Defender for Identity</a>
+                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDI/Paquete%20MDI%20KQL%20Advance%20Hunting.md" target="_blank">&#x1f4da; View KQL Catalog de MDI: Microsoft Defender for Identity</a>
                 </div>
             </div>
         </div>
@@ -502,36 +502,36 @@ IdentityQueryEvents
 
         <h2>ENTRA: Microsoft Entra ID</h2>
 
-        <!-- Tareas Operativas ENTRA: Microsoft Entra ID -->
+        <!-- Operational Tasks ENTRA: Microsoft Entra ID -->
         <div class="ops-section">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #107c10;">
-                    &#x1f510; Tareas Operativas - ENTRA: Microsoft Entra ID
-                    <span class="ops-badge daily">4 Diarias</span>
+                    &#x1f510; Operational Tasks - ENTRA: Microsoft Entra ID
+                    <span class="ops-badge daily">4 Daily</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:50%">Tarea</th><th style="width:25%">Portal</th><th style="width:25%">Documentación</th></tr></thead>
+                    <thead><tr><th style="width:50%">Task</th><th style="width:25%">Portal</th><th style="width:25%">Documentation</th></tr></thead>
                     <tbody>
-                        <tr><td class="ops-task-name">Monitorear eventos de inicio de sesión</td><td><a class="ops-btn portal" href="https://entra.microsoft.com/#view/Microsoft_AAD_IAM/SignInLogsList.ReactView/timeRangeType/last24hours/showApplicationSignIns~/true" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20Microsoft%20EntraID%20Diaria.md#monitorear-eventos-de-inicio-de-sesi%C3%B3n-y-autenticaci%C3%B3n" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisión de Usuarios con Riesgo</td><td><a class="ops-btn portal" href="https://portal.azure.com/#view/Microsoft_AAD_IAM/SecurityMenuBlade/~/RiskyUsers" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20Microsoft%20EntraID%20Diaria.md#revisi%C3%B3n-de-usuarios-con-riesgo-alto--medio" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisión de Inicios de Sesión con Riesgo</td><td><a class="ops-btn portal" href="https://portal.azure.com/#view/Microsoft_AAD_IAM/SecurityMenuBlade/~/RiskySignIns" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20Microsoft%20EntraID%20Diaria.md#revisi%C3%B3n-de-inicios-de-sesi%C3%B3n-con-riesgo" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Revisar alertas de Entra Connect Health</td><td><a class="ops-btn portal" href="https://entra.microsoft.com/#view/Microsoft_AAD_Connect_Health/ConnectHealthMenuBlade/~/overview" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20Microsoft%20EntraID%20Diaria.md#revisar-alertas-de-microsoft-entra-connect-health-entornos-h%C3%ADbridos" target="_blank">&#x1f4d6; Guía</a></td></tr>
+                        <tr><td class="ops-task-name">Monitor sign-in events</td><td><a class="ops-btn portal" href="https://entra.microsoft.com/#view/Microsoft_AAD_IAM/SignInLogsList.ReactView/timeRangeType/last24hours/showApplicationSignIns~/true" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20Microsoft%20EntraID%20Diaria.md#monitorear-eventos-de-inicio-de-sesi%C3%B3n-y-autenticaci%C3%B3n" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">At-Risk Users Review</td><td><a class="ops-btn portal" href="https://portal.azure.com/#view/Microsoft_AAD_IAM/SecurityMenuBlade/~/RiskyUsers" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20Microsoft%20EntraID%20Diaria.md#revisi%C3%B3n-de-usuarios-con-riesgo-alto--medio" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Risky Sign-Ins Review</td><td><a class="ops-btn portal" href="https://portal.azure.com/#view/Microsoft_AAD_IAM/SecurityMenuBlade/~/RiskySignIns" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20Microsoft%20EntraID%20Diaria.md#revisi%C3%B3n-de-inicios-de-sesi%C3%B3n-con-riesgo" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Review Entra Connect Health alerts</td><td><a class="ops-btn portal" href="https://entra.microsoft.com/#view/Microsoft_AAD_Connect_Health/ConnectHealthMenuBlade/~/overview" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Gu%C3%ADa%20Operacional%20Microsoft%20EntraID%20Diaria.md#revisar-alertas-de-microsoft-entra-connect-health-entornos-h%C3%ADbridos" target="_blank">&#x1f4d6; Guide</a></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Alertas del Workload -->
+        <!-- Workload Alerts -->
         <div class="ops-section" style="margin-top: 30px;">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #107c10;">
-                    &#x26a0; Alertas del Workload - Top 5 por Criticidad
+                    &#x26a0; Workload Alerts - Top 5 by Criticality
                     <span class="ops-badge daily">Critical/High</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:35%">Alerta</th><th style="width:15%">Severidad</th><th style="width:20%">Portal</th><th style="width:30%">Acción</th></tr></thead>
+                    <thead><tr><th style="width:35%">Alert</th><th style="width:15%">Severity</th><th style="width:20%">Portal</th><th style="width:30%">Action</th></tr></thead>
                     <tbody>
                         <tr>
                             <td colspan="4" style="text-align:center; padding:30px; color:#666;">
-                                <strong>No existen Alertas</strong><br/>
-                                <span style="font-size:0.9em;">No se detectaron alertas activas en el período analizado</span>
+                                <strong>No existen Alerts</strong><br/>
+                                <span style="font-size:0.9em;">No active alerts were detected in the analyzed period</span>
                             </td>
                         </tr>
                     </tbody>
@@ -539,17 +539,17 @@ IdentityQueryEvents
             </div>
         </div>
 
-        <!-- Recomendación de KQL diario – ENTRA: Microsoft Entra ID -->
+        <!-- Daily KQL Recommendation – ENTRA: Microsoft Entra ID -->
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #107c10;">
-                <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – ENTRA: Microsoft Entra ID
+                <span class="icon">&#x1f50d;</span> Daily KQL Recommendation – ENTRA: Microsoft Entra ID
                 <span class="ops-badge daily">#24</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                    <span style="background:rgba(0,0,0,0.1); color:#107c10; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Triaje – "Pivots" rápidos (de señal a contexto)</span>
+                    <span style="background:rgba(0,0,0,0.1); color:#107c10; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Triage – Quick "Pivots" (from signal to context)</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Pivote por CorrelationId (sign-in específico)</h3>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Pivot by CorrelationId (specific sign-in)</h3>
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">let Correlation = "<paste-correlation-id>";
 EntraIdSignInEvents
 | where CorrelationId == Correlation
@@ -558,8 +558,8 @@ EntraIdSignInEvents
           RiskLevelAggregated, RiskState, RiskDetails, UserAgent, ClientAppUsed, EntraIdDeviceId, DeviceName
 | order by Timestamp desc</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Paquete%20KQL%20Queries%20EntraID%20Advanced%20Hunting.md" target="_blank">&#x1f4da; Ver catálogo KQL de ENTRA: Microsoft Entra ID</a>
+                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/EntraID/Paquete%20KQL%20Queries%20EntraID%20Advanced%20Hunting.md" target="_blank">&#x1f4da; View KQL Catalog de ENTRA: Microsoft Entra ID</a>
                 </div>
             </div>
         </div>
@@ -569,36 +569,36 @@ EntraIdSignInEvents
 
         <h2>MDA: Microsoft Defender for Cloud Apps</h2>
 
-        <!-- Tareas Operativas MDA: Microsoft Defender for Cloud Apps -->
+        <!-- Operational Tasks MDA: Microsoft Defender for Cloud Apps -->
         <div class="ops-section">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #8764b8;">
-                    &#x2601; Tareas Operativas - MDA: Microsoft Defender for Cloud Apps
-                    <span class="ops-badge daily">10 Diarias</span>
+                    &#x2601; Operational Tasks - MDA: Microsoft Defender for Cloud Apps
+                    <span class="ops-badge daily">10 Daily</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:50%">Tarea</th><th style="width:25%">Portal</th><th style="width:25%">Documentación</th></tr></thead>
+                    <thead><tr><th style="width:50%">Task</th><th style="width:25%">Portal</th><th style="width:25%">Documentation</th></tr></thead>
                     <tbody>
-                        <tr><td class="ops-task-name">Review Alerts and Incidents</td><td><a class="ops-btn portal" href="https://security.microsoft.com/alerts" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#review-alerts-and-incidents" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Triage desde Microsoft Defender XDR</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#triage-desde-microsoft-defender-xdr" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Review Threat Detection Data</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatanalytics3" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#review-threat-detection-data" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Application Governance - OAuth Risk</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/governance-log" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#application-governance--oauth-risk" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">App Governance - Overview</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/governance-log" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#app-governance--overview" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Review OAuth App Data</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/oauth-apps" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#review-oauth-app-data" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">App Governance Policies</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/policies/management" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#review-alerts-and-incidents" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Conditional Access App Control</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/policies/management?tab=conditionalAccessPolicies" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#conditional-access-app-control" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Shadow IT - Cloud Discovery</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/discovery" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#shadow-it--cloud-discovery" target="_blank">&#x1f4d6; Guía</a></td></tr>                        <tr><td class="ops-task-name">Cloud Discovery Dashboard</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/discovery" target="_blank">&#x1f517; Abrir</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#cloud-discovery-dashboard" target="_blank">&#x1f4d6; Guía</a></td></tr>
+                        <tr><td class="ops-task-name">Review Alerts and Incidents</td><td><a class="ops-btn portal" href="https://security.microsoft.com/alerts" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#review-alerts-and-incidents" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Triage from Microsoft Defender XDR</td><td><a class="ops-btn portal" href="https://security.microsoft.com/incidents" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#triage-desde-microsoft-defender-xdr" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Review Threat Detection Data</td><td><a class="ops-btn portal" href="https://security.microsoft.com/threatanalytics3" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#review-threat-detection-data" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Application Governance - OAuth Risk</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/governance-log" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#application-governance--oauth-risk" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">App Governance - Overview</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/governance-log" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#app-governance--overview" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Review OAuth App Data</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/oauth-apps" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#review-oauth-app-data" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">App Governance Policies</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/policies/management" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#review-alerts-and-incidents" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Conditional Access App Control</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/policies/management?tab=conditionalAccessPolicies" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#conditional-access-app-control" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Shadow IT - Cloud Discovery</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/discovery" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#shadow-it--cloud-discovery" target="_blank">&#x1f4d6; Guide</a></td></tr>                        <tr><td class="ops-task-name">Cloud Discovery Dashboard</td><td><a class="ops-btn portal" href="https://security.microsoft.com/cloudapps/discovery" target="_blank">&#x1f517; Open</a></td><td><a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Gu%C3%ADa%20de%20Seguridad%20Operacional%20MDA%20tareas%20diarias.md#cloud-discovery-dashboard" target="_blank">&#x1f4d6; Guide</a></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Alertas del Workload -->
+        <!-- Workload Alerts -->
         <div class="ops-section" style="margin-top: 30px;">
             <div class="ops-group">
                 <div class="ops-group-header" style="background: #8764b8;">
-                    &#x26a0; Alertas del Workload - Top 5 por Criticidad
+                    &#x26a0; Workload Alerts - Top 5 by Criticality
                     <span class="ops-badge daily">Critical/High</span>
                 </div>
                 <table class="ops-table">
-                    <thead><tr><th style="width:35%">Alerta</th><th style="width:15%">Severidad</th><th style="width:20%">Portal</th><th style="width:30%">Acción</th></tr></thead>
+                    <thead><tr><th style="width:35%">Alert</th><th style="width:15%">Severity</th><th style="width:20%">Portal</th><th style="width:30%">Action</th></tr></thead>
                     <tbody>
                         <tr>
                             <td colspan="4" style="text-align:center; padding:30px; color:#666;">
-                                <strong>No existen Alertas</strong><br/>
-                                <span style="font-size:0.9em;">No se detectaron alertas activas en el período analizado</span>
+                                <strong>No existen Alerts</strong><br/>
+                                <span style="font-size:0.9em;">No active alerts were detected in the analyzed period</span>
                             </td>
                         </tr>
                     </tbody>
@@ -606,17 +606,17 @@ EntraIdSignInEvents
             </div>
         </div>
 
-        <!-- Recomendación de KQL diario – MDA: Microsoft Defender for Cloud Apps -->
+        <!-- Daily KQL Recommendation – MDA: Microsoft Defender for Cloud Apps -->
         <div class="ops-group" style="margin-top: 20px;">
             <div class="ops-group-header" style="background: #8764b8;">
-                <span class="icon">&#x1f50d;</span> Recomendación de KQL diario – MDA: Microsoft Defender for Cloud Apps
+                <span class="icon">&#x1f50d;</span> Daily KQL Recommendation – MDA: Microsoft Defender for Cloud Apps
                 <span class="ops-badge daily">#4</span>
             </div>
             <div style="padding: 20px;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
                     <span style="background:rgba(0,0,0,0.1); color:#8764b8; padding:3px 10px; border-radius:4px; font-size:0.78em; font-weight:600;">Shadow IT</span>
                 </div>
-                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">Aplicaciones Nuevas (Primera Vez Vistas en 7d)</h3>
+                <h3 style="margin:0 0 12px 0; color:var(--secondary-color); font-size:1.05em;">New Applications (First Seen in 7d)</h3>
                 <div style="background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:6px; font-family:'Cascadia Code','Consolas',monospace; font-size:0.82em; line-height:1.6; overflow-x:auto; white-space:pre-wrap;">let Lookback = 7d;
 let Baseline = 60d;
 let recent = CloudAppEvents
@@ -629,34 +629,34 @@ recent
 | join kind=leftanti historical on Application
 | order by Events desc</div>
                 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Ejecutar en Advanced Hunting</a>
-                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Paquete%20MDA%20KQL%20Advance%20Hunting.md" target="_blank">&#x1f4da; Ver catálogo KQL de MDA: Microsoft Defender for Cloud Apps</a>
+                    <a class="ops-btn portal" href="https://security.microsoft.com/v2/advanced-hunting" target="_blank">&#x1f517; Run in Advanced Hunting</a>
+                    <a class="ops-btn doc" href="https://github.com/watchdogcode/gol2026/blob/main/MDA/Paquete%20MDA%20KQL%20Advance%20Hunting.md" target="_blank">&#x1f4da; View KQL Catalog de MDA: Microsoft Defender for Cloud Apps</a>
                 </div>
             </div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════ -->
-        <!-- ═══ SECCIÓN XDR: Alertas e Incidentes Consolidados ═══ -->
+        <!-- ═══ SECCIÓN XDR: Consolidated Alerts and Incidents ═══ -->
         <!-- ═══════════════════════════════════════════════════════ -->
 
-        <h2>XDR: Alertas e Incidentes Consolidados</h2>
+        <h2>XDR: Consolidated Alerts and Incidents</h2>
 
-        <h3>Alertas por Servicio y Severidad</h3>
+        <h3>Alerts by Service and Severity</h3>
         <div style="margin-bottom:10px;">
             <a href="https://security.microsoft.com/alerts" target="_blank" rel="noopener noreferrer"
                style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#0078d4;color:#fff;text-decoration:none;border-radius:4px;font-size:0.85em;font-weight:600;">
-                &#x1F6E1; Ver Alertas en Microsoft Defender XDR
+                &#x1F6E1; View Alerts in Microsoft Defender XDR
             </a>
         </div>
         <div class="table-container">
             <table>
-                <thead><tr><th>Servicio</th><th>Severidad</th><th>Cantidad</th></tr></thead>
+                <thead><tr><th>Service</th><th>Severity</th><th>Count</th></tr></thead>
                 <tbody><tr><td>Microsoft Defender XDR</td><td>High</td><td>14</td></tr></tbody>
             </table>
         </div>
 
         <div class="footer">
-            Generado por Operaciones de Seguridad Automatizadas | Microsoft 365 Defender XDR
+            Generated by Automated Security Operations | Microsoft 365 Defender XDR
         </div>
     </div>
 </body>
