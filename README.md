@@ -16,8 +16,8 @@ This repository contains the complete security operations framework for organiza
 - **KQL query packages** for Advanced Hunting focused on detection, triage, and investigation.
 - **Automated HTML reports** (daily and weekly) that transform technical telemetry into actionable information for the CISO and SecOps team.
 
-![Report](XDR/Imagen.png)
-![Report](XDR/Imagen2.png)
+![Daily Report](XDR/DailyReport.png)
+![Weekly Report](XDR/WeeklyReport.png)
 
 ### Business Value
 
